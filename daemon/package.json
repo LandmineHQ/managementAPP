@@ -1,0 +1,35 @@
+{
+  "name": "daemon",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "cross-env NODE_ENV=production tsx -r tsconfig-paths/register bin/app.ts",
+    "dev": "cross-env NODE_ENV=development tsx watch --clear-screen=false -r tsconfig-paths/register bin/app.ts",
+    "test": "cross-env NODE_ENV=test tsx -r tsconfig-paths/register helloPino.ts"
+  },
+  "dependencies": {
+    "config": "^3.3.11",
+    "cookie-parser": "~1.4.4",
+    "dayjs": "^1.11.10",
+    "dotenv": "^16.4.5",
+    "express": "~4.16.1",
+    "http-status-codes": "^2.3.0",
+    "morgan": "~1.9.1",
+    "pino": "^8.20.0",
+    "pino-multi-stream": "^6.0.0",
+    "socket.io": "^4.7.5",
+    "tsx": "^4.7.2"
+  },
+  "devDependencies": {
+    "@types/config": "^3.3.4",
+    "@types/express": "^4.17.21",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^20.12.7",
+    "@types/pino": "^7.0.5",
+    "@types/pino-multi-stream": "^5.1.6",
+    "cross-env": "^7.0.3",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.4.5"
+  }
+}
