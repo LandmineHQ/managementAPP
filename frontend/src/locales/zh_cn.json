@@ -1,0 +1,7 @@
+{
+    "version": "0.0.1",
+    "tabBar.management": "管理",
+    "tabBar.data": "数据",
+    "tabBar.messages": "消息",
+    "tabBar.user": "用户"
+}

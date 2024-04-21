@@ -12,6 +12,7 @@
     }
   ],
   "compilerOptions": {
-    "module": "NodeNext"
+    "module": "NodeNext",
+    "types": ["@intlify/unplugin-vue-i18n/messages"]
   }
 }

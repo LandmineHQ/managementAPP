@@ -5,9 +5,9 @@ import { Socket } from "socket.io";
  * 初始化
  */
 function setupSocketEvent(socket: Socket) {
-  addEventListener(socket, "MyCustomEvent", handleMyCustomEvent);
-  addEventListener(socket, "Disconnect", handleDisconnect);
-  addEventListener(socket, "Error", handleError);
+  addEventListener(socket, "message", handleMyCustomEvent);
+  addEventListener(socket, "disconnect", handleDisconnect);
+  addEventListener(socket, "error", handleError);
 }
 
 function handleMyCustomEvent(socket: Socket) {}
