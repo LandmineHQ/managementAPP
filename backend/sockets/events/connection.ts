@@ -1,3 +1,4 @@
+import { SOCKET } from "@sockets";
 import log from "@utils/logger";
 import { Socket } from "socket.io";
 
@@ -5,21 +6,26 @@ import { Socket } from "socket.io";
  * 初始化
  */
 function setupSocketEvent(socket: Socket) {
-  addEventListener(socket, "message", handleMyCustomEvent);
-  addEventListener(socket, "disconnect", handleDisconnect);
-  addEventListener(socket, "error", handleError);
+  addEventListener(socket, SOCKET.MESSAGE, handleMessage);
+  addEventListener(socket, SOCKET.DISCONNECT, handleDisconnect);
+  addEventListener(socket, SOCKET.ERROR, handleError);
 }
 
-function handleMyCustomEvent(socket: Socket) {}
+function handleMessage(socket: Socket, data: any) {
+  socket.send(data);
+}
 
 function handleDisconnect(socket: Socket) {}
 
 function handleError(socket: Socket) {}
-// 事件监听器函数
+
+export default setupSocketEvent;
+
+// 添加事件监听器函数
 function addEventListener(
   socket: Socket,
   event: string,
-  handle: (data: any) => void
+  handle: (socket: Socket, data: any) => void
 ) {
   socket.on(event, (data) => {
     // 自动记录每个事件的调用
@@ -28,8 +34,6 @@ function addEventListener(
         data
       )} from socket ID: ${socket.id}`
     );
-    handle(data);
+    handle(socket, data);
   });
 }
-
-export default setupSocketEvent;

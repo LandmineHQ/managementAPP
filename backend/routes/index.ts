@@ -1,13 +1,20 @@
 import express from "express";
 import { StatusCodes } from "http-status-codes";
 import usersRouter from "./users";
-const router = express.Router();
+import ROUTER_NAME from "./config";
 
-/* GET home page. */
-router.get("/", (req, res, next) => {
-  res.status(StatusCodes.OK).send("县域工业企业数智化管理APP平台 API接口");
-});
+function createRouter() {
+  const router = express.Router();
 
-router.use("/user", usersRouter);
+  /* GET ROOT page. */
+  router.get(`${ROUTER_NAME.ROOT}`, (req, res, next) => {
+    res.status(StatusCodes.OK).send("县域工业企业数智化管理APP平台 API接口");
+  });
 
-export default router;
+  router.use(`/${ROUTER_NAME.USER}`, usersRouter());
+
+  return router;
+}
+
+export default createRouter;
+export { ROUTER_NAME };

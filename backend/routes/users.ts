@@ -2,13 +2,17 @@ import { NextFunction, Request, Response } from "express";
 import express from "express";
 import { StatusCodes } from "http-status-codes";
 
-const router = express.Router();
+function createRouter() {
+  const router = express.Router();
 
-/* GET users listing. */
-const requestHanlder = (req: Request, res: Response, next: NextFunction) => {
-  res.status(StatusCodes.OK).send("respond with a resource");
-};
+  /* GET users listing. */
+  const requestHanlder = (req: Request, res: Response, next: NextFunction) => {
+    res.status(StatusCodes.OK).send("respond with a resource");
+  };
 
-router.get("/", requestHanlder);
+  router.get("/", requestHanlder);
 
-export default router;
+  return router;
+}
+
+export default createRouter;

@@ -1,20 +1,18 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+import express from "express";
+import cookieParser from "cookie-parser";
+import logger from "morgan";
+import createRouter from "@routes";
+import initMiddleware from "@middleware";
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const app = express();
 
-var app = express();
-
-app.use(logger('dev'));
-app.use(express.json());
+app.use(logger("dev"));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+// 挂载中间件
+initMiddleware(app);
+// 挂载路由
+app.use(createRouter());
 
-module.exports = app;
+export default app;

@@ -1,10 +1,23 @@
-import { Socket, Server as SocketIOServer } from "socket.io";
+import { ServerOptions, Server as SocketIOServer } from "socket.io";
 import log from "@utils/logger";
-import { Server } from "http";
+import { Server as HTTPServer } from "http";
 import setupSocketEvent from "./events/connection";
 
-function setupSocket(server: Server) {
-  const io = new SocketIOServer(server);
+enum SOCKET {
+  CONNECT = "connect",
+  DISCONNECT = "disconnect",
+  ERROR = "error",
+  MESSAGE = "message",
+}
+
+function setupSocket(server: HTTPServer) {
+  const options = {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"],
+    },
+  } as ServerOptions;
+  const io = new SocketIOServer(server, options);
 
   io.on("connection", (socket) => {
     // 记录新用户连接
@@ -19,3 +32,4 @@ function setupSocket(server: Server) {
 }
 
 export default setupSocket;
+export { SOCKET };

@@ -2,11 +2,13 @@ import { Express } from "express";
 import express from "express";
 import responseHeader from "./responseHeader";
 import logRequest from "./logRequest";
+import log from "@utils/logger";
 
 function initMiddleware(app: Express) {
   app.use(express.json());
   app.use(responseHeader);
   app.use(logRequest);
+  log.info("中间件初始化完毕");
 }
 
 export default initMiddleware;

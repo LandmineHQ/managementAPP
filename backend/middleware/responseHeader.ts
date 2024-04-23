@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-const responseHeader = (req: Request, res: Response, next: NextFunction) => {
+function responseHeader(req: Request, res: Response, next: NextFunction) {
   const { origin, Origin, referer, Referer } = req.headers;
 
   let allowOrigin: string | string[] | undefined;
@@ -27,6 +27,6 @@ const responseHeader = (req: Request, res: Response, next: NextFunction) => {
   } else {
     next();
   }
-};
+}
 
 export default responseHeader;

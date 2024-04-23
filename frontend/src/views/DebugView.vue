@@ -1,38 +1,35 @@
 <script setup lang="ts">
+import { getUser } from '@/api'
+import HeaderPage from '@/components/HeaderPage.vue'
 import { useDark, useToggle } from '@vueuse/core'
-import { ElContainer, ElMain, ElButton, ElCard, ElHeader, ElPageHeader, ElText } from 'element-plus'
-import { useRoute } from 'vue-router'
+import { ElContainer, ElMain, ElButton, ElHeader, ElScrollbar, ElAside } from 'element-plus'
 
 const isDark = useDark()
 const darkToggle = useToggle(isDark)
-const route = useRoute()
+
+function click() {
+  getUser()
+}
 </script>
 
 <template>
   <ElContainer>
-    <ElHeader>
-      <ElPageHeader>
-        <template #title>
-          <ElText type="info" size="large">
-            {{ route.name }}
-          </ElText>
-        </template>
-      </ElPageHeader>
+    <ElHeader height="auto">
+      <HeaderPage />
     </ElHeader>
-    <ElMain>
-      <ElButton size="large" type="danger" @click="darkToggle()">{{
-        `isDark: ${isDark}`
-      }}</ElButton>
-    </ElMain>
-    <el-card style="max-width: 480px">
-      <template #header>
-        <div class="card-header">
-          <span>Card name</span>
-        </div>
-      </template>
-      <p v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</p>
-      <template #footer>Footer content</template>
-    </el-card>
+    <ElContainer>
+      <ElAside width="auto">
+        <ElScrollbar></ElScrollbar>
+      </ElAside>
+      <ElMain>
+        <ElScrollbar>
+          <ElButton size="large" type="danger" @click="darkToggle()">
+            {{ `isDark: ${isDark}` }}
+          </ElButton>
+          <ElButton @click="click">按钮</ElButton>
+        </ElScrollbar>
+      </ElMain>
+    </ElContainer>
   </ElContainer>
 </template>
 

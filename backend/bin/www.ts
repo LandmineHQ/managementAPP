@@ -1,35 +1,28 @@
 #!/usr/bin/env tsx
+log.info(`
++-----------------------------------+
+|                                   |
+|   县域工业企业数智化管理平台APP   |
+|            launching              |
++-----------------------------------+
+`);
 
-/**
- * Module dependencies.
- */
 // 加载环境变量
 import "dotenv/config";
 import { findAvailablePort } from "./envDetect";
 
-import express from "express";
 import http from "http";
 import log from "@utils/logger";
 import { onExit as loggerOnExit } from "@utils/logger";
 import config from "config";
-import initMiddleware from "@middleware/index";
-import router from "@routes/index";
 import setupSocket from "@sockets/index";
-
-const app = express();
+import app from "@app";
 
 /**
  * Get port from environment and store in Express.
  */
 const port = await findAvailablePort();
 const host = config.get<string>("host");
-app.set("port", port);
-app.set("host", host);
-
-// 挂载中间件
-initMiddleware(app);
-// 挂载路由
-app.use(router);
 
 /**
  * Create HTTP server.
@@ -46,15 +39,15 @@ server.on("error", onError);
 server.on("listening", onListening);
 server.on("close", onExit);
 
-/**
- * 程序退出时关闭server
- */
+/* 程序退出时关闭server */
 process.once("SIGINT", (...args) => {
   log.info(args.toString());
   server.close(() => {
     process.exit(0); // 可选：确保进程退出
   });
 });
+
+/* 函数 */
 
 /**
  * Event listener for HTTP server "error" event.
@@ -92,13 +85,6 @@ function onListening() {
   } else if (typeof addr === "object") {
     bind = `http://${addr.address}:${addr.port}`;
   }
-  log.info(`
-+-----------------------------------+
-|                                   |
-|   县域工业企业数智化管理平台APP   |
-|            launching              |
-+-----------------------------------+
-`);
   log.info("Listening on " + bind);
 }
 
