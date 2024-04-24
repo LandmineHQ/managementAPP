@@ -2,12 +2,12 @@
 import type { PropType } from 'vue'
 import TabBarItem from '@/components/TabBarItem.vue'
 import type { ExtractPropTypes } from 'vue'
-import { readonly } from 'vue'
+import { ROUTER_NAME } from '@/router'
 
 const props = defineProps({
   selected: {
-    type: String as PropType<'management' | 'data' | 'messages' | 'user'>,
-    default: 'management'
+    type: String as PropType<(typeof ROUTER_NAME)[keyof typeof ROUTER_NAME]>,
+    default: ROUTER_NAME.MANAGEMENT
   },
   light: {
     type: Boolean,
@@ -20,12 +20,17 @@ const props = defineProps({
 })
 
 const emit = defineEmits({
-  'update:selected': (value: typeof props.selected) => value
+  'update:selected': (value: ROUTER_NAME) => value
 })
 
-const tablist: (typeof props.selected)[] = ['management', 'data', 'messages', 'user']
+const tablist: ROUTER_NAME[] = [
+  ROUTER_NAME.MANAGEMENT,
+  ROUTER_NAME.DATA,
+  ROUTER_NAME.MESSAGES,
+  ROUTER_NAME.USER
+]
 
-function handleSelect(selected: typeof props.selected) {
+function handleSelect(selected: ROUTER_NAME) {
   emit('update:selected', selected)
 }
 
@@ -43,8 +48,8 @@ export type TabBarProps = ExtractPropTypes<{
     }"
   >
     <TabBarItem
-      v-for="(name, index) in 4"
-      :key="name"
+      v-for="(item, index) in tablist"
+      :key="item"
       :icon-name="tablist[index]"
       :selected
       @click="handleSelect(tablist[index])"

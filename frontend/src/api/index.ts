@@ -1,13 +1,23 @@
 // @ts-ignore
-import ROUTER_NAME from '#/routes/config'
 import axios from 'axios'
 
-const HOST = 'http://192.168.31.11:3001'
+const DAEMON_HOST = 'http://192.168.31.11:3001'
 
-function getUser() {
-  axios.get(`${HOST}/${ROUTER_NAME.USER}`).then((response) => {
-    console.log(response.data)
-  })
+function initAxios() {
+  axios.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem('token')
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+        config.headers['Content-Type'] = 'application/json'
+      }
+      return config
+    },
+    (error) => {
+      return Promise.reject(error)
+    }
+  )
 }
 
-export { getUser }
+export default initAxios
+export { DAEMON_HOST }

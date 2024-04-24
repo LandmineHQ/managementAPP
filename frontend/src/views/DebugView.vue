@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { getUser } from '@/api'
+import ROUTER_NAME from '#/routes/config'
+import { DAEMON_HOST } from '@/api'
 import HeaderPage from '@/components/HeaderPage.vue'
 import { useDark, useToggle } from '@vueuse/core'
+import axios from 'axios'
 import { ElContainer, ElMain, ElButton, ElHeader, ElScrollbar, ElAside } from 'element-plus'
 
 const isDark = useDark()
 const darkToggle = useToggle(isDark)
 
-function click() {
-  getUser()
+function click1() {
+  axios
+    .post(`${DAEMON_HOST}/${ROUTER_NAME.AUTH}`, { msg: 'hello world' })
+    .then((res) => console.log(res))
 }
+function click2() {}
 </script>
 
 <template>
@@ -26,7 +31,8 @@ function click() {
           <ElButton size="large" type="danger" @click="darkToggle()">
             {{ `isDark: ${isDark}` }}
           </ElButton>
-          <ElButton @click="click">按钮</ElButton>
+          <ElButton @click="click1" type="primary" size="large">按钮1</ElButton>
+          <ElButton @click="click2" size="large">按钮2</ElButton>
         </ElScrollbar>
       </ElMain>
     </ElContainer>

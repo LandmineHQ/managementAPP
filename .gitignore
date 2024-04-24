@@ -85,5 +85,6 @@ typings/
 # next.js build output
 .next
 
-# 环境变量设置
-.env
+# auto generation d.ts
+frontend/src/auto-imports.d.ts
+frontend/src/components.d.ts

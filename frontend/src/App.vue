@@ -2,8 +2,9 @@
 import { RouterView } from 'vue-router'
 import NotificationBar from '@/components/NotificationBar.vue'
 import TabBar, { type TabBarProps } from '@/components/TabBar.vue'
-import { reactive } from 'vue'
-import router from './router'
+import { reactive, watch } from 'vue'
+import router, { ROUTER_NAME } from './router'
+import axios from 'axios'
 
 const appConfig = reactive({
   notificationBar: {
@@ -12,14 +13,25 @@ const appConfig = reactive({
   tabBar: {
     light: true,
     placeholder: false,
-    selected: 'management'
+    selected: ROUTER_NAME.MANAGEMENT
   } as TabBarProps
 })
 
-function changeTabBarSelected(selected: TabBarProps['selected']) {
-  appConfig.tabBar.selected = selected
+function changeTabBarSelected(selected: ROUTER_NAME) {
   router.push(`/${selected}`)
 }
+
+// Watch for route changes and update the tabBar.selected accordingly
+watch(
+  () => router.currentRoute.value,
+  (newRoute) => {
+    const newSelected = newRoute.path.substring(1) // Remove the leading '/'
+    if (newSelected !== appConfig.tabBar.selected) {
+      appConfig.tabBar.selected = newRoute.name as (typeof ROUTER_NAME)[keyof typeof ROUTER_NAME]
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>

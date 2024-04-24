@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 enum ROUTER_NAME {
+  ROOT = '',
   MANAGEMENT = 'management',
   DATA = 'data',
   MESSAGES = 'messages',

@@ -1,6 +1,7 @@
 import express from "express";
 import { StatusCodes } from "http-status-codes";
-import usersRouter from "./users";
+import userRouter from "./users";
+import authRouter from "./auth";
 import ROUTER_NAME from "./config";
 
 function createRouter() {
@@ -11,10 +12,10 @@ function createRouter() {
     res.status(StatusCodes.OK).send("县域工业企业数智化管理APP平台 API接口");
   });
 
-  router.use(`/${ROUTER_NAME.USER}`, usersRouter());
+  router.use(`/${ROUTER_NAME.USER}`, userRouter());
+  router.use(`/${ROUTER_NAME.AUTH}`, authRouter());
 
   return router;
 }
 
 export default createRouter;
-export { ROUTER_NAME };

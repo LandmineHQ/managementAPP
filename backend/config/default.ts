@@ -7,11 +7,4 @@ const config = {
   nodeEnv: process.env.NODE_ENV || "production",
 };
 
-// 开发模式
-if (process.env.NODE_ENV === "development") {
-  config.port = "3000";
-  config.host = "0.0.0.0";
-  config.logLevel = "debug";
-}
-
 export default config;
