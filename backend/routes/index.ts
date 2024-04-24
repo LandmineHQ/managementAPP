@@ -1,8 +1,9 @@
 import express from "express";
 import { StatusCodes } from "http-status-codes";
+import ROUTER_NAME from "./config";
 import userRouter from "./users";
 import authRouter from "./auth";
-import ROUTER_NAME from "./config";
+import testRouter from "./test";
 
 function createRouter() {
   const router = express.Router();
@@ -14,6 +15,7 @@ function createRouter() {
 
   router.use(`/${ROUTER_NAME.USER}`, userRouter());
   router.use(`/${ROUTER_NAME.AUTH}`, authRouter());
+  router.use(`/${ROUTER_NAME.TEST}`, testRouter());
 
   return router;
 }

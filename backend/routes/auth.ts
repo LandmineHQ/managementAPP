@@ -5,10 +5,6 @@ import { StatusCodes } from "http-status-codes";
 function createRouter() {
   const route = express.Router();
 
-  route.get("/", (req, res, next) => {
-    res.status(200).send(ROUTER_NAME.AUTH);
-  });
-
   route.post("/", requestHandler);
 
   return route;

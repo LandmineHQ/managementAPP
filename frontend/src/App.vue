@@ -18,6 +18,7 @@ const appConfig = reactive({
 })
 
 function changeTabBarSelected(selected: ROUTER_NAME) {
+  console.log('changeTabBarSelected', selected)
   router.push(`/${selected}`)
 }
 
@@ -39,7 +40,11 @@ watch(
     <NotificationBar :height="appConfig.notificationBar.height" />
   </header>
   <main>
-    <router-view></router-view>
+    <router-view v-slot="{ Component }">
+      <keep-alive>
+        <component :is="Component" />
+      </keep-alive>
+    </router-view>
   </main>
   <footer>
     <TabBar

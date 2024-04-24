@@ -1,4 +1,7 @@
+import ROUTER_NAME, { ROUTER_NEED_TOKEN } from "@routes/config";
 import { Request, Response, NextFunction } from "express";
+import { StatusCodes } from "http-status-codes";
+import path from "path";
 
 function responseHeader(req: Request, res: Response, next: NextFunction) {
   const { origin, Origin, referer, Referer } = req.headers;
@@ -23,10 +26,32 @@ function responseHeader(req: Request, res: Response, next: NextFunction) {
 
   // 预检返回204
   if (req.method == "OPTIONS") {
-    res.sendStatus(204);
-  } else {
-    next();
+    res.sendStatus(StatusCodes.NO_CONTENT);
+    return;
   }
+
+  if (validateToken(req, res, next) === false) {
+    // 鉴权失败
+    res.sendStatus(StatusCodes.UNAUTHORIZED);
+    return;
+  }
+
+  next();
 }
 
 export default responseHeader;
+
+function validateToken(req: Request, res: Response, next: NextFunction) {
+  let validateToken: boolean = true;
+  // 无token，进行路由检测
+  if (!req.headers.authorization) {
+    // 访问路由是否需要 TOEKN
+    for (let route of ROUTER_NEED_TOKEN) {
+      if (req.path.includes(route)) {
+        validateToken = false;
+      }
+    }
+  }
+
+  return validateToken;
+}

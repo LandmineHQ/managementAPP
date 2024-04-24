@@ -3,6 +3,7 @@ import express from "express";
 import responseHeader from "./responseHeader";
 import logRequest from "./logRequest";
 import log from "@utils/logger";
+import unResovled from "./unResolved";
 
 function initMiddleware(app: Express) {
   app.use(express.json());
@@ -11,4 +12,9 @@ function initMiddleware(app: Express) {
   log.info("中间件初始化完毕");
 }
 
+function inifMiddleareAfterMountedRouter(app: Express) {
+  app.use(unResovled);
+}
+
 export default initMiddleware;
+export { inifMiddleareAfterMountedRouter };

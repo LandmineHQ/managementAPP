@@ -2,7 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
 import createRouter from "@routes";
-import initMiddleware from "@middleware";
+import initMiddleware, { inifMiddleareAfterMountedRouter } from "@middleware";
 
 const app = express();
 
@@ -14,5 +14,7 @@ app.use(cookieParser());
 initMiddleware(app);
 // 挂载路由
 app.use(createRouter());
+// 挂载路由后中间件
+inifMiddleareAfterMountedRouter(app);
 
 export default app;

@@ -32,6 +32,7 @@
     "@types/node": "^20.12.7",
     "@types/pino": "^7.0.5",
     "@types/pino-multi-stream": "^5.1.6",
+    "@types/sequelize": "^4.28.20",
     "cross-env": "^7.0.3",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.5"
