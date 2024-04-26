@@ -1,12 +1,10 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-import logger from "morgan";
 import createRouter from "@routes";
 import initMiddleware, { inifMiddleareAfterMountedRouter } from "@middleware";
 
 const app = express();
 
-app.use(logger("dev"));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 

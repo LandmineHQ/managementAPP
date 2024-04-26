@@ -4,11 +4,10 @@ import NotificationBar from '@/components/NotificationBar.vue'
 import TabBar, { type TabBarProps } from '@/components/TabBar.vue'
 import { reactive, watch } from 'vue'
 import router, { ROUTER_NAME } from './router'
-import axios from 'axios'
 
 const appConfig = reactive({
   notificationBar: {
-    height: 62
+    height: 40
   },
   tabBar: {
     light: true,

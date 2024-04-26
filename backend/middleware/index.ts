@@ -7,8 +7,8 @@ import unResovled from "./unResolved";
 
 function initMiddleware(app: Express) {
   app.use(express.json());
-  app.use(responseHeader);
   app.use(logRequest);
+  app.use(responseHeader);
   log.info("中间件初始化完毕");
 }
 

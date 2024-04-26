@@ -11,10 +11,25 @@ const darkToggle = useToggle(isDark)
 
 function click1() {
   axios
-    .post(`${DAEMON_HOST}/${ROUTER_NAME.AUTH}`, { msg: 'hello world' })
-    .then((res) => console.log(res))
+    .post(`${DAEMON_HOST}/${ROUTER_NAME.AUTH}`, {
+      email: 'yuyunxi@gmail.com',
+      password: 'AGqvSiojPw'
+    })
+    .then((res) => {
+      console.log(res)
+      localStorage.setItem('token', res.data.token)
+    })
 }
-function click2() {}
+function click2() {
+  axios
+    .get(`${DAEMON_HOST}/${ROUTER_NAME.USER}`)
+    .then((res) => {
+      console.log(res)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+}
 </script>
 
 <template>

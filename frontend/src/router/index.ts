@@ -6,6 +6,7 @@ enum ROUTER_NAME {
   DATA = 'data',
   MESSAGES = 'messages',
   USER = 'user',
+  USER_LOGIN = 'user/login',
   DEBUG = 'debug'
 }
 
@@ -40,6 +41,11 @@ const router = createRouter({
       path: `/${ROUTER_NAME.DEBUG}`,
       name: ROUTER_NAME.DEBUG,
       component: () => import('@/views/DebugView.vue')
+    },
+    {
+      path: `/${ROUTER_NAME.USER_LOGIN}`,
+      name: ROUTER_NAME.USER_LOGIN,
+      component: () => import('@/views/UserLoginView.vue')
     }
   ]
 })

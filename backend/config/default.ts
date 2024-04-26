@@ -6,12 +6,17 @@ const config = {
   logFileName: process.env.LOG_FILE_NAME || "latest.log",
 
   dbConfig: {
-    dialect: "mysql",
-    host: "localhost",
-    port: "3306",
-    username: "username",
-    password: "password",
-    database: "management",
+    username: process.env.DB_CONFIG_USERNAME || "username",
+    password: process.env.DB_CONFIG_PASSWORD || "password",
+    database: process.env.DB_CONFIG_DATABASE || "management",
+    host: process.env.DB_CONFIG_HOST || "localhost",
+    port: process.env.DB_CONFIG_PORT || "3306",
+    dialect: process.env.DB_CONFIG_DIALECT || "mysql",
+  },
+
+  jwtConfig: {
+    secret: process.env.JWT_CONFIG_SECRET || "secret",
+    expiresIn: process.env.JWT_CONFIG_EXPIRES_IN || "72h",
   },
 };
 

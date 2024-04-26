@@ -7,9 +7,11 @@ log.info(`
 +-----------------------------------+
 `);
 
-// 加载环境变量
+/* 加载环境变量 */
 import "dotenv/config";
 import { findAvailablePort } from "./envDetect";
+// 加载数据库
+await initModels();
 
 import http from "http";
 import log from "@utils/logger";
@@ -17,6 +19,7 @@ import { onExit as loggerOnExit } from "@utils/logger";
 import config from "config";
 import setupSocket from "@sockets/index";
 import app from "@app";
+import { initModels } from "@models";
 
 /**
  * Get port from environment and store in Express.
@@ -45,6 +48,14 @@ process.once("SIGINT", (...args) => {
   server.close(() => {
     process.exit(0); // 可选：确保进程退出
   });
+});
+
+process.on("uncaughtException", (err) => {
+  if (process.env.NODE_ENV !== "development") {
+    log.error(err);
+  } else {
+    log.error(JSON.stringify(err));
+  }
 });
 
 /* 函数 */

@@ -1,12 +1,14 @@
 // @ts-ignore
+import useAuthStore from '@/stores/auth'
 import axios from 'axios'
 
-const DAEMON_HOST = 'http://192.168.31.11:3001'
+export const DAEMON_HOST = 'http://192.168.31.11:3001'
 
 function initAxios() {
+  console.log(`loadding axios`)
   axios.interceptors.request.use(
     (config) => {
-      const token = localStorage.getItem('token')
+      const token = useAuthStore().token
       if (token) {
         config.headers.Authorization = `Bearer ${token}`
         config.headers['Content-Type'] = 'application/json'
@@ -20,4 +22,3 @@ function initAxios() {
 }
 
 export default initAxios
-export { DAEMON_HOST }

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import express from "express";
+import User from "@controllers/user";
 import { StatusCodes } from "http-status-codes";
-import ROUTER_NAME from "./config";
 
 enum PERMISSIONS {
   USER,
@@ -18,8 +18,18 @@ function createRouter() {
 }
 
 /* GET users listing. */
-const requestHanlder = (req: Request, res: Response, next: NextFunction) => {
-  res.status(StatusCodes.OK).send(ROUTER_NAME.USER);
+const requestHanlder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    res.sendStatus(StatusCodes.UNAUTHORIZED);
+    return;
+  }
+  const user = await User.getByToken(token);
+  res.send(user);
 };
 
 export default createRouter;

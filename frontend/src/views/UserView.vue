@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import useAuthStore from '@/stores/auth'
 import useUserStore from '@/stores/user'
 import {
   ElRow,
@@ -11,7 +12,22 @@ import {
   ElBadge,
   ElDivider
 } from 'element-plus'
+
 import { h } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+function clickProfile() {
+  if (useAuthStore().isLogin === false) {
+    router.push('/user/login')
+    return
+  }
+}
+
+function clickLogOut() {
+  useAuthStore().removeToken()
+}
 </script>
 
 <template>
@@ -34,33 +50,40 @@ import { h } from 'vue'
     </ElRow>
 
     <!-- profile -->
-    <ElRow justify="space-evenly" class="user-view--profile">
+    <ElRow justify="space-between" class="user-view--profile" @click="clickProfile">
       <ElSpace size="default">
         <ElRow>
-          <ElAvatar :size="76">{{ useUserStore().name }}</ElAvatar>
+          <ElAvatar v-if="useAuthStore().isLogin" :size="76" :src="useUserStore().avatar">{{
+            useUserStore().name
+          }}</ElAvatar>
+          <ElAvatar v-else :size="76">
+            <ElIcon :size="32" color="#fff">
+              <EpUserFilled />
+            </ElIcon>
+          </ElAvatar>
         </ElRow>
         <ElSpace alignment="flex-start">
           <ElCol>
             <ElCol>
               <ElText size="large">
-                {{ useUserStore().name }}
+                {{ useUserStore().nickname || useUserStore().name || '未登录' }}
               </ElText>
             </ElCol>
-            <ElCol>
+            <ElCol v-if="useAuthStore().isLogin">
               <ElText size="small" type="info">
                 {{ `UID: ${useUserStore().uid || 'null'}` }}
               </ElText>
             </ElCol>
           </ElCol>
 
-          <ElCol>
-            <ElTag>已认证</ElTag>
+          <ElCol v-if="useAuthStore().isLogin">
+            <ElTag>{{ useUserStore().identityBinding ? '已认证' : '未认证' }}</ElTag>
             <ElTag>其他</ElTag>
           </ElCol>
         </ElSpace>
       </ElSpace>
       <ElSpace>
-        <ElIcon class="arrow-right">
+        <ElIcon class="arrow-right" v-if="useAuthStore().isLogin">
           <EpArrowRight />
         </ElIcon>
       </ElSpace>
@@ -82,7 +105,7 @@ import { h } from 'vue'
             </ElRow>
           </ElCol>
         </ElRow>
-        <ElRow>
+        <ElRow v-if="useAuthStore().isLogin">
           <ElCol>
             <ElRow justify="center">
               <ElBadge value="1" type="danger">
@@ -100,7 +123,7 @@ import { h } from 'vue'
             </ElRow>
           </ElCol>
         </ElRow>
-        <ElRow>
+        <ElRow v-if="useAuthStore().isLogin">
           <ElCol>
             <ElRow justify="center">
               <ElIcon :size="28" color="#409EFF">
@@ -129,14 +152,14 @@ import { h } from 'vue'
       "
       class="user-view--next4"
     >
-      <ElRow justify="space-between" align="middle">
+      <ElRow justify="space-between" align="middle" v-if="useAuthStore().isLogin">
         <ElText size="large">安全中心</ElText>
         <ElIcon>
           <EpArrowRight />
         </ElIcon>
       </ElRow>
       <ElRow justify="space-between" align="middle">
-        <ElText size="large">安全中心</ElText>
+        <ElText size="large">帮助中心</ElText>
         <ElIcon>
           <EpArrowRight />
         </ElIcon>
@@ -149,7 +172,13 @@ import { h } from 'vue'
       </ElRow>
     </ElSpace>
 
-    <ElRow justify="space-between" align="middle" class="user-view--dangrous">
+    <ElRow
+      justify="space-between"
+      align="middle"
+      class="user-view--dangrous"
+      v-if="useAuthStore().isLogin"
+      @click="clickLogOut"
+    >
       <ElText type="danger" size="large">退出登录</ElText>
       <ElIcon>
         <EpArrowRight />
@@ -174,6 +203,7 @@ import { h } from 'vue'
 
 .user-view--profile {
   height: 147px;
+  padding: var(--Size-common-component-size-default, 32px) 32px;
 
   .arrow-right {
     width: var(--Size-common-component-size-default, 32px);
