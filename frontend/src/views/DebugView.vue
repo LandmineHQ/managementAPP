@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import ROUTER_NAME from '#/routes/config'
 import { DAEMON_HOST } from '@/api'
-import HeaderPage from '@/components/HeaderPage.vue'
 import { useDark, useToggle } from '@vueuse/core'
 import axios from 'axios'
 import { ElContainer, ElMain, ElButton, ElHeader, ElScrollbar, ElAside } from 'element-plus'

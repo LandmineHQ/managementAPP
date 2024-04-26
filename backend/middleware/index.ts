@@ -6,7 +6,7 @@ import log from "@utils/logger";
 import unResovled from "./unResolved";
 
 function initMiddleware(app: Express) {
-  app.use(express.json());
+  app.use(express.json({limit:"50mb"}));
   app.use(logRequest);
   app.use(responseHeader);
   log.info("中间件初始化完毕");

@@ -16,6 +16,10 @@ const props = defineProps({
   placeholder: {
     type: Boolean,
     default: false
+  },
+  show: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -41,6 +45,7 @@ export type TabBarProps = ExtractPropTypes<{
 
 <template>
   <div
+    v-show="props.show"
     class="tabBarContainer"
     :class="{
       light: props.light,

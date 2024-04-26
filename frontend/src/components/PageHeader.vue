@@ -2,7 +2,9 @@
   <ElSpace fill class="page-header-component">
     <ElPageHeader @back="onBack">
       <template #content>
-        <ElText type="info" size="large">{{ props.title || route.path }}</ElText>
+        <slot name="default">
+          <ElText type="info" size="large">{{ props.title || route.path }}</ElText>
+        </slot>
       </template>
       <template #extra>
         <div class="extra">
@@ -36,6 +38,7 @@ const onBack = () => {
 <style lang="scss" scoped>
 .page-header-component {
   background: var(--bg-color-overlay, #fff);
+  width: 100%;
   padding: 12px;
 
   .extra {

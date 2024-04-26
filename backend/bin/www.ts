@@ -9,6 +9,7 @@ log.info(`
 
 /* 加载环境变量 */
 import "dotenv/config";
+
 import { findAvailablePort } from "./envDetect";
 // 加载数据库
 await initModels();

@@ -22,7 +22,9 @@
           </ElRow>
         </ElFormItem>
         <ElRow justify="center" style="margin-top: 24px">
-          <ElLink type="info">没有账号，点此注册</ElLink>
+          <ElLink type="info" @click="router.push(`/${ROUTER_NAME.USER_REGISTER}?step=0`)"
+            >没有账号，点此注册</ElLink
+          >
         </ElRow>
       </ElForm>
     </ElRow>

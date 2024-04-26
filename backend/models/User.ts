@@ -7,13 +7,13 @@ class User extends Model {
   declare email: string;
   declare nickname: string;
   declare token: string;
-  declare registration_date: Date;
   declare last_login: Date;
   declare preference: object;
   declare operation_record: object;
   declare identity_binding: string;
   declare avatar: string;
   declare permission: string;
+  declare phone: string;
 }
 
 User.init(
@@ -37,9 +37,6 @@ User.init(
     token: {
       type: DataTypes.STRING,
     },
-    registration_date: {
-      type: DataTypes.DATEONLY,
-    },
     last_login: {
       type: DataTypes.DATEONLY,
     },
@@ -53,9 +50,12 @@ User.init(
       type: DataTypes.INTEGER,
     },
     avatar: {
-      type: DataTypes.TEXT, // Base64 编码的图片可以存储为 TEXT 类型
+      type: DataTypes.TEXT("medium"), // Base64 编码的图片可以存储为 TEXT 类型
     },
     permission: {
+      type: DataTypes.STRING,
+    },
+    phone: {
       type: DataTypes.STRING,
     },
   },

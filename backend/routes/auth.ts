@@ -17,7 +17,7 @@ async function requestHandler(req: Request, res: Response, next: NextFunction) {
     res.status(StatusCodes.BAD_REQUEST).send("email or password is required");
     return;
   }
-  const token = await getToken(email, password);
+  const token = await getToken(email, password, true);
   log.info(token);
   res.send(token);
 }

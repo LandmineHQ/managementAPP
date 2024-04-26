@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 const config = {
   port: process.env.PORT || "8080",
   host: process.env.HOST || "localhost",
@@ -17,6 +19,16 @@ const config = {
   jwtConfig: {
     secret: process.env.JWT_CONFIG_SECRET || "secret",
     expiresIn: process.env.JWT_CONFIG_EXPIRES_IN || "72h",
+  },
+
+  mailerConfig: {
+    host: process.env.MAILER_CONFIG_HOST || "smtp.ethereal.email",
+    port: process.env.MAILER_CONFIG_PORT || 587,
+    secure: process.env.MAILER_CONFIG_SECURE === "true" ? true : false, // Use `true` for port 465, `false` for all other ports
+    auth: {
+      user: process.env.MAILER_CONFIG_AUTH_USER || "maddison53@ethereal.email",
+      pass: process.env.MAILER_CONFIG_AUTH_PASS || "jn7jnAPss4f63QBp6D",
+    },
   },
 };
 

@@ -3,7 +3,12 @@ import { RouterView } from 'vue-router'
 import NotificationBar from '@/components/NotificationBar.vue'
 import TabBar, { type TabBarProps } from '@/components/TabBar.vue'
 import { reactive, watch } from 'vue'
-import router, { ROUTER_NAME } from './router'
+import router, {
+  ROUTER_TAB_DARK,
+  ROUTER_NAME,
+  ROUTER_TAB_FREE,
+  ROUTER_TAB_PLACEHOLDER
+} from './router'
 
 const appConfig = reactive({
   notificationBar: {
@@ -12,7 +17,8 @@ const appConfig = reactive({
   tabBar: {
     light: true,
     placeholder: false,
-    selected: ROUTER_NAME.MANAGEMENT
+    selected: ROUTER_NAME.MANAGEMENT,
+    show: true
   } as TabBarProps
 })
 
@@ -28,6 +34,29 @@ watch(
     const newSelected = newRoute.path.substring(1) // Remove the leading '/'
     if (newSelected !== appConfig.tabBar.selected) {
       appConfig.tabBar.selected = newRoute.name as (typeof ROUTER_NAME)[keyof typeof ROUTER_NAME]
+    }
+
+    // Tab处理
+    appConfig.tabBar.show = true
+    appConfig.tabBar.placeholder = false
+    appConfig.tabBar.light = true
+    for (let route of ROUTER_TAB_FREE) {
+      if (newSelected === route) {
+        appConfig.tabBar.show = false
+        break
+      }
+    }
+    for (let route of ROUTER_TAB_PLACEHOLDER) {
+      if (newSelected === route) {
+        appConfig.tabBar.placeholder = true
+        break
+      }
+    }
+    for (let route of ROUTER_TAB_DARK) {
+      if (newSelected === route) {
+        appConfig.tabBar.light = false
+        break
+      }
     }
   },
   { immediate: true }
@@ -56,17 +85,26 @@ watch(
 
 <style scoped>
 header {
+  display: flex;
+  flex-direction: column;
+
   flex: none;
   line-height: 1.5;
   max-height: 100vh;
 }
 
 main {
+  display: flex;
+  flex-direction: column;
+
   flex: auto;
-  height: 100%;
+  height: 0;
 }
 
 footer {
+  display: flex;
+  flex-direction: column;
+
   flex: none;
 }
 </style>

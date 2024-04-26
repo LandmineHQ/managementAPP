@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ROUTER_NAME } from '@/router'
 import useAuthStore from '@/stores/auth'
 import useUserStore from '@/stores/user'
 import {
@@ -20,13 +21,17 @@ const router = useRouter()
 
 function clickProfile() {
   if (useAuthStore().isLogin === false) {
-    router.push('/user/login')
+    router.push(`/${ROUTER_NAME.USER_LOGIN}`)
     return
   }
 }
 
 function clickLogOut() {
   useAuthStore().removeToken()
+}
+
+function clickMoreProfile() {
+  router.push(`/${ROUTER_NAME.USER}/profile`)
 }
 </script>
 
@@ -53,9 +58,13 @@ function clickLogOut() {
     <ElRow justify="space-between" class="user-view--profile" @click="clickProfile">
       <ElSpace size="default">
         <ElRow>
-          <ElAvatar v-if="useAuthStore().isLogin" :size="76" :src="useUserStore().avatar">{{
-            useUserStore().name
-          }}</ElAvatar>
+          <ElAvatar
+            v-if="useAuthStore().isLogin"
+            :size="76"
+            :src="useUserStore().avatar"
+            @click="router.push(`/${ROUTER_NAME.USER_PROFILE_EDIT}?editAttribute=avatar`)"
+            >{{ useUserStore().name }}</ElAvatar
+          >
           <ElAvatar v-else :size="76">
             <ElIcon :size="32" color="#fff">
               <EpUserFilled />
@@ -83,7 +92,7 @@ function clickLogOut() {
         </ElSpace>
       </ElSpace>
       <ElSpace>
-        <ElIcon class="arrow-right" v-if="useAuthStore().isLogin">
+        <ElIcon class="arrow-right" v-if="useAuthStore().isLogin" @click="clickMoreProfile">
           <EpArrowRight />
         </ElIcon>
       </ElSpace>
@@ -158,7 +167,11 @@ function clickLogOut() {
           <EpArrowRight />
         </ElIcon>
       </ElRow>
-      <ElRow justify="space-between" align="middle">
+      <ElRow
+        justify="space-between"
+        align="middle"
+        @click="router.push(`/${ROUTER_NAME.USER_HELP}`)"
+      >
         <ElText size="large">帮助中心</ElText>
         <ElIcon>
           <EpArrowRight />

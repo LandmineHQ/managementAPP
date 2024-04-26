@@ -12,17 +12,13 @@ enum PERMISSIONS {
 function createRouter() {
   const router = express.Router();
 
-  router.get("/", requestHanlder);
+  router.get("/", getHanlder);
+  router.put("/", putHanlder);
 
   return router;
 }
 
-/* GET users listing. */
-const requestHanlder = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+async function getHanlder(req: Request, res: Response) {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
     res.sendStatus(StatusCodes.UNAUTHORIZED);
@@ -30,7 +26,32 @@ const requestHanlder = async (
   }
   const user = await User.getByToken(token);
   res.send(user);
-};
+}
+
+async function putHanlder(req: Request, res: Response) {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    res.sendStatus(StatusCodes.UNAUTHORIZED);
+    return;
+  }
+  const params = req.body;
+
+  if (params.avatar) {
+    await User.updateAvatar(token, params.avatar);
+  }
+  if (params.nickname) {
+    await User.updateNickname(token, params.nickname);
+  }
+  if (params.phone) {
+    await User.updatePhone(token, params.phone);
+  }
+  if (params.password) {
+    await User.updatePassword(token, params.password);
+  }
+
+  const user = await User.getByToken(token);
+  res.send(user);
+}
 
 export default createRouter;
 export { PERMISSIONS };
