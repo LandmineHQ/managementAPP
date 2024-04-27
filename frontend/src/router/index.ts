@@ -11,6 +11,7 @@ enum ROUTER_NAME {
   USER_PROFILE_EDIT = 'user/profile/edit',
   USER_HELP = 'user/help',
   USER_REGISTER = 'user/register',
+  USER_FORGET = 'user/forget',
   DEBUG = 'debug'
 }
 
@@ -20,7 +21,8 @@ const ROUTER_TAB_FREE = [
   ROUTER_NAME.USER_PROFILE,
   ROUTER_NAME.USER_PROFILE_EDIT,
   ROUTER_NAME.USER_LOGIN,
-  ROUTER_NAME.USER_REGISTER
+  ROUTER_NAME.USER_REGISTER,
+  ROUTER_NAME.USER_FORGET
 ]
 
 // Tab Dark Theme 的路由
@@ -85,6 +87,11 @@ const router = createRouter({
       path: `/${ROUTER_NAME.USER_REGISTER}`,
       name: ROUTER_NAME.USER_REGISTER,
       component: () => import('@/views/user/RegisterView.vue')
+    },
+    {
+      path: `/${ROUTER_NAME.USER_FORGET}`,
+      name: ROUTER_NAME.USER_FORGET,
+      component: () => import('@/views/user/ForgetView.vue')
     }
   ]
 })

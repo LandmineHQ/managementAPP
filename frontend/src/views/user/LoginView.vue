@@ -15,7 +15,9 @@
 
         <ElFormItem style="margin-top: 56px">
           <ElRow style="width: 100%" justify="space-between">
-            <ElLink type="info">忘记密码？</ElLink>
+            <ElLink type="info" @click="router.push(`/${ROUTER_NAME.USER_FORGET}`)"
+              >忘记密码？</ElLink
+            >
             <el-button type="primary" @click="onSubmit" style="padding: 15px 46px 15px 47px">
               LOGIN
             </el-button>

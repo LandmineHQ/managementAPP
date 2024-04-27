@@ -1,5 +1,5 @@
 import { Model, DataTypes } from "sequelize";
-import { sequelize } from "@models";
+import { sequelize } from "@database";
 
 class User extends Model {
   declare id: number;
@@ -20,7 +20,6 @@ User.init(
   {
     email: {
       type: DataTypes.STRING,
-      allowNull: false,
       unique: true,
       validate: {
         isEmail: true, // 验证是否为有效的邮箱格式
@@ -28,7 +27,6 @@ User.init(
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
     nickname: {
       type: DataTypes.STRING,

@@ -28,13 +28,17 @@
         showArrow
       ></NavIn>
       <NavIn describe="UID" :value="useUserStore().uid + ''"></NavIn>
-      <NavIn describe="身份绑定" :value="useUserStore().identityBinding as unknown as never"></NavIn>
+      <NavIn
+        describe="身份绑定"
+        :value="useUserStore().identityBinding as unknown as never"
+      ></NavIn>
       <NavIn
         describe="手机号"
         @click="editProfile(`phone`)"
         :value="formattedPhone"
         showArrow
       ></NavIn>
+      <NavIn describe="邮箱" :value="useUserStore().email"></NavIn>
       <NavIn describe="修改密码" @click="editProfile(`password`)" showArrow></NavIn>
       <NavIn describe="注册时间" :show-arrow="false" :value="formattedRegistrationDate"></NavIn>
     </ElSpace>

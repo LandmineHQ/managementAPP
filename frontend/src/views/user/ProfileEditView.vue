@@ -81,7 +81,7 @@ const originValue = computed(() => {
 
 const isBase64 = computed(() => {
   // @ts-ignore
-  if (typeof originValue.value === 'string' && originValue.value.startsWith('data:image')) {
+  if (route.query.editAttribute === 'avatar') {
     return true
   } else {
     return false

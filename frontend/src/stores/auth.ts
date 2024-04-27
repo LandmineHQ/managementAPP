@@ -3,7 +3,7 @@ import { DAEMON_HOST } from '@/api'
 import axios from 'axios'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { ElNotification } from 'element-plus'
+import { ElNotification, ElMessage } from 'element-plus'
 import useUserStore from './user'
 
 const useAuthStore = defineStore('auth', () => {
@@ -50,7 +50,59 @@ const useAuthStore = defineStore('auth', () => {
     return token
   }
 
-  return { isLogin, token, saveToken, removeToken, getToken }
+  async function requestValidationCode(email: string) {
+    const isOK = await axios
+      .post(`${DAEMON_HOST}/${ROUTER_NAME.AUTH}/getCode`, { email })
+      .then((res) => {
+        if (res.data.error) {
+          ElNotification.error(res.data.error)
+          return false
+        }
+        ElMessage.success({
+          message: '验证码发送成功！',
+          offset: 300
+        })
+        return true
+      })
+      .catch((error) => {
+        ElNotification.error(error)
+        return false
+      })
+
+    return isOK
+  }
+
+  async function resetPasswordByCode(email: string, code: string, password: string) {
+    const isOK = await axios
+      .post(`${DAEMON_HOST}/${ROUTER_NAME.AUTH}/forget/password`, { email, code, password })
+      .then((res) => {
+        if (res.data.error) {
+          ElNotification.error(res.data.error)
+          return false
+        }
+        ElMessage.success({
+          message: '重置密码成功！',
+          offset: 300
+        })
+        return true
+      })
+      .catch((error) => {
+        ElNotification.error(error)
+        return false
+      })
+
+    return isOK
+  }
+
+  return {
+    isLogin,
+    token,
+    saveToken,
+    removeToken,
+    getToken,
+    requestValidationCode,
+    resetPasswordByCode
+  }
 })
 
 export default useAuthStore

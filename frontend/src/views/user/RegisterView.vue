@@ -42,7 +42,8 @@
 
 <script setup lang="ts">
 import { ROUTER_NAME } from '@/router'
-import { ElText } from 'element-plus'
+import useUserStore from '@/stores/user'
+import { ElMessage, ElText } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -57,15 +58,22 @@ const step = computed(() => {
   }
 })
 
+enum USER_REGIST_STEP {
+  NICKNAME = '0',
+  EMAIL = '1',
+  CODE = '2',
+  PASSWORD = '3'
+}
+
 const title = computed(() => {
   switch (true) {
-    case step.value === '0':
+    case step.value === USER_REGIST_STEP.NICKNAME:
       return '注册账户'
-    case step.value === '1':
+    case step.value === USER_REGIST_STEP.EMAIL:
       return '邮箱'
-    case step.value === '2':
+    case step.value === USER_REGIST_STEP.CODE:
       return '验证码'
-    case step.value === '3':
+    case step.value === USER_REGIST_STEP.PASSWORD:
       return '密码'
     default:
       return '忘记密码'
@@ -102,12 +110,40 @@ watch(
   }
 )
 
-function submit() {
-  if (submitButtonContent.value === '下一步') {
-    router.push(`/${ROUTER_NAME.USER_REGISTER}?step=${parseInt(step.value) + 1}`)
-  } else {
-    // submit
-    console.table(form)
+function nextStep() {
+  router.push({
+    name: ROUTER_NAME.USER_REGISTER,
+    query: {
+      step: parseInt(step.value) + 1
+    }
+  })
+}
+
+async function submit() {
+  switch (step.value) {
+    case USER_REGIST_STEP.NICKNAME:
+      nextStep()
+      break
+    case USER_REGIST_STEP.EMAIL: {
+      const isOK = await useUserStore().registerUserGetCodeByEmail(form)
+      if (isOK) {
+        nextStep()
+      }
+      break
+    }
+    case USER_REGIST_STEP.CODE:
+      nextStep()
+      break
+    case USER_REGIST_STEP.PASSWORD: {
+      // submit
+      const isOK = await useUserStore().registerUserGetCodeByEmail(form)
+      if (isOK) {
+        router.push(`/${ROUTER_NAME.USER_LOGIN}`)
+      } else {
+        ElMessage.error('注册失败，请重试')
+      }
+      break
+    }
   }
 }
 </script>

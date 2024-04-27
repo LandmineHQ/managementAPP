@@ -20,7 +20,7 @@ import { onExit as loggerOnExit } from "@utils/logger";
 import config from "config";
 import setupSocket from "@sockets/index";
 import app from "@app";
-import { initModels } from "@models";
+import { initModels } from "@database";
 
 /**
  * Get port from environment and store in Express.

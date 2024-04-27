@@ -74,6 +74,28 @@ const useUserStore = defineStore('user', () => {
       })
   }
 
+  async function registerUserGetCodeByEmail(params: any) {
+    const data = await axios
+      .post(`${DAEMON_HOST}/${ROUTER_NAME.AUTH}/code`, { ...params })
+      .then((res) => {
+        if (res.data.error) {
+          ElNotification.error(res.data.error)
+          return false
+        }
+        if (!res.data.code) {
+          ElMessage.success({ message: '验证码发送成功！', offset: 300 })
+        } else {
+          ElMessage.success({ message: '注册成功！', offset: 300 })
+        }
+        return true
+      })
+      .catch((error) => {
+        ElNotification.error({ message: error, offset: 300 })
+        return false
+      })
+    return data
+  }
+
   return {
     email,
     permission,
@@ -89,7 +111,8 @@ const useUserStore = defineStore('user', () => {
     password,
 
     getUserStore: updateUser,
-    updateAttribute
+    updateAttribute,
+    registerUserGetCodeByEmail
   }
 })
 

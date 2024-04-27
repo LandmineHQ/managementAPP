@@ -51,6 +51,20 @@ async function updatePassword(token: string, newPassword: string) {
     user.password = newPassword;
     await user.save();
   }
+  return user;
+}
+
+async function updatePasswordByEmail(email: string, newPassword: string) {
+  const user = await User.findOne({
+    where: {
+      email,
+    },
+  });
+  if (user) {
+    user.password = newPassword;
+    await user.save();
+  }
+  return user;
 }
 
 export default {
@@ -60,4 +74,5 @@ export default {
   updateNickname,
   updatePhone,
   updatePassword,
+  updatePasswordByEmail,
 };
