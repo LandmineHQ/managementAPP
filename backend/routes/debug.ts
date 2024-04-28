@@ -11,9 +11,7 @@ function createRouter() {
   });
 
   router.get("/database/seeds", async (req, res, next) => {
-    await seeds.createUser();
-    await seeds.createPerson();
-    await seeds.createTraining();
+    await seeds();
 
     res.sendStatus(StatusCodes.OK);
   });

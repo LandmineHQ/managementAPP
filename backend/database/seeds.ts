@@ -10,28 +10,31 @@ async function createUser() {
       nickname: "天王盖地虎",
       email: "11@11.com",
       password: "11",
+      identity_binding: 2,
     },
     {
       id: 2,
       nickname: "小鸡炖蘑菇",
       email: "22@ac",
       password: "22",
+      identity_binding: 3,
     },
     {
       id: 3,
       nickname: "宝塔镇河妖",
       email: "33bg",
       password: "33bg",
+      identity_binding: 4,
     },
   ]);
 }
 
 async function createPerson() {
   await Person.bulkCreate([
-    { name: "知多星" },
-    { name: "张三" },
-    { name: "李四" },
-    { name: "王五" },
+    { name: "知多星", id: 1 },
+    { name: "张三", id: 2 },
+    { name: "李四", id: 3 },
+    { name: "王五", id: 4 },
   ]);
 }
 
@@ -50,7 +53,7 @@ async function createTraining() {
     time: new Date("2024-03-28"),
     progress: 0,
     content: "本课程提供对工业设备进行高级维护和故障排除的深入指导。",
-    coverImage: images.getBase64_2,
+    coverImage: images.getBase64_2(),
   };
   const jsonContent2 = JSON.stringify(content2);
 
@@ -70,4 +73,10 @@ async function createTraining() {
   ]);
 }
 
-export default { createUser, createTraining, createPerson };
+function initSeeds() {
+  createPerson();
+  createUser();
+  createTraining();
+}
+
+export default initSeeds;

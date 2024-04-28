@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import express from "express";
 import User from "@controllers/user";
-import { StatusCodes } from "http-status-codes";
+import RouterSendMessage from "@utils/routerSendMessage";
 
 enum PERMISSIONS {
   USER,
@@ -21,8 +21,7 @@ function createRouter() {
 async function getHanlder(req: Request, res: Response) {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
-    res.sendStatus(StatusCodes.UNAUTHORIZED);
-    return;
+    return RouterSendMessage.UNAUTHORIZED(res);
   }
   const user = await User.getByToken(token);
   res.send(user);
@@ -31,8 +30,7 @@ async function getHanlder(req: Request, res: Response) {
 async function putHanlder(req: Request, res: Response) {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
-    res.sendStatus(StatusCodes.UNAUTHORIZED);
-    return;
+    return RouterSendMessage.UNAUTHORIZED(res);
   }
   const params = req.body;
 
@@ -50,7 +48,7 @@ async function putHanlder(req: Request, res: Response) {
   }
 
   const user = await User.getByToken(token);
-  res.send(user);
+  RouterSendMessage.success(res, user);
 }
 
 export default createRouter;
