@@ -28,10 +28,7 @@
         showArrow
       ></NavIn>
       <NavIn describe="UID" :value="useUserStore().uid + ''"></NavIn>
-      <NavIn
-        describe="身份绑定"
-        :value="useUserStore().identityBinding as unknown as never"
-      ></NavIn>
+      <NavIn describe="身份绑定" :value="useUserStore().identityBinding?.toString()"></NavIn>
       <NavIn
         describe="手机号"
         @click="editProfile(`phone`)"
