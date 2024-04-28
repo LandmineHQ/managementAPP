@@ -18,6 +18,8 @@ type Training = {
   instructor_id: number
   progress: number
   course_content: CourseContent
+  steps: Array<{ title: string; content: string }>
+  steps_active: number
 }
 
 const useTrainingStore = defineStore('training', () => {
@@ -32,7 +34,7 @@ const useTrainingStore = defineStore('training', () => {
           return
         }
         ElMessage.success({ message: '获取成功！', offset: 300 })
-        trainingList.value = parseTrainingList(res.data)
+        trainingList.value = res.data
 
         return true
       })
@@ -53,10 +55,3 @@ const useTrainingStore = defineStore('training', () => {
 })
 
 export default useTrainingStore
-
-function parseTrainingList(trainingList: Array<any>) {
-  trainingList.forEach((training) => {
-    training.course_content = JSON.parse(training.course_content)
-  })
-  return trainingList
-}

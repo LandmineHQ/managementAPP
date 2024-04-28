@@ -16,7 +16,7 @@ app.use(router)
 app.use(i18n)
 initAxios()
 
-// 初始化token以及相关内容
+// 初始化auth以及相关内容
 useAuthStore()
 
 app.mount('#app')

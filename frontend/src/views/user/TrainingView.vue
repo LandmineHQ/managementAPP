@@ -30,8 +30,10 @@
               </ElCol>
               <ElCol :span="8">
                 <ElRow justify="end">
-                  <ElLink v-if="item.course_content.progress > 0" type="primary">继续学习</ElLink>
-                  <ElLink v-else type="success">开始</ElLink>
+                  <ElLink @click="openDetails(item.id)" v-if="item.progress > 0" type="primary"
+                    >继续学习</ElLink
+                  >
+                  <ElLink @click="openDetails(item.id)" v-else type="success">开始</ElLink>
                 </ElRow>
               </ElCol>
             </ElRow>
@@ -45,6 +47,11 @@
 <script setup lang="ts">
 import { ElImage, ElLink, ElLoading, ElMessage, ElSpace, ElScrollbar, ElText } from 'element-plus'
 import useTrainingStore from '@/stores/training'
+import { useRoute, useRouter } from 'vue-router'
+import { ROUTER_NAME } from '@/router'
+
+const router = useRouter()
+const route = useRoute()
 
 function getFormatTime(dateString: string) {
   const date = new Date(dateString)
@@ -54,7 +61,16 @@ function getFormatTime(dateString: string) {
   return `${year}-${month}-${day}`
 }
 
-onMounted(async () => {
+function openDetails(id: number) {
+  router.push({
+    path: `/${ROUTER_NAME.USER_TRAINING_DETAIL}`,
+    query: {
+      id
+    }
+  })
+}
+
+async function freshData() {
   const loadingInstance = ElLoading.service({ text: '加载中……' })
   const isOK = await useTrainingStore().getTrainingList({})
   if (isOK) {
@@ -63,7 +79,16 @@ onMounted(async () => {
     ElMessage.error({ message: '加载失败', offset: 300 })
   }
   loadingInstance.close()
-})
+}
+
+watch(
+  () => route.path,
+  () => {
+    if (route.path.endsWith(ROUTER_NAME.USER_TRAINING)) {
+      freshData()
+    }
+  }
+)
 </script>
 
 <style scoped lang="scss">
