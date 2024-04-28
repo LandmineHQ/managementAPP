@@ -7,6 +7,8 @@ class Training extends Model {
   declare instructor_id: number;
   declare progress: number;
   declare course_content: JSON;
+  declare steps: JSON;
+  declare steps_active: number;
 }
 
 Training.init(
@@ -22,6 +24,12 @@ Training.init(
     },
     course_content: {
       type: DataTypes.JSON,
+    },
+    steps: {
+      type: DataTypes.JSON,
+    },
+    steps_active: {
+      type: DataTypes.INTEGER,
     },
   },
   {
