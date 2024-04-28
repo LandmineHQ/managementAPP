@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import ROUTER_NAME from "./config";
 import userRouter from "./users";
 import authRouter from "./auth";
+import debugRouter from "./debug";
 
 function createRouter() {
   const router = express.Router();
@@ -14,6 +15,10 @@ function createRouter() {
 
   router.use(`/${ROUTER_NAME.USER}`, userRouter());
   router.use(`/${ROUTER_NAME.AUTH}`, authRouter());
+
+  if (process.env.NODE_ENV === "development") {
+    router.use(`/${ROUTER_NAME.DEBUG}`, debugRouter());
+  }
 
   return router;
 }

@@ -43,7 +43,7 @@
 <script setup lang="ts">
 import { ROUTER_NAME } from '@/router'
 import useUserStore from '@/stores/user'
-import { ElMessage, ElText } from 'element-plus'
+import { ElLoading, ElMessage, ElText } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -125,16 +125,19 @@ async function submit() {
       nextStep()
       break
     case USER_REGIST_STEP.EMAIL: {
+      const loadingInstance = ElLoading.service({ text: '发送中...' })
       const isOK = await useUserStore().registerUserGetCodeByEmail(form)
       if (isOK) {
         nextStep()
       }
+      loadingInstance.close()
       break
     }
     case USER_REGIST_STEP.CODE:
       nextStep()
       break
     case USER_REGIST_STEP.PASSWORD: {
+      const loadingInstance = ElLoading.service({ text: '发送中...' })
       // submit
       const isOK = await useUserStore().registerUserGetCodeByEmail(form)
       if (isOK) {
@@ -142,6 +145,7 @@ async function submit() {
       } else {
         ElMessage.error('注册失败，请重试')
       }
+      loadingInstance.close()
       break
     }
   }

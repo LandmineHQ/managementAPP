@@ -18,8 +18,10 @@ async function loadModelsAssociations() {
   User.hasOne(VerificationCode);
   VerificationCode.belongsTo(User);
 
-  User.hasOne(Training);
-  Training.belongsTo(User, {});
+  Person.hasMany(Training, { foreignKey: "person_id", as: "trainings" });
+  Person.hasMany(Training, { foreignKey: "instructor_id", as: "instructors" });
+  Training.belongsTo(Person, { foreignKey: "person_id" });
+  Training.belongsTo(Person, { foreignKey: "instructor_id" });
 
   User.hasMany(Message, { foreignKey: "senderId", as: "sentMessages" });
   User.hasMany(Message, { foreignKey: "receiverId", as: "receivedMessages" });

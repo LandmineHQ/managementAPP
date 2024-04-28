@@ -35,7 +35,7 @@ async function testDatabaseConnection() {
 }
 
 /** 同步数据库 */
-async function syncDatabase(options: SyncOptions = { alter: true }) {
+async function syncDatabase(options: SyncOptions) {
   dblogger.info("sync database...");
   await sequelize
     .sync(options)
@@ -48,3 +48,4 @@ async function syncDatabase(options: SyncOptions = { alter: true }) {
 }
 
 export { initModels, sequelize };
+export default { sequelize, syncDatabase };

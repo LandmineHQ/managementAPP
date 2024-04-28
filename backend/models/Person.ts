@@ -61,7 +61,7 @@ Person.init(
   },
   {
     sequelize,
-    modelName: "Employee",
+    modelName: "Person",
   }
 );
 

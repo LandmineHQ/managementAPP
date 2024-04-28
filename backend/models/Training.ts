@@ -3,7 +3,7 @@ import { sequelize } from "@database";
 
 class Training extends Model {
   declare id: number;
-  declare employee_id: number;
+  declare person_id: number;
   declare instructor_id: number;
   declare progress: number;
   declare course_content: JSON;
@@ -11,7 +11,7 @@ class Training extends Model {
 
 Training.init(
   {
-    employee_id: {
+    person_id: {
       type: DataTypes.INTEGER,
     },
     instructor_id: {

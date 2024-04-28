@@ -132,7 +132,7 @@ function clickMoreProfile() {
             </ElRow>
           </ElCol>
         </ElRow>
-        <ElRow v-if="useAuthStore().isLogin">
+        <ElRow v-if="useAuthStore().isLogin" @click="router.push(`/${ROUTER_NAME.USER_TRAINING}`)">
           <ElCol>
             <ElRow justify="center">
               <ElIcon :size="28" color="#409EFF">
