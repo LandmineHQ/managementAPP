@@ -81,6 +81,8 @@ async function freshData() {
   loadingInstance.close()
 }
 
+// first load data
+freshData()
 watch(
   () => route.path,
   () => {
