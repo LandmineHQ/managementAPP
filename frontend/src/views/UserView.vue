@@ -114,7 +114,7 @@ function clickMoreProfile() {
             </ElRow>
           </ElCol>
         </ElRow>
-        <ElRow v-if="useAuthStore().isLogin">
+        <ElRow v-if="useAuthStore().isLogin" @click="router.push(`/${ROUTER_NAME.USER_SECURITY}`)">
           <ElCol>
             <ElRow justify="center">
               <ElBadge value="1" type="danger">

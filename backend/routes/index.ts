@@ -5,6 +5,7 @@ import userRouter from "./users";
 import authRouter from "./auth";
 import debugRouter from "./debug";
 import trainingRouter from "./training";
+import monitorRouter from "./monitor";
 
 function createRouter() {
   const router = express.Router();
@@ -17,6 +18,7 @@ function createRouter() {
   router.use(`/${ROUTER_NAME.USER}`, userRouter());
   router.use(`/${ROUTER_NAME.AUTH}`, authRouter());
   router.use(`/${ROUTER_NAME.TRAINING}`, trainingRouter());
+  router.use(`/${ROUTER_NAME.MONITOR}`, monitorRouter());
 
   if (process.env.NODE_ENV === "development") {
     router.use(`/${ROUTER_NAME.DEBUG}`, debugRouter());
