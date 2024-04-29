@@ -81,8 +81,6 @@ async function freshData() {
   loadingInstance.close()
 }
 
-// first load data
-freshData()
 watch(
   () => route.path,
   () => {
@@ -91,6 +89,10 @@ watch(
     }
   }
 )
+onMounted(() => {
+  // first load data
+  freshData()
+})
 </script>
 
 <style scoped lang="scss">
