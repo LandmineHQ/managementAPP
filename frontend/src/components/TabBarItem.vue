@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import type { SelectedTabBarType } from './types'
+import type { ROUTER_NAME } from '@/router'
 import { defineAsyncComponent, type PropType } from 'vue'
 
 const props = defineProps({
   iconName: {
-    type: String as PropType<SelectedTabBarType>,
+    type: String as PropType<(typeof ROUTER_NAME)[keyof typeof ROUTER_NAME]>,
     required: true,
     default: 'management'
   },
   selected: {
-    type: String as PropType<SelectedTabBarType>,
+    type: String as PropType<(typeof ROUTER_NAME)[keyof typeof ROUTER_NAME]>,
     required: false,
     default: 'management'
   }
