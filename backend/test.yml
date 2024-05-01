@@ -1,0 +1,21 @@
+config:
+  target: "http://localhost:3001" # 你的应用地址
+  phases:
+    - duration: 60 # 测试持续时间60秒
+      arrivalRate: 10 # 每秒10个新用户
+scenarios:
+  - flow:
+      - get:
+          url: "/"
+  - flow:
+      - get:
+          url: "/training"
+  - flow:
+      - post:
+          url: "/auth"
+          json:
+            email: "11"
+            password: "11"
+  - flow:
+      - get:
+          url: "/user"

@@ -3,11 +3,12 @@
 </template>
 
 <script setup lang="ts">
-import ROUTER_NAME from '#/routes/config'
 import { DAEMON_HOST } from '@/api'
 import axios from 'axios'
 import { ElLoading, ElMessage } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
+import { ROUTER_NAME as FRONT_ROUTER_NAME } from '@/router/index'
+import { ROUTER_NAME as BACK_ROUTER_NAME } from '#/routes/config'
 
 const router = useRouter()
 const route = useRoute()
@@ -16,34 +17,18 @@ const systemInfo = ref<any>()
 const devicesInfo = ref<any>()
 
 async function freshData() {
-  const loadingInstance = ElLoading.service({ text: 'loading……' })
-
-  await axios
-    .get(`${DAEMON_HOST}/${ROUTER_NAME.MONITOR}/system`)
-    .then((res) => {
-      ElMessage.success({ message: '刷新成功', offset: 300 })
-      systemInfo.value = res.data
-    })
-    .catch(() => {
-      ElMessage.error({ message: '刷新失败', offset: 300 })
-    })
-  await axios
-    .get(`${DAEMON_HOST}/${ROUTER_NAME.MONITOR}/devices`)
-    .then((res) => {
-      ElMessage.success({ message: '刷新成功', offset: 300 })
-      devicesInfo.value = res.data
-    })
-    .catch(() => {
-      ElMessage.error({ message: '刷新失败', offset: 300 })
-    })
-
-  loadingInstance.close()
+  axios.get(`${DAEMON_HOST}/${BACK_ROUTER_NAME.MONITOR}/system`).then((res) => {
+    systemInfo.value = res.data
+  })
+  axios.get(`${DAEMON_HOST}/${BACK_ROUTER_NAME.MONITOR}/devices`).then((res) => {
+    devicesInfo.value = res.data
+  })
 }
 
 watch(
   () => route.path,
   () => {
-    if (route.path.endsWith(ROUTER_NAME.USER_SECURITY)) {
+    if (route.path.endsWith(FRONT_ROUTER_NAME.USER_SECURITY)) {
       freshData()
     }
   }

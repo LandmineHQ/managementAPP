@@ -75,6 +75,9 @@ watch(
     }
   }
 )
+onMounted(() => {
+  freshData()
+})
 </script>
 
 <style scoped lang="scss">

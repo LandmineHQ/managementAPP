@@ -71,14 +71,7 @@ function openDetails(id: number) {
 }
 
 async function freshData() {
-  const loadingInstance = ElLoading.service({ text: '加载中……' })
-  const isOK = await useTrainingStore().getTrainingList({})
-  if (isOK) {
-    ElMessage.success({ message: '加载成功', offset: 300 })
-  } else {
-    ElMessage.error({ message: '加载失败', offset: 300 })
-  }
-  loadingInstance.close()
+  await useTrainingStore().getTrainingList({})
 }
 
 watch(

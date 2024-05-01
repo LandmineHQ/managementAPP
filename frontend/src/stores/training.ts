@@ -1,4 +1,4 @@
-import ROUTER_NAME from '#/routes/config'
+import { ROUTER_NAME } from '#/routes/config'
 import { DAEMON_HOST } from '@/api'
 import axios from 'axios'
 import { ElMessage, ElNotification } from 'element-plus'
@@ -26,25 +26,9 @@ const useTrainingStore = defineStore('training', () => {
   const trainingList = ref<Array<Training>>([])
 
   async function getTrainingList(params: any) {
-    const isOK = await axios
-      .get(`${DAEMON_HOST}/${ROUTER_NAME.TRAINING}`, { params })
-      .then((res) => {
-        if (res.data.error) {
-          ElNotification.error(res.data.error)
-          return
-        }
-        ElMessage.success({ message: '获取成功！', offset: 300 })
-        trainingList.value = res.data
-
-        return true
-      })
-      .catch((error) => {
-        ElNotification.error(error)
-        return false
-      })
-
-    if (isOK) return true
-    else return false
+    await axios.get(`${DAEMON_HOST}/${ROUTER_NAME.TRAINING}`, { params }).then((res) => {
+      trainingList.value = res.data
+    })
   }
 
   return {

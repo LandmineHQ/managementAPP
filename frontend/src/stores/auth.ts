@@ -1,4 +1,4 @@
-import ROUTER_NAME from '#/routes/config'
+import { ROUTER_NAME } from '#/routes/config'
 import { DAEMON_HOST } from '@/api'
 import axios from 'axios'
 import { defineStore } from 'pinia'

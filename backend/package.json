@@ -6,7 +6,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production tsx -r tsconfig-paths/register bin/www.ts",
     "dev": "cross-env NODE_ENV=development tsx watch --clear-screen=false -r tsconfig-paths/register bin/www.ts",
-    "test": "cross-env NODE_ENV=test tsx -r tsconfig-paths/register helloPino.ts"
+    "test": "artillery run test.yml"
   },
   "dependencies": {
     "config": "^3.3.11",
@@ -36,6 +36,7 @@
     "@types/pino": "^7.0.5",
     "@types/pino-multi-stream": "^5.1.6",
     "@types/sequelize": "^4.28.20",
+    "artillery": "^2.0.11",
     "cross-env": "^7.0.3",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.5"

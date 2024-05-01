@@ -14,5 +14,4 @@ const ROUTER_TOKENLESS = [
   ROUTER_NAME.MONITOR,
 ];
 
-export default ROUTER_NAME;
-export { ROUTER_TOKENLESS };
+export { ROUTER_NAME, ROUTER_TOKENLESS };

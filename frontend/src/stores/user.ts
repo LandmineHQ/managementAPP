@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { DAEMON_HOST } from '@/api'
-import ROUTER_NAME from '#/routes/config'
+import { ROUTER_NAME } from '#/routes/config'
 import { ElMessage, ElNotification } from 'element-plus'
 
 const useUserStore = defineStore('user', () => {
@@ -21,18 +21,9 @@ const useUserStore = defineStore('user', () => {
 
   async function updateUser(user?: any) {
     if (!user) {
-      user = await axios
-        .get(`${DAEMON_HOST}/${ROUTER_NAME.USER}`)
-        .then((res) => {
-          if (res.data.error) {
-            ElNotification.error(res.data.error)
-            return ''
-          }
-          return res.data
-        })
-        .catch((error) => {
-          ElNotification.error(error)
-        })
+      user = await axios.get(`${DAEMON_HOST}/${ROUTER_NAME.USER}`).then((res) => {
+        return res.data
+      })
     }
 
     if (user) {
@@ -59,29 +50,15 @@ const useUserStore = defineStore('user', () => {
     value: UserStoreRefValues[K]
   ) {
     // 实现更新逻辑
-    await axios
-      .put(`${DAEMON_HOST}/${ROUTER_NAME.USER}`, { [key]: value })
-      .then((res) => {
-        if (res.data.error) {
-          ElNotification.error(res.data.error)
-          return ''
-        }
-        ElMessage.success({ message: '更新成功！', offset: 300 })
-        updateUser(res.data)
-      })
-      .catch((error) => {
-        ElNotification.error(error)
-      })
+    await axios.put(`${DAEMON_HOST}/${ROUTER_NAME.USER}`, { [key]: value }).then((res) => {
+      updateUser(res.data)
+    })
   }
 
   async function registerUserGetCodeByEmail(params: any) {
     const data = await axios
       .post(`${DAEMON_HOST}/${ROUTER_NAME.AUTH}/code`, { ...params })
       .then((res) => {
-        if (res.data.error) {
-          ElNotification.error(res.data.error)
-          return false
-        }
         if (!res.data.code) {
           ElMessage.success({ message: '验证码发送成功！', offset: 300 })
         } else {
@@ -89,8 +66,7 @@ const useUserStore = defineStore('user', () => {
         }
         return true
       })
-      .catch((error) => {
-        ElNotification.error({ message: error, offset: 300 })
+      .catch(() => {
         return false
       })
     return data

@@ -1,18 +1,22 @@
 import express from "express";
-import { StatusCodes } from "http-status-codes";
-import ROUTER_NAME from "./config";
+import { ROUTER_NAME } from "./config";
+import packageJson from "@package.json";
 import userRouter from "./users";
 import authRouter from "./auth";
 import debugRouter from "./debug";
 import trainingRouter from "./training";
 import monitorRouter from "./monitor";
+import RouterSendMessage from "@utils/routerSendMessage";
 
 function createRouter() {
   const router = express.Router();
 
   /* GET ROOT page. */
   router.get(`${ROUTER_NAME.ROOT}`, (req, res, next) => {
-    res.status(StatusCodes.OK).send("县域工业企业数智化管理APP平台 API接口");
+    RouterSendMessage.success(res, {
+      isManagement: true,
+      version: packageJson.version,
+    });
   });
 
   router.use(`/${ROUTER_NAME.USER}`, userRouter());

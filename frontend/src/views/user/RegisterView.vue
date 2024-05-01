@@ -125,19 +125,16 @@ async function submit() {
       nextStep()
       break
     case USER_REGIST_STEP.EMAIL: {
-      const loadingInstance = ElLoading.service({ text: '发送中...' })
       const isOK = await useUserStore().registerUserGetCodeByEmail(form)
       if (isOK) {
         nextStep()
       }
-      loadingInstance.close()
       break
     }
     case USER_REGIST_STEP.CODE:
       nextStep()
       break
     case USER_REGIST_STEP.PASSWORD: {
-      const loadingInstance = ElLoading.service({ text: '发送中...' })
       // submit
       const isOK = await useUserStore().registerUserGetCodeByEmail(form)
       if (isOK) {
@@ -145,7 +142,6 @@ async function submit() {
       } else {
         ElMessage.error('注册失败，请重试')
       }
-      loadingInstance.close()
       break
     }
   }

@@ -57,7 +57,7 @@ async function getMailCode(email: string) {
   }
 
   const mailOptions: MailOptions = {
-    from: "县域工业企业数智化管理平台",
+    from: config.get<string>("mailerConfig.auth.user"),
     to: email,
     subject: "县域工业企业数智化管理平台验证码",
     text: `验证码：${code}，如非本人操作，请忽略`,
