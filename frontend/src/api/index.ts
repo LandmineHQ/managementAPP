@@ -58,6 +58,7 @@ function closeLoading() {
   if (loadingInstance) {
     loadingInstance.close()
   }
+  requestCount = 0
 }
 
 export default initAxios

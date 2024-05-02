@@ -27,20 +27,20 @@ const useMonitorStore = defineStore('monitor', () => {
   })
   const cpuLine = ref<Array<number>>()
 
-  function getCpuLine() {
-    axios.get(`${DAEMON_HOST}/${BACK_ROUTER_NAME.MONITOR}/cpuline`).then((res) => {
+  async function getCpuLine() {
+    await axios.get(`${DAEMON_HOST}/${BACK_ROUTER_NAME.MONITOR}/cpuline`).then((res) => {
       cpuLine.value = res.data
     })
   }
 
-  function getSystem() {
-    axios.get(`${DAEMON_HOST}/${BACK_ROUTER_NAME.MONITOR}/system`).then((res) => {
+  async function getSystem() {
+    await axios.get(`${DAEMON_HOST}/${BACK_ROUTER_NAME.MONITOR}/system`).then((res) => {
       systemInfo.value = res.data
     })
   }
 
-  function getDevices() {
-    axios.get(`${DAEMON_HOST}/${BACK_ROUTER_NAME.MONITOR}/devices`).then((res) => {
+  async function getDevices() {
+    await axios.get(`${DAEMON_HOST}/${BACK_ROUTER_NAME.MONITOR}/devices`).then((res) => {
       devicesInfo.value = res.data
     })
   }

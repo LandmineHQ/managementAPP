@@ -116,23 +116,27 @@ let cpuChartInstance: echarts.ECharts
 let devicesChartInstance: echarts.ECharts
 
 async function freshData() {
-  useMonitorStore().getCpuLine()
   useMonitorStore().getDevices()
   useMonitorStore().getSystem()
 
+  await useMonitorStore().getCpuLine()
   updateCpuChart()
 }
 
 function updateCpuChart() {
   const option: echarts.EChartsOption = {
     title: {
-      text: '主控负载趋势'
+      text: '主控负载趋势',
+      top: '16px',
+      left: '16px'
+    },
+    grid: {
+      left: '40px', // 增加左边距
+      bottom: '40px' // 增加下边距
     },
     xAxis: {
-      type: 'time',
-      splitLine: {
-        show: false
-      }
+      type: 'category',
+      data: Array.from({ length: 60 }, (_, i) => i.toString()).reverse() // 生成0到59的字符串数组
     },
     yAxis: {
       type: 'value'
@@ -157,11 +161,11 @@ watch(
   }
 )
 
-onMounted(() => {
+onMounted(async () => {
   cpuChartInstance = echarts.init(cpuChart.value)
   devicesChartInstance = echarts.init(devicesChart.value)
 
-  freshData()
+  await freshData()
 })
 </script>
 
@@ -252,6 +256,7 @@ onMounted(() => {
   .chart {
     width: 100%;
     height: 250px;
+    position: relative;
 
     border-radius: 15px;
     background: var(--Color-Background-bg-color, #fff);
