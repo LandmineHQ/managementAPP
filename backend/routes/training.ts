@@ -25,7 +25,7 @@ async function getRootHandler(req: express.Request, res: express.Response) {
     return RouterSendMessage.error(res, "person not found");
   }
   const trainings = await person.getTrainings();
-  return RouterSendMessage.success(res, trainings);
+  return RouterSendMessage.sendData(res, trainings);
 }
 
 export default createRouter;

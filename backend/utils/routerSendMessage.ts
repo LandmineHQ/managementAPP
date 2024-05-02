@@ -6,8 +6,12 @@ class RouterSendMessage {
     res.send({ error: message });
   }
 
-  static success(res: Response, data: any) {
+  static sendData(res: Response, data: any) {
     res.send(data);
+  }
+
+  static sendMessage(res: Response, message: string) {
+    this.sendData(res, { message });
   }
 
   static UNAUTHORIZED(res: Response) {
@@ -27,6 +31,10 @@ class RouterSendMessage {
 
   static NO_CONTENT(res: Response) {
     res.sendStatus(StatusCodes.NO_CONTENT);
+  }
+
+  static INTERNAL_SERVER_ERROR(res: Response) {
+    res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
   }
 }
 

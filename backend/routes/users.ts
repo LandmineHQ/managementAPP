@@ -48,7 +48,7 @@ async function putHanlder(req: Request, res: Response) {
   }
 
   const user = await User.getByToken(token);
-  RouterSendMessage.success(res, user);
+  RouterSendMessage.sendData(res, user);
 }
 
 export default createRouter;

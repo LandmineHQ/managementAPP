@@ -13,7 +13,7 @@ function createRouter() {
 
   /* GET ROOT page. */
   router.get(`${ROUTER_NAME.ROOT}`, (req, res, next) => {
-    RouterSendMessage.success(res, {
+    RouterSendMessage.sendData(res, {
       isManagement: true,
       version: packageJson.version,
     });

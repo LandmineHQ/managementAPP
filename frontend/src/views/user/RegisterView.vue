@@ -125,7 +125,7 @@ async function submit() {
       nextStep()
       break
     case USER_REGIST_STEP.EMAIL: {
-      const isOK = await useUserStore().registerUserGetCodeByEmail(form)
+      const isOK = await useUserStore().getCode(form.email)
       if (isOK) {
         nextStep()
       }
@@ -136,11 +136,17 @@ async function submit() {
       break
     case USER_REGIST_STEP.PASSWORD: {
       // submit
-      const isOK = await useUserStore().registerUserGetCodeByEmail(form)
+      const isOK = await useUserStore().registerUserByEmailCode({
+        nickname: form.nickname,
+        email: form.email,
+        code: form.code,
+        password: form.password
+      })
       if (isOK) {
-        router.push(`/${ROUTER_NAME.USER_LOGIN}`)
+        router.push(`/${ROUTER_NAME.USER}`)
+        ElMessage.success({ message: '注册成功，返回登录页……', offset: 300 })
       } else {
-        ElMessage.error('注册失败，请重试')
+        ElMessage.error({ message: '注册失败，请重试', offset: 300 })
       }
       break
     }

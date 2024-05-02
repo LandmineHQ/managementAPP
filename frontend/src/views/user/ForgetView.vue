@@ -40,6 +40,7 @@
 </template>
 
 <script setup lang="ts">
+import { ROUTER_NAME } from '@/router'
 import useAuthStore from '@/stores/auth'
 import { ElText } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
@@ -98,7 +99,8 @@ async function submit() {
       break
     }
     case FORGET_STEP.STEP_2_PASSWORD: {
-      useAuthStore().resetPasswordByCode(form.email, form.code, form.password)
+      const isOK = useAuthStore().resetPasswordByCode(form.email, form.code, form.password)
+      if (isOK) router.push(`/${ROUTER_NAME.USER}`)
       break
     }
   }

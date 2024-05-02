@@ -28,10 +28,19 @@ function clickProfile() {
 
 function clickLogOut() {
   useAuthStore().removeToken()
+  window.location.reload()
 }
 
 function clickMoreProfile() {
   router.push(`/${ROUTER_NAME.USER}/profile`)
+}
+
+function clickTraining() {
+  router.push(`/${ROUTER_NAME.USER_TRAINING}`)
+}
+
+function clickSecurity() {
+  router.push(`/${ROUTER_NAME.USER_SECURITY}`)
 }
 </script>
 
@@ -86,8 +95,8 @@ function clickMoreProfile() {
           </ElCol>
 
           <ElCol v-if="useAuthStore().isLogin">
-            <ElTag>{{ useUserStore().identityBinding ? '已认证' : '未认证' }}</ElTag>
-            <ElTag>其他</ElTag>
+            <ElTag v-if="useUserStore().identityBinding">已认证</ElTag>
+            <ElTag v-else type="danger" effect="dark">未认证</ElTag>
           </ElCol>
         </ElSpace>
       </ElSpace>
@@ -114,7 +123,7 @@ function clickMoreProfile() {
             </ElRow>
           </ElCol>
         </ElRow>
-        <ElRow v-if="useAuthStore().isLogin" @click="router.push(`/${ROUTER_NAME.USER_SECURITY}`)">
+        <ElRow v-if="useAuthStore().isLogin" @click="clickSecurity">
           <ElCol>
             <ElRow justify="center">
               <ElBadge value="1" type="danger">
@@ -132,7 +141,7 @@ function clickMoreProfile() {
             </ElRow>
           </ElCol>
         </ElRow>
-        <ElRow v-if="useAuthStore().isLogin" @click="router.push(`/${ROUTER_NAME.USER_TRAINING}`)">
+        <ElRow v-if="useAuthStore().isLogin" @click="clickTraining">
           <ElCol>
             <ElRow justify="center">
               <ElIcon :size="28" color="#409EFF">
@@ -161,7 +170,12 @@ function clickMoreProfile() {
       "
       class="user-view--next4"
     >
-      <ElRow justify="space-between" align="middle" v-if="useAuthStore().isLogin">
+      <ElRow
+        justify="space-between"
+        align="middle"
+        v-if="useAuthStore().isLogin"
+        @click="clickSecurity"
+      >
         <ElText size="large">安全中心</ElText>
         <ElIcon>
           <EpArrowRight />

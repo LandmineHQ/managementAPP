@@ -52,7 +52,7 @@ const useAuthStore = defineStore('auth', () => {
 
   async function requestValidationCode(email: string) {
     const isOK = await axios
-      .post(`${DAEMON_HOST}/${ROUTER_NAME.AUTH}/getCode`, { email })
+      .get(`${DAEMON_HOST}/${ROUTER_NAME.AUTH}/code`, { params: { email } })
       .then((res) => {
         if (res.data.error) {
           ElNotification.error(res.data.error)

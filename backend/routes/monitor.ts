@@ -7,19 +7,26 @@ function createRouter() {
 
   router.get("/system", getSystemHandler);
   router.get("/devices", getDevicesHandler);
+  router.get("/cpuline", getCpuLineHandler);
 
   return router;
 }
 
 function getSystemHandler(req: Request, res: Response, next: NextFunction) {
   monitorController.getSystemInfo((data) => {
-    RouterSendMessage.success(res, data);
+    RouterSendMessage.sendData(res, data);
   });
 }
 
 function getDevicesHandler(req: Request, res: Response, next: NextFunction) {
   monitorController.getDevicesInfo((data) => {
-    RouterSendMessage.success(res, data);
+    RouterSendMessage.sendData(res, data);
+  });
+}
+
+function getCpuLineHandler(req: Request, res: Response, next: NextFunction) {
+  monitorController.getCpuLine((data) => {
+    RouterSendMessage.sendData(res, data);
   });
 }
 

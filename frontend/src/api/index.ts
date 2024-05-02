@@ -24,7 +24,6 @@ function initAxios() {
       return config
     },
     (error) => {
-      closeLoading()
       return rejectError(error)
     }
   )
@@ -38,13 +37,13 @@ function initAxios() {
       return response
     },
     (error) => {
-      closeLoading()
       return rejectError(error)
     }
   )
 }
 
 function rejectError(error: any) {
+  closeLoading()
   ElNotification.error({
     message: error,
     offset: 300,

@@ -75,8 +75,7 @@ async function validateMailCode(email: string, code: string) {
   });
   if (!verificationCode) {
     return false;
-  }
-  {
+  } else {
     verificationCode.destroy();
     return true;
   }

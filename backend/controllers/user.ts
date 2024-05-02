@@ -10,11 +10,20 @@ async function getByToken(token: string) {
   return user;
 }
 
-async function register(email: string, password: string) {
-  const user = await User.create({
-    email,
-    password,
-  });
+async function register(email: string, password: string, nickname?: string) {
+  let user;
+  if (!nickname) {
+    user = await User.create({
+      email,
+      password,
+    });
+  } else {
+    user = await User.create({
+      email,
+      password,
+      nickname,
+    });
+  }
   return user;
 }
 

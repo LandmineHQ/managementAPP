@@ -1,5 +1,29 @@
 import packageJson from "@package.json";
 import os from "os";
+let cpuUsageLine: number[] = new Array(60).fill(0); // 初始化60个元素的数组，初始值为0
+let currentIndex = 0; // 当前索引
+
+// 在程序启动时调用此函数开始收集数据
+startCollectingCpuUsage();
+
+function startCollectingCpuUsage() {
+  const updateCpuUsage = () => {
+    const startMeasure = cpuAverage();
+    setTimeout(() => {
+      const endMeasure = cpuAverage();
+      const idleDifference = endMeasure.idle - startMeasure.idle;
+      const totalDifference = endMeasure.total - startMeasure.total;
+      const cpuUsage = 100 - ~~((100 * idleDifference) / totalDifference);
+
+      cpuUsageLine[currentIndex] = cpuUsage;
+      currentIndex = (currentIndex + 1) % 60; // 更新索引，确保它循环在0到59之间
+
+      updateCpuUsage(); // 递归调用，继续收集下一秒的数据
+    }, 1000); // 每1秒采集一次
+  };
+
+  updateCpuUsage(); // 开始收集数据
+}
 
 function getSystemInfo(callback: (systemInfo: object) => void) {
   const totalMemory = os.totalmem();
@@ -69,4 +93,15 @@ function getDevicesInfo(callback: (deviceInfo: object) => void) {
   callback(res);
 }
 
-export default { getSystemInfo, getDevicesInfo };
+function getCpuLine(callback: (cpuUsageLine: number[]) => void) {
+  // 由于数据是循环收集的，需要按正确的顺序返回最近的60个数据点
+  const recentCpuUsage = [];
+  const length = cpuUsageLine.length;
+  for (let i = 0; i < length; i++) {
+    const index = (currentIndex + i) % length;
+    recentCpuUsage.push(cpuUsageLine[index]);
+  }
+  callback(recentCpuUsage);
+}
+
+export default { getSystemInfo, getDevicesInfo, getCpuLine };
