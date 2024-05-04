@@ -2,7 +2,7 @@
   <PageHeader title="安全生产"></PageHeader>
   <ElScrollbar fill>
     <ElSpace fill style="width: 100%" :size="32" class="security-view">
-      <div v-if="useMonitorStore().offlineDevices" class="card offline">
+      <div v-if="useMonitorStore().offlineDevices.length" class="card offline">
         <ElRow>
           <ElText class="title">设备离线</ElText>
         </ElRow>
@@ -19,7 +19,7 @@
         </ElIcon>
       </div>
 
-      <div v-if="useMonitorStore().abnormalDevices" class="card abnormal">
+      <div v-if="useMonitorStore().abnormalDevices.length" class="card abnormal">
         <ElRow>
           <ElText class="title">设备温度异常</ElText>
         </ElRow>
@@ -33,25 +33,6 @@
         </ElSpace>
         <ElIcon :size="124" class="icon" color="white">
           <EpOdometer />
-        </ElIcon>
-      </div>
-
-      <div class="card">
-        <ElRow>
-          <ElText class="title">监控标题</ElText>
-        </ElRow>
-        <ElSpace fill>
-          <ElRow>
-            <ElText type="info" class="info">{{ '在线数量 / 总数量' }}</ElText>
-          </ElRow>
-          <ElRow>
-            <ElText class="details">{{
-              `${useMonitorStore().devicesInfo.length - useMonitorStore().offlineDevices.length} / ${useMonitorStore().devicesInfo.length}`
-            }}</ElText>
-          </ElRow>
-        </ElSpace>
-        <ElIcon :size="124" class="icon">
-          <EpMonitor />
         </ElIcon>
       </div>
 
@@ -76,15 +57,34 @@
 
       <div class="card">
         <ElRow>
+          <ElText class="title">监控标题</ElText>
+        </ElRow>
+        <ElSpace fill>
+          <ElRow>
+            <ElText type="info" class="info">{{ '在线数量 / 总数量' }}</ElText>
+          </ElRow>
+          <ElRow>
+            <ElText class="details">{{
+              `${useMonitorStore().onlineDevices.length} / ${useMonitorStore().devicesInfo.length}`
+            }}</ElText>
+          </ElRow>
+        </ElSpace>
+        <ElIcon :size="124" class="icon">
+          <EpMonitor />
+        </ElIcon>
+      </div>
+
+      <div class="card">
+        <ElRow>
           <ElText class="title">设备温度</ElText>
         </ElRow>
         <ElSpace fill>
           <ElRow>
-            <ElText type="info" class="info">{{ '正常数量/总数量' }}</ElText>
+            <ElText type="info" class="info">{{ '正常数量/在线数量' }}</ElText>
           </ElRow>
           <ElRow>
             <ElText class="details">{{
-              `${useMonitorStore().devicesInfo.length - useMonitorStore().abnormalDevices.length} / ${useMonitorStore().devicesInfo.length}`
+              `${useMonitorStore().onlineDevices.length - useMonitorStore().abnormalDevices.length} / ${useMonitorStore().onlineDevices.length}`
             }}</ElText>
           </ElRow>
         </ElSpace>
@@ -114,16 +114,73 @@ const devicesChart = ref<HTMLDivElement>()
 
 let cpuChartInstance: echarts.ECharts
 let devicesChartInstance: echarts.ECharts
+let isActive = true
 
-async function freshData() {
-  useMonitorStore().getDevices()
-  useMonitorStore().getSystem()
+const dataInterval = setInterval(() => {
+  if (isActive) {
+    freshData(false)
+  }
+}, 5000)
+const chartsInterval = setInterval(() => {
+  if (isActive) {
+    freshCharts(false)
+  }
+}, 5000)
 
-  await useMonitorStore().getCpuLine()
+async function freshData(showLoading = true) {
+  useMonitorStore().getDevices({ showLoading: showLoading })
+  useMonitorStore().getSystem({ showLoading: showLoading })
+}
+
+async function freshCharts(showLoading = true) {
+  await useMonitorStore().getCpuLine({ showLoading: showLoading })
+  await useMonitorStore().getDevicesLine({ showLoading: showLoading })
   updateCpuChart()
+  updateDevicesChart()
+}
+
+function updateDevicesChart() {
+  const data = useMonitorStore().devicesLine.map((devicesInfo) => {
+    let onlineCount = 0
+    devicesInfo.forEach((device) => {
+      if (Object.keys(device).length > 0) {
+        onlineCount++
+      }
+    })
+    return onlineCount
+  })
+
+  const option: echarts.EChartsOption = {
+    title: {
+      text: '设备在线趋势',
+      top: '16px',
+      left: '16px'
+    },
+    grid: {
+      left: '40px', // 增加左边距
+      bottom: '40px' // 增加下边距
+    },
+    xAxis: {
+      type: 'category',
+      data: data.map((_, index) => index.toString()).reverse()
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        data: data,
+        type: 'line',
+        smooth: true
+      }
+    ]
+  }
+  devicesChartInstance && devicesChartInstance.setOption(option)
 }
 
 function updateCpuChart() {
+  const data = useMonitorStore().cpuLine?.map((item) => [item.date, item.value])
+
   const option: echarts.EChartsOption = {
     title: {
       text: '主控负载趋势',
@@ -135,15 +192,20 @@ function updateCpuChart() {
       bottom: '40px' // 增加下边距
     },
     xAxis: {
-      type: 'category',
-      data: Array.from({ length: 60 }, (_, i) => i.toString()).reverse() // 生成0到59的字符串数组
+      type: 'time',
+      axisLabel: {
+        formatter: function (value) {
+          // 使用echarts的format工具来格式化时间
+          return echarts.time.format(value, '{ss}', false)
+        }
+      }
     },
     yAxis: {
       type: 'value'
     },
     series: [
       {
-        data: useMonitorStore().cpuLine,
+        data: data,
         type: 'line',
         smooth: true
       }
@@ -156,7 +218,11 @@ watch(
   () => route.path,
   () => {
     if (route.path.endsWith(FRONT_ROUTER_NAME.USER_SECURITY)) {
+      isActive = true
       freshData()
+      freshCharts()
+    } else {
+      isActive = false
     }
   }
 )
@@ -165,7 +231,13 @@ onMounted(async () => {
   cpuChartInstance = echarts.init(cpuChart.value)
   devicesChartInstance = echarts.init(devicesChart.value)
 
-  await freshData()
+  freshData()
+  freshCharts()
+})
+
+onUnmounted(() => {
+  clearInterval(dataInterval)
+  clearInterval(chartsInterval)
 })
 </script>
 
@@ -262,5 +334,7 @@ onMounted(async () => {
     background: var(--Color-Background-bg-color, #fff);
     box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.25);
   }
+
+  margin-bottom: 50vh;
 }
 </style>

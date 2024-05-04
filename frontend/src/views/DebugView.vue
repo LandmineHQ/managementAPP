@@ -1,56 +1,42 @@
 <script setup lang="ts">
-import ROUTER_NAME from '#/routes/config'
-import { DAEMON_HOST } from '@/api'
+import useAuthStore from '@/stores/auth'
+import useUserStore from '@/stores/user'
+import useSocketStore from '@/stores/socket'
 import { useDark, useToggle } from '@vueuse/core'
-import axios from 'axios'
-import { ElContainer, ElMain, ElButton, ElHeader, ElScrollbar, ElAside } from 'element-plus'
+import { ElButton, ElScrollbar } from 'element-plus'
 
 const isDark = useDark()
 const darkToggle = useToggle(isDark)
 
-function click1() {
-  axios
-    .post(`${DAEMON_HOST}/${ROUTER_NAME.AUTH}`, {
-      email: 'yuyunxi@gmail.com',
-      password: 'AGqvSiojPw'
-    })
-    .then((res) => {
-      console.log(res)
-      localStorage.setItem('token', res.data.token)
-    })
+async function authToken() {
+  const email = 'yuyunxi@gmail.com'
+  const password = 'AGqvSiojPw'
+  await useAuthStore().getToken(email, password)
+  console.log(useAuthStore().token)
 }
-function click2() {
-  axios
-    .get(`${DAEMON_HOST}/${ROUTER_NAME.USER}`)
-    .then((res) => {
-      console.log(res)
-    })
-    .catch((err) => {
-      console.log(err)
-    })
+async function getUser() {
+  await useUserStore().updateUser()
+  console.log(useUserStore())
+}
+function estublishSocketIo() {
+  useSocketStore().estublish()
+}
+function sendMsgSocketIo() {
+  useSocketStore().sendMsg('greetings from client')
 }
 </script>
 
 <template>
-  <ElContainer>
-    <ElHeader height="auto">
-      <HeaderPage />
-    </ElHeader>
-    <ElContainer>
-      <ElAside width="auto">
-        <ElScrollbar></ElScrollbar>
-      </ElAside>
-      <ElMain>
-        <ElScrollbar>
-          <ElButton size="large" type="danger" @click="darkToggle()">
-            {{ `isDark: ${isDark}` }}
-          </ElButton>
-          <ElButton @click="click1" type="primary" size="large">按钮1</ElButton>
-          <ElButton @click="click2" size="large">按钮2</ElButton>
-        </ElScrollbar>
-      </ElMain>
-    </ElContainer>
-  </ElContainer>
+  <PageHeader></PageHeader>
+  <ElScrollbar>
+    <ElButton size="large" type="danger" @click="darkToggle()">
+      {{ `isDark: ${isDark}` }}
+    </ElButton>
+    <ElButton @click="authToken" type="primary" size="large">auth token</ElButton>
+    <ElButton @click="getUser" size="large">get user</ElButton>
+    <ElButton @click="estublishSocketIo" size="large" type="primary">estublish SocketIo</ElButton>
+    <ElButton @click="sendMsgSocketIo" size="large" type="primary">send msg SocketIo</ElButton>
+  </ElScrollbar>
 </template>
 
 <style scoped lang="scss"></style>

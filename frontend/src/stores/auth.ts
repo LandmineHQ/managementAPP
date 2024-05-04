@@ -40,7 +40,7 @@ const useAuthStore = defineStore('auth', () => {
           ElNotification.error(res.data.error)
           return ''
         }
-        useAuthStore().saveToken(res.data.token)
+        saveToken(res.data.token)
         return res.data.token
       })
       .catch((error) => {
@@ -95,8 +95,11 @@ const useAuthStore = defineStore('auth', () => {
   }
 
   return {
+    /* state */
     isLogin,
     token,
+
+    /* methods */
     saveToken,
     removeToken,
     getToken,

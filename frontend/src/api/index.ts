@@ -13,8 +13,12 @@ function initAxios() {
 
   axios.interceptors.request.use(
     (config) => {
-      loadingInstance = ElLoading.service({ text: i18n.global.t('common.loading') })
-      requestCount++
+      // Check if the noLoading flag is set to true in the request config
+      // @ts-expect-error
+      if (config.showLoading !== false) {
+        loadingInstance = ElLoading.service({ text: i18n.global.t('common.loading') })
+        requestCount++
+      }
 
       const token = useAuthStore().token
       if (token) {

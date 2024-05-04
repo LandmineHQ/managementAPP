@@ -96,6 +96,7 @@ const useUserStore = defineStore('user', () => {
     password,
 
     getUserStore: updateUser,
+    updateUser,
     updateAttribute,
     registerUserByEmailCode,
     getCode
