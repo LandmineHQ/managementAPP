@@ -23,7 +23,6 @@ export default defineConfig({
       // Auto import functions from Vue, e.g. ref, reactive, toRef...
       // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
       imports: ['vue'],
-      resolvers: [ElementPlusResolver()],
       dts: path.resolve(import.meta.dirname + '/src', 'auto-imports.d.ts')
     }),
     Components({
