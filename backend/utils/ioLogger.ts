@@ -48,13 +48,13 @@ const streams = [
 const pinoConfig = {
   level: config.get<string>("logLevel"),
   base: {
-    name: "database",
+    name: "IO",
   },
   timestamp: () => `,"time":"${dayjs().format("YYYY-MM-DD HH:mm:ss.SSS")}"`,
 } as pino.LoggerOptions;
 
 // 日志记录工具
-const dblogger = pino(pinoConfig, multistream.multistream(streams));
+const ioLog = pino(pinoConfig, multistream.multistream(streams));
 
 // 关闭程序时重命名日志文件夹
 function onExit() {
@@ -62,5 +62,5 @@ function onExit() {
   fs.renameSync(logFilePath, newLogFilePath);
 }
 
-export default dblogger;
-export { onExit as dbLoggerOnExit };
+export default ioLog;
+export { onExit };

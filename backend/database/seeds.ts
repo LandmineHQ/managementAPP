@@ -26,6 +26,12 @@ async function createUser() {
       password: "33bg",
       identity_binding: 4,
     },
+    {
+      id: 4,
+      nickname: "debugUser",
+      email: "yuyunxi@gmail.com",
+      password: "AGqvSiojPw",
+    },
   ]);
 }
 

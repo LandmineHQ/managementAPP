@@ -3,8 +3,12 @@ import config from "config";
 
 const secret = config.get<string>("jwtConfig.secret");
 
-function validateToken(token: string) {
+function verifyToken(token: string | undefined): boolean {
   let isValidated: boolean = false;
+
+  if (token === undefined || token === "") {
+    return isValidated;
+  }
 
   try {
     // 检测是否合法
@@ -17,4 +21,4 @@ function validateToken(token: string) {
   return isValidated;
 }
 
-export { validateToken };
+export { verifyToken as validateToken, verifyToken };

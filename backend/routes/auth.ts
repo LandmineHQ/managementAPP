@@ -9,7 +9,7 @@ import RouterSendMessage from "@utils/routerSendMessage";
 function createRouter() {
   const router = express.Router();
 
-  router.post("/", requestHandler);
+  router.post("/", postHandler);
   router.post("/code/register", postCodeRegisterHanlder);
   router.post("/forget/password", postForgotPasswordHandler);
   router.get("/code", getCodeHandler);
@@ -17,7 +17,7 @@ function createRouter() {
   return router;
 }
 
-async function requestHandler(req: Request, res: Response, next: NextFunction) {
+async function postHandler(req: Request, res: Response, next: NextFunction) {
   const { email, password } = req.body;
   if (!email || !password) {
     res.status(StatusCodes.BAD_REQUEST).send("email or password is required");

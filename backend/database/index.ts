@@ -1,6 +1,6 @@
 import { Sequelize, SyncOptions } from "sequelize";
 import config from "config";
-import dblogger from "@/utils/dblogger";
+import dblogger from "@utils/dbLogger";
 import { loadModelsAssociations } from "@models";
 
 const sequelize = new Sequelize(
@@ -35,7 +35,7 @@ async function testDatabaseConnection() {
 }
 
 /** 同步数据库 */
-async function syncDatabase(options: SyncOptions) {
+async function syncDatabase(options: SyncOptions = {}) {
   dblogger.info("sync database...");
   await sequelize
     .sync(options)

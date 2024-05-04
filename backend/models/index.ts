@@ -1,4 +1,4 @@
-import dblogger from "@utils/dblogger";
+import dblogger from "@utils/dbLogger";
 
 /** 加载模型关系 */
 async function loadModelsAssociations() {

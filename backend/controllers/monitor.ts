@@ -1,36 +1,49 @@
 import packageJson from "@package.json";
 import os from "os";
-let cpuUsageLine: number[] = new Array(60).fill(0); // 初始化60个元素的数组，初始值为0
+const cpuUsageLine: Array<{ date: Date; value: number }> = Array.from(
+  { length: 60 },
+  () => ({
+    date: new Date(),
+    value: 0,
+  })
+);
+const devicesLine: Array<any> = new Array(60).fill([]);
 let currentIndex = 0; // 当前索引
 
 // 在程序启动时调用此函数开始收集数据
-startCollectingCpuUsage();
+startCollecting();
 
-function startCollectingCpuUsage() {
-  const updateCpuUsage = () => {
-    const startMeasure = cpuAverage();
+function startCollecting() {
+  function updateCpuUsageLine(index: number) {
+    cpuUsageLine[index].date = new Date(); // 更新当前索引的日期
+    getCpuUsage((cpuUsage) => {
+      cpuUsageLine[index].value = cpuUsage; // 更新当前索引的值]
+    });
+  }
+
+  function updateDevicesLine(index: number) {
+    getDevicesInfo((devicesInfo) => {
+      devicesLine[index] = devicesInfo;
+    });
+  }
+
+  function nextCollecting() {
     setTimeout(() => {
-      const endMeasure = cpuAverage();
-      const idleDifference = endMeasure.idle - startMeasure.idle;
-      const totalDifference = endMeasure.total - startMeasure.total;
-      const cpuUsage = 100 - ~~((100 * idleDifference) / totalDifference);
+      updateCpuUsageLine(currentIndex);
+      updateDevicesLine(currentIndex);
 
-      cpuUsageLine[currentIndex] = cpuUsage;
+      nextCollecting(); // 递归调用，继续收集下一秒的数据
       currentIndex = (currentIndex + 1) % 60; // 更新索引，确保它循环在0到59之间
+    }, 1000);
+  }
 
-      updateCpuUsage(); // 递归调用，继续收集下一秒的数据
-    }, 1000); // 每1秒采集一次
-  };
-
-  updateCpuUsage(); // 开始收集数据
+  nextCollecting();
 }
 
 function getSystemInfo(callback: (systemInfo: object) => void) {
   const totalMemory = os.totalmem();
   const freeMemory = os.freemem();
   const memoryUsage = ((totalMemory - freeMemory) / totalMemory) * 100;
-
-  const startMeasure = cpuAverage();
 
   // 获取Node环境信息
   const nodeVersion = process.version;
@@ -51,15 +64,10 @@ function getSystemInfo(callback: (systemInfo: object) => void) {
   };
 
   // Set delay for second measure
-  setTimeout(() => {
-    const endMeasure = cpuAverage();
-    const idleDifference = endMeasure.idle - startMeasure.idle;
-    const totalDifference = endMeasure.total - startMeasure.total;
-    const cpuUsage = 100 - ~~((100 * idleDifference) / totalDifference);
-
+  getCpuUsage((cpuUsage) => {
     res.cpuUsage = cpuUsage;
     callback(res);
-  }, 100);
+  });
 }
 
 // Function to get current average CPU usage
@@ -80,28 +88,62 @@ function cpuAverage() {
   };
 }
 
-function getDevicesInfo(callback: (deviceInfo: object) => void) {
-  const res = [
-    { temprature: 40 },
-    { temprature: 42 },
-    { temprature: 41 },
-    { temprature: 41 },
-    {},
-    { temprature: 70 },
-  ];
+function getCpuUsage(callback: (cpuUsage: number) => void) {
+  const startMeasure = cpuAverage(); // 开始测量
+
+  setTimeout(() => {
+    const endMeasure = cpuAverage(); // 结束测量
+    const idleDifference = endMeasure.idle - startMeasure.idle;
+    const totalDifference = endMeasure.total - startMeasure.total;
+    const cpuUsage = 100 - ~~((100 * idleDifference) / totalDifference);
+
+    callback(cpuUsage);
+  }, 100);
+}
+
+function getDevicesInfo(callback: (devicesInfo: object[]) => void) {
+  const res = Array.from({ length: 6 }, () => {
+    const info = {};
+    // 是否离线
+    if (Math.random() > 0.1) {
+      // 生成40到70之间的随机温度值
+      Object.defineProperty(info, "temperature", {
+        value: Math.floor(Math.random() * (70 - 40 + 1)) + 40,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      });
+    }
+    return info;
+  });
 
   callback(res);
 }
 
-function getCpuLine(callback: (cpuUsageLine: number[]) => void) {
+function getCpuLine(callback: (res: typeof cpuUsageLine) => any) {
   // 由于数据是循环收集的，需要按正确的顺序返回最近的60个数据点
-  const recentCpuUsage = [];
+  const recentCpuUsageLine = [];
   const length = cpuUsageLine.length;
   for (let i = 0; i < length; i++) {
     const index = (currentIndex + i) % length;
-    recentCpuUsage.push(cpuUsageLine[index]);
+    recentCpuUsageLine.push(cpuUsageLine[index]);
   }
-  callback(recentCpuUsage);
+  callback(recentCpuUsageLine);
 }
 
-export default { getSystemInfo, getDevicesInfo, getCpuLine };
+function getDevicesLine(callback: (devicesLine: object[]) => any) {
+  const recentDevicesLine = [];
+  const length = devicesLine.length;
+  for (let i = 0; i < length; i++) {
+    const index = (currentIndex + i) % length;
+    recentDevicesLine.push(devicesLine[index]);
+  }
+  callback(recentDevicesLine);
+}
+
+export default {
+  getSystemInfo,
+  getDevicesInfo,
+  getCpuLine,
+  getDevicesLine,
+};

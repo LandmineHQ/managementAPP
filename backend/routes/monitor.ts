@@ -8,6 +8,7 @@ function createRouter() {
   router.get("/system", getSystemHandler);
   router.get("/devices", getDevicesHandler);
   router.get("/cpuline", getCpuLineHandler);
+  router.get("/devicesline", getDevicesLineHandler);
 
   return router;
 }
@@ -26,6 +27,16 @@ function getDevicesHandler(req: Request, res: Response, next: NextFunction) {
 
 function getCpuLineHandler(req: Request, res: Response, next: NextFunction) {
   monitorController.getCpuLine((data) => {
+    RouterSendMessage.sendData(res, data);
+  });
+}
+
+function getDevicesLineHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  monitorController.getDevicesLine((data) => {
     RouterSendMessage.sendData(res, data);
   });
 }

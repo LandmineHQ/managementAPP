@@ -7,12 +7,12 @@ import log from "@utils/logger";
 import { validateToken } from "@jwt";
 
 function responseHeader(req: Request, res: Response, next: NextFunction) {
-  const { origin, Origin, referer, Referer } = req.headers;
+  const { origin, referer } = req.headers;
 
   let allowOrigin: string | string[] | undefined;
   // 如果是开发模式，则默认允许全部跨域，否则只能允许origin
   if (process.env.NODE_ENV === "development") {
-    allowOrigin = origin || Origin || referer || Referer;
+    allowOrigin = origin || referer;
   }
 
   // 允许请求源
