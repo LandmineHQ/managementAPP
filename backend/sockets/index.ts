@@ -3,12 +3,14 @@ import { Server as HTTPServer } from "http";
 import setupSocketEvent from "./events/connection";
 import initMiddleware from "@sockets/middleware";
 
-enum SOCKET {
+enum SOCKET_EVENT {
   CONNECT = "connect",
   DISCONNECT = "disconnect",
   ERROR = "error",
   MESSAGE = "message",
 }
+
+let io: SocketIOServer;
 
 const options = {
   cors: {
@@ -30,7 +32,7 @@ const options = {
 } as ServerOptions;
 
 function setupSocket(server: HTTPServer) {
-  const io = new SocketIOServer(server, options);
+  io = new SocketIOServer(server, options);
   initMiddleware(io);
 
   io.on("connection", (socket) => {
@@ -39,4 +41,5 @@ function setupSocket(server: HTTPServer) {
 }
 
 export default setupSocket;
-export { SOCKET };
+export { SOCKET_EVENT };
+export { io };

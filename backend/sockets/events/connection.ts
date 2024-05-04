@@ -1,4 +1,4 @@
-import { SOCKET } from "@sockets";
+import { SOCKET_EVENT } from "@sockets";
 import log from "@utils/logger";
 import { Socket } from "socket.io";
 
@@ -6,13 +6,13 @@ import { Socket } from "socket.io";
  * 初始化
  */
 function setupSocketEvent(socket: Socket) {
-  addEventListener(socket, SOCKET.MESSAGE, handleMessage);
-  addEventListener(socket, SOCKET.DISCONNECT, handleDisconnect);
-  addEventListener(socket, SOCKET.ERROR, handleError);
+  addEventListener(socket, SOCKET_EVENT.MESSAGE, handleMessage);
+  addEventListener(socket, SOCKET_EVENT.DISCONNECT, handleDisconnect);
+  addEventListener(socket, SOCKET_EVENT.ERROR, handleError);
 }
 
 function handleMessage(socket: Socket, data: any) {
-  socket.send(data);
+  socket.send(`server recived message: ${data}`);
 }
 
 function handleDisconnect(socket: Socket) {}
@@ -30,9 +30,9 @@ function addEventListener(
   socket.on(event, (data) => {
     // 自动记录每个事件的调用
     log.info(
-      `Event '${event}' received with data: ${JSON.stringify(
-        data
-      )} from socket ID: ${socket.id}`
+      `Event '${event}' from ${socket.handshake.address} ${
+        socket.id
+      } received with data: ${JSON.stringify(data)}`
     );
     handle(socket, data);
   });

@@ -29,7 +29,7 @@ function logConnection(socket: Socket, next: Function) {
   if (isOK) {
     next();
   } else {
-    socket.disconnect();
+    socket.disconnect(true);
   }
 }
 

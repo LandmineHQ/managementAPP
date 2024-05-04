@@ -63,4 +63,4 @@ function onExit() {
 }
 
 export default log;
-export { onExit };
+export { onExit, streams };
