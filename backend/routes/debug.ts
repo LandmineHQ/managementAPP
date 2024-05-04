@@ -1,8 +1,8 @@
 import express from "express";
-import debugController from "@controllers/debug";
+import debugController from "@controllers/debugController";
 import seeds from "@database/seeds";
 import { StatusCodes } from "http-status-codes";
-import pushController from "@controllers/pushController";
+import socketController from "@controllers/socketController";
 import RouterSendMessage from "@utils/routerSendMessage";
 
 function createRouter() {
@@ -24,7 +24,7 @@ function createRouter() {
   router.get("/push", async (req, res, next) => {
     const msg = req.query.msg as string;
     if (!msg) return RouterSendMessage.error(res, "没有输入msg参数");
-    pushController.pushNotificationGlobal(msg);
+    socketController.pushNotificationGlobal(msg);
     return RouterSendMessage.OK(res);
   });
 

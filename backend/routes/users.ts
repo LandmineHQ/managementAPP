@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import express from "express";
-import User from "@controllers/user";
+import userController from "@controllers/userController";
 import RouterSendMessage from "@utils/routerSendMessage";
 
 enum PERMISSIONS {
@@ -23,7 +23,7 @@ async function getHanlder(req: Request, res: Response) {
   if (!token) {
     return RouterSendMessage.UNAUTHORIZED(res);
   }
-  const user = await User.getByToken(token);
+  const user = await userController.getByToken(token);
   res.send(user);
 }
 
@@ -35,19 +35,19 @@ async function putHanlder(req: Request, res: Response) {
   const params = req.body;
 
   if (params.avatar) {
-    await User.updateAvatar(token, params.avatar);
+    await userController.updateAvatar(token, params.avatar);
   }
   if (params.nickname) {
-    await User.updateNickname(token, params.nickname);
+    await userController.updateNickname(token, params.nickname);
   }
   if (params.phone) {
-    await User.updatePhone(token, params.phone);
+    await userController.updatePhone(token, params.phone);
   }
   if (params.password) {
-    await User.updatePassword(token, params.password);
+    await userController.updatePassword(token, params.password);
   }
 
-  const user = await User.getByToken(token);
+  const user = await userController.getByToken(token);
   RouterSendMessage.sendData(res, user);
 }
 

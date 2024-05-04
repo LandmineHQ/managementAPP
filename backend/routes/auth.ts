@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
-import authController from "@controllers/auth";
-import userController from "@controllers/user";
+import authController from "@controllers/authController";
+import userController from "@controllers/userController";
 import log from "@utils/logger";
 import User from "@models/User";
 import RouterSendMessage from "@utils/routerSendMessage";

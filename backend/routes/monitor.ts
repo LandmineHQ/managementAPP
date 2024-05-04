@@ -1,6 +1,6 @@
 import RouterSendMessage from "@utils/routerSendMessage";
 import express, { Request, Response, NextFunction } from "express";
-import monitorController from "@controllers/monitor";
+import monitorController from "@controllers/monitorController";
 
 function createRouter() {
   const router = express.Router();
