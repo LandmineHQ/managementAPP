@@ -1,16 +1,12 @@
-import { ServerOptions, Server as SocketIOServer } from "socket.io";
+import { ServerOptions, Socket, Server as SocketIOServer } from "socket.io";
 import { Server as HTTPServer } from "http";
 import setupSocketEvent from "./events/connection";
 import initMiddleware from "@sockets/middleware";
-
-enum SOCKET_EVENT {
-  CONNECT = "connect",
-  DISCONNECT = "disconnect",
-  ERROR = "error",
-  MESSAGE = "message",
-}
+import userController from "@controllers/userController";
+import socketController from "@controllers/socketController";
 
 let io: SocketIOServer;
+const userSocketsMap = new Map();
 
 const options = {
   cors: {
@@ -35,11 +31,31 @@ function setupSocket(server: HTTPServer) {
   io = new SocketIOServer(server, options);
   initMiddleware(io);
 
-  io.on("connection", (socket) => {
+  io.on("connection", async (socket) => {
+    addSocketToUserSocketsMap(socket.id, socket);
     setupSocketEvent(socket);
   });
 }
 
+function getUserSocketBySocketId(socketId: string): Socket | undefined {
+  return userSocketsMap.get(socketId);
+}
+
+function addSocketToUserSocketsMap(socketId: string, socket: Socket) {
+  userSocketsMap.set(socketId, socket);
+  userController.updateSocketIdByToken(socket.id, socket.handshake.auth.token);
+}
+
+function deleteSocketFromUserSocketsMap(socketId: string) {
+  const socket = userSocketsMap.get(socketId);
+  userSocketsMap.delete(socketId);
+  socketController.deleteSocketBySocketId(socketId);
+}
+
 export default setupSocket;
-export { SOCKET_EVENT };
-export { io };
+export { io, userSocketsMap };
+export {
+  getUserSocketBySocketId,
+  addSocketToUserSocketsMap,
+  deleteSocketFromUserSocketsMap,
+};

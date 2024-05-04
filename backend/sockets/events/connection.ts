@@ -1,6 +1,13 @@
-import { SOCKET_EVENT } from "@sockets";
+import userController from "@controllers/userController";
+import { deleteSocketFromUserSocketsMap, userSocketsMap } from "@sockets";
 import log from "@utils/logger";
 import { Socket } from "socket.io";
+
+enum SOCKET_EVENT {
+  DISCONNECT = "disconnect",
+  ERROR = "error",
+  MESSAGE = "message",
+}
 
 /**
  * 初始化
@@ -15,11 +22,11 @@ function handleMessage(socket: Socket, data: any) {
   socket.send(`server recived message: ${data}`);
 }
 
-function handleDisconnect(socket: Socket) {}
+async function handleDisconnect(socket: Socket) {
+  deleteSocketFromUserSocketsMap(socket.id);
+}
 
 function handleError(socket: Socket) {}
-
-export default setupSocketEvent;
 
 // 添加事件监听器函数
 function addEventListener(
@@ -37,3 +44,5 @@ function addEventListener(
     handle(socket, data);
   });
 }
+
+export default setupSocketEvent;

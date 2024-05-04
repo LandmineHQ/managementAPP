@@ -3,6 +3,9 @@ import { sequelize } from "@database";
 
 class User extends Model {
   declare id: number;
+  declare createAt: Date;
+  declare updateAt: Date;
+
   declare password: string;
   declare email: string;
   declare nickname: string;

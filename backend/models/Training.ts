@@ -3,6 +3,9 @@ import { sequelize } from "@database";
 
 class Training extends Model {
   declare id: number;
+  declare createdAt: Date;
+  declare updatedAt: Date;
+
   declare person_id: number;
   declare instructor_id: number;
   declare progress: number;

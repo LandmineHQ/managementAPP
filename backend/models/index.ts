@@ -11,6 +11,7 @@ async function loadModelsAssociations() {
   const Training = (await import("./Training")).default;
   const VerificationCode = (await import("./VerificationCode")).default;
   const Message = (await import("./Message")).default;
+  const Socket = (await import("./Socket")).default;
 
   Person.hasOne(User);
   User.belongsTo(Person, { foreignKey: "identity_binding" });
@@ -27,6 +28,9 @@ async function loadModelsAssociations() {
   User.hasMany(Message, { foreignKey: "receiverId", as: "receivedMessages" });
   Message.belongsTo(User, { foreignKey: "senderId", as: "sender" });
   Message.belongsTo(User, { foreignKey: "receiverId", as: "receiver" });
+
+  User.hasOne(Socket);
+  Socket.belongsTo(User);
 }
 
 export { loadModelsAssociations };
