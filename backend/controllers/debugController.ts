@@ -1,7 +1,13 @@
 import database from "@database";
+import initSeeds, { testSeeds as databaseTestSeeds } from "@database/seeds";
 
-function rebuildDatabase() {
-  database.syncDatabase({ force: true });
+async function rebuildDatabase() {
+  await database.syncDatabase({ force: true });
+  await initSeeds();
 }
 
-export default { rebuildDatabase };
+async function testSeeds() {
+  await databaseTestSeeds();
+}
+
+export default { rebuildDatabase, testSeeds };

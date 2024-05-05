@@ -1,20 +1,19 @@
 import express from "express";
 import debugController from "@controllers/debugController";
-import seeds from "@database/seeds";
-import { StatusCodes } from "http-status-codes";
 import socketController from "@controllers/socketController";
 import RouterSendMessage from "@utils/routerSendMessage";
 
 function createRouter() {
   const router = express.Router();
 
-  router.get("/database/rebuild", async () => {
+  router.get("/database", async (req, res, next) => {
     await debugController.rebuildDatabase();
+    return RouterSendMessage.sendData(res, "数据库rebuild done");
   });
 
-  router.get("/database/seeds", async (req, res, next) => {
-    await seeds();
-    return RouterSendMessage.OK(res);
+  router.get("/seeds", async (req, res, next) => {
+    await debugController.testSeeds();
+    return RouterSendMessage.sendData(res, "测试 seeds 成功！");
   });
 
   router.get("/", async (req, res, next) => {

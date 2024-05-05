@@ -12,6 +12,8 @@ async function loadModelsAssociations() {
   const VerificationCode = (await import("./VerificationCode")).default;
   const Message = (await import("./Message")).default;
   const Socket = (await import("./Socket")).default;
+  const Image = (await import("./Image")).default;
+  const Policy = (await import("./Policy")).default;
 
   Person.hasOne(User);
   User.belongsTo(Person, { foreignKey: "identity_binding" });
@@ -19,10 +21,10 @@ async function loadModelsAssociations() {
   User.hasOne(VerificationCode);
   VerificationCode.belongsTo(User);
 
-  Person.hasMany(Training, { foreignKey: "person_id", as: "trainings" });
-  Person.hasMany(Training, { foreignKey: "instructor_id", as: "instructors" });
-  Training.belongsTo(Person, { foreignKey: "person_id" });
-  Training.belongsTo(Person, { foreignKey: "instructor_id" });
+  Person.hasMany(Training, { foreignKey: "personId", as: "trainings" });
+  Person.hasMany(Training, { foreignKey: "instructorId", as: "instructors" });
+  Training.belongsTo(Person, { foreignKey: "personId" });
+  Training.belongsTo(Person, { foreignKey: "instructorId" });
 
   User.hasMany(Message, { foreignKey: "senderId", as: "sentMessages" });
   User.hasMany(Message, { foreignKey: "receiverId", as: "receivedMessages" });
@@ -31,6 +33,13 @@ async function loadModelsAssociations() {
 
   User.hasOne(Socket);
   Socket.belongsTo(User);
+
+  Image.hasOne(User);
+  User.belongsTo(Image, { foreignKey: "avatarId", as: "avatar" });
+
+  Image.hasOne(Policy);
+  Policy.belongsTo(Image, { foreignKey: "coverId", as: "cover" });
+  Policy.belongsTo(Image, { foreignKey: "backgroundId", as: "background" });
 }
 
 export { loadModelsAssociations };

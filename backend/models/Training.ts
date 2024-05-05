@@ -6,8 +6,6 @@ class Training extends Model {
   declare createdAt: Date;
   declare updatedAt: Date;
 
-  declare person_id: number;
-  declare instructor_id: number;
   declare progress: number;
   declare course_content: JSON;
   declare steps: JSON;
@@ -16,12 +14,6 @@ class Training extends Model {
 
 Training.init(
   {
-    person_id: {
-      type: DataTypes.INTEGER,
-    },
-    instructor_id: {
-      type: DataTypes.INTEGER,
-    },
     progress: {
       type: DataTypes.INTEGER,
     },

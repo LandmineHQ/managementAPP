@@ -6,7 +6,7 @@ import log from "@utils/logger";
 import User from "@models/User";
 import RouterSendMessage from "@utils/routerSendMessage";
 
-function createRouter() {
+function createAuthRouter() {
   const router = express.Router();
 
   router.post("/", postHandler);
@@ -94,4 +94,4 @@ async function getCodeHandler(req: Request, res: Response) {
   }
 }
 
-export default createRouter;
+export default createAuthRouter;

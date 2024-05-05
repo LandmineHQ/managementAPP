@@ -50,9 +50,6 @@ User.init(
     identity_binding: {
       type: DataTypes.INTEGER,
     },
-    avatar: {
-      type: DataTypes.TEXT("medium"), // Base64 编码的图片可以存储为 TEXT 类型
-    },
     permission: {
       type: DataTypes.STRING,
     },

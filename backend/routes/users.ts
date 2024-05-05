@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import express from "express";
 import userController from "@controllers/userController";
 import RouterSendMessage from "@utils/routerSendMessage";
+import { verifyToken } from "@jwt";
 
 enum PERMISSIONS {
   USER,
@@ -9,7 +10,7 @@ enum PERMISSIONS {
   OPREATION,
 }
 
-function createRouter() {
+function createUserRouter() {
   const router = express.Router();
 
   router.get("/", getHanlder);
@@ -22,9 +23,16 @@ async function getHanlder(req: Request, res: Response) {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
     return RouterSendMessage.UNAUTHORIZED(res);
+  } else {
+    if (verifyToken(token) === false) {
+      return RouterSendMessage.error(res, "token verify error");
+    }
   }
   const user = await userController.getByToken(token);
-  res.send(user);
+  if (!user) {
+    return RouterSendMessage.error(res, "user not found");
+  }
+  return RouterSendMessage.sendData(res, user);
 }
 
 async function putHanlder(req: Request, res: Response) {
@@ -51,5 +59,5 @@ async function putHanlder(req: Request, res: Response) {
   RouterSendMessage.sendData(res, user);
 }
 
-export default createRouter;
+export default createUserRouter;
 export { PERMISSIONS };

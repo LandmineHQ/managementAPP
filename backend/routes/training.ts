@@ -1,8 +1,9 @@
 import express from "express";
 import userController from "@controllers/userController";
 import RouterSendMessage from "@utils/routerSendMessage";
+import Person from "@models/Person";
 
-function createRouter() {
+function createTrainingRouter() {
   const router = express.Router();
 
   router.get("/", getRootHandler);
@@ -20,12 +21,14 @@ async function getRootHandler(req: express.Request, res: express.Response) {
     return RouterSendMessage.error(res, "user not found");
   }
   // person
-  const person = await user.getPerson();
+  // @ts-expect-error
+  const person = (await user.getPerson()) as Person;
   if (!person) {
     return RouterSendMessage.error(res, "person not found");
   }
+  // @ts-expect-error
   const trainings = await person.getTrainings();
   return RouterSendMessage.sendData(res, trainings);
 }
 
-export default createRouter;
+export default createTrainingRouter;

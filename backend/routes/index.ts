@@ -1,12 +1,14 @@
 import express from "express";
 import { ROUTER_NAME } from "./config";
 import packageJson from "@package.json";
-import userRouter from "./users";
-import authRouter from "./auth";
+import createUserRouter from "./users";
+import createAuthRouter from "./auth";
 import debugRouter from "./debug";
-import trainingRouter from "./training";
-import monitorRouter from "./monitor";
+import createTrainingRouter from "./training";
+import createMonitorRouter from "./monitor";
 import RouterSendMessage from "@utils/routerSendMessage";
+import createPolicyRouter from "./policy";
+import createImageRouter from "./image";
 
 function createRouter() {
   const router = express.Router();
@@ -19,10 +21,12 @@ function createRouter() {
     });
   });
 
-  router.use(`/${ROUTER_NAME.USER}`, userRouter());
-  router.use(`/${ROUTER_NAME.AUTH}`, authRouter());
-  router.use(`/${ROUTER_NAME.TRAINING}`, trainingRouter());
-  router.use(`/${ROUTER_NAME.MONITOR}`, monitorRouter());
+  router.use(`/${ROUTER_NAME.USER}`, createUserRouter());
+  router.use(`/${ROUTER_NAME.AUTH}`, createAuthRouter());
+  router.use(`/${ROUTER_NAME.TRAINING}`, createTrainingRouter());
+  router.use(`/${ROUTER_NAME.MONITOR}`, createMonitorRouter());
+  router.use(`/${ROUTER_NAME.POLICY}`, createPolicyRouter());
+  router.use(`/${ROUTER_NAME.IMAGE}`, createImageRouter());
 
   if (process.env.NODE_ENV === "development") {
     router.use(`/${ROUTER_NAME.DEBUG}`, debugRouter());

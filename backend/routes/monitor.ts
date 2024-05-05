@@ -2,7 +2,7 @@ import RouterSendMessage from "@utils/routerSendMessage";
 import express, { Request, Response, NextFunction } from "express";
 import monitorController from "@controllers/monitorController";
 
-function createRouter() {
+function createMonitorRouter() {
   const router = express.Router();
 
   router.get("/system", getSystemHandler);
@@ -41,4 +41,4 @@ function getDevicesLineHandler(
   });
 }
 
-export default createRouter;
+export default createMonitorRouter;

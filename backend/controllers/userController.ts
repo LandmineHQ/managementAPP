@@ -2,11 +2,16 @@ import Socket from "@models/Socket";
 import User from "@models/User";
 import { Op } from "sequelize";
 import socketController from "./socketController";
+import Image from "@models/Image";
 
 async function getByToken(token: string) {
   const user = await User.findOne({
     where: {
       token: token,
+    },
+    include: {
+      model: Image,
+      as: "avatar",
     },
   });
   return user;
@@ -41,8 +46,15 @@ async function register(email: string, password: string, nickname?: string) {
 async function updateAvatar(token: string, newAvatar: string) {
   const user = await getByToken(token);
   if (user) {
-    user.avatar = newAvatar;
-    await user.save();
+    // @ts-expect-error
+    const avatar = (await user.getAvatar()) as Image;
+    if (!avatar) {
+      // @ts-expect-error
+      await user.createAvatar({ src: newAvatar });
+    } else {
+      avatar.src = newAvatar;
+      await avatar.save();
+    }
   }
   return user;
 }
