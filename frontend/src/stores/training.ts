@@ -1,8 +1,8 @@
 import { ROUTER_NAME } from '#/routes/config'
 import { DAEMON_HOST } from '@/api'
 import axios from 'axios'
-import { ElMessage, ElNotification } from 'element-plus'
 import { defineStore } from 'pinia'
+import useImageStore from './image'
 
 type CourseContent = {
   title: string
@@ -26,8 +26,15 @@ const useTrainingStore = defineStore('training', () => {
   const trainingList = ref<Array<Training>>([])
 
   async function getTrainingList(params: any) {
-    await axios.get(`${DAEMON_HOST}/${ROUTER_NAME.TRAINING}`, { params }).then((res) => {
+    await axios.get(`${DAEMON_HOST}/${ROUTER_NAME.TRAINING}`, { params }).then(async (res) => {
       trainingList.value = res.data
+      for (const training of trainingList.value) {
+        const id = training.course_content.coverImage
+        if (typeof id === 'number') {
+          const image = await useImageStore().getImageById(id)
+          training.course_content.coverImage = image
+        }
+      }
     })
   }
 

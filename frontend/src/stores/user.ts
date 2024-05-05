@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import { DAEMON_HOST } from '@/api'
 import { ROUTER_NAME } from '#/routes/config'
-import { ElMessage, ElNotification } from 'element-plus'
+import { ElMessage } from 'element-plus'
 
 const useUserStore = defineStore('user', () => {
   const name = ref<string>()
@@ -31,7 +31,7 @@ const useUserStore = defineStore('user', () => {
       nickname.value = user.nickname
       email.value = user.email
       uid.value = user.id
-      avatar.value = user.avatar
+      avatar.value = user.avatar ? user.avatar.src : null
       createdAt.value = user.createdAt
       preference.value = user.preference
       operationRecord.value = user.operation_record

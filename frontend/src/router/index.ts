@@ -5,6 +5,8 @@ enum ROUTER_NAME {
   MANAGEMENT = 'management',
   DATA = 'data',
   MESSAGES = 'messages',
+  MESSAGES_POLICY = 'messages/policy',
+  MESSAGES_POLICY_DETAIL = 'messages/policy/detail',
   USER = 'user',
   USER_LOGIN = 'user/login',
   USER_PROFILE = 'user/profile',
@@ -20,6 +22,7 @@ enum ROUTER_NAME {
 
 // 不使用Tab的路由
 const ROUTER_TAB_FREE = [
+  ROUTER_NAME.MESSAGES_POLICY_DETAIL,
   ROUTER_NAME.USER_HELP,
   ROUTER_NAME.USER_PROFILE,
   ROUTER_NAME.USER_PROFILE_EDIT,
@@ -32,10 +35,10 @@ const ROUTER_TAB_FREE = [
 ]
 
 // Tab Dark Theme 的路由
-const ROUTER_TAB_DARK = []
+const ROUTER_TAB_DARK = [ROUTER_NAME.MESSAGES_POLICY]
 
 // 仅占位的Tab的路由
-const ROUTER_TAB_PLACEHOLDER = []
+const ROUTER_TAB_PLACEHOLDER = [ROUTER_NAME.MESSAGES_POLICY]
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -58,6 +61,16 @@ const router = createRouter({
       path: `/${ROUTER_NAME.MESSAGES}`,
       name: ROUTER_NAME.MESSAGES,
       component: () => import('@/views/MessagesView.vue')
+    },
+    {
+      path: `/${ROUTER_NAME.MESSAGES_POLICY}`,
+      name: ROUTER_NAME.MESSAGES_POLICY,
+      component: () => import('@/views/messages/PolicyView.vue')
+    },
+    {
+      path: `/${ROUTER_NAME.MESSAGES_POLICY_DETAIL}`,
+      name: ROUTER_NAME.MESSAGES_POLICY_DETAIL,
+      component: () => import('@/views/messages/PolicyDetailView.vue')
     },
     {
       path: `/${ROUTER_NAME.USER}`,

@@ -42,6 +42,12 @@ function clickTraining() {
 function clickSecurity() {
   router.push(`/${ROUTER_NAME.USER_SECURITY}`)
 }
+
+function clickPolicy() {
+  router.push({
+    path: `/${ROUTER_NAME.MESSAGES_POLICY}`
+  })
+}
 </script>
 
 <template>
@@ -54,7 +60,7 @@ function clickSecurity() {
         </ElIcon>
       </div>
 
-      <ElText size="large">我的资料</ElText>
+      <ElText size="large">{{ $t('wo-de-zi-liao') }}</ElText>
 
       <div>
         <ElIcon :size="26">
@@ -95,8 +101,8 @@ function clickSecurity() {
           </ElCol>
 
           <ElCol v-if="useAuthStore().isLogin">
-            <ElTag v-if="useUserStore().identityBinding">已认证</ElTag>
-            <ElTag v-else type="danger" effect="dark">未认证</ElTag>
+            <ElTag v-if="useUserStore().identityBinding">{{ $t('yi-ren-zheng') }}</ElTag>
+            <ElTag v-else type="danger" effect="dark">{{ $t('wei-ren-zheng') }}</ElTag>
           </ElCol>
         </ElSpace>
       </ElSpace>
@@ -109,7 +115,7 @@ function clickSecurity() {
 
     <ElRow justify="center">
       <ElSpace size="large" class="user-view--next3">
-        <ElRow>
+        <ElRow @click="clickPolicy">
           <ElCol>
             <ElRow justify="center">
               <ElIcon :size="28" color="#409EFF">
@@ -119,7 +125,7 @@ function clickSecurity() {
           </ElCol>
           <ElCol>
             <ElRow justify="center">
-              <ElText size="small">政策法规</ElText>
+              <ElText size="small">{{ $t('zheng-ce-fa-gui') }}</ElText>
             </ElRow>
           </ElCol>
         </ElRow>
@@ -137,11 +143,14 @@ function clickSecurity() {
           </ElCol>
           <ElCol>
             <ElRow justify="center">
-              <ElText size="small">安全生产</ElText>
+              <ElText size="small">{{ $t('an-quan-sheng-chan') }}</ElText>
             </ElRow>
           </ElCol>
         </ElRow>
-        <ElRow v-if="useAuthStore().isLogin" @click="clickTraining">
+        <ElRow
+          v-if="useAuthStore().isLogin && useUserStore().identityBinding"
+          @click="clickTraining"
+        >
           <ElCol>
             <ElRow justify="center">
               <ElIcon :size="28" color="#409EFF">
@@ -151,7 +160,7 @@ function clickSecurity() {
           </ElCol>
           <ElCol>
             <ElRow justify="center">
-              <ElText size="small">培训</ElText>
+              <ElText size="small">{{ $t('pei-xun') }}</ElText>
             </ElRow>
           </ElCol>
         </ElRow>
@@ -176,7 +185,7 @@ function clickSecurity() {
         v-if="useAuthStore().isLogin"
         @click="clickSecurity"
       >
-        <ElText size="large">安全中心</ElText>
+        <ElText size="large">{{ $t('an-quan-zhong-xin') }}</ElText>
         <ElIcon>
           <EpArrowRight />
         </ElIcon>
@@ -186,13 +195,13 @@ function clickSecurity() {
         align="middle"
         @click="router.push(`/${ROUTER_NAME.USER_HELP}`)"
       >
-        <ElText size="large">帮助中心</ElText>
+        <ElText size="large">{{ $t('bang-zhu-zhong-xin') }}</ElText>
         <ElIcon>
           <EpArrowRight />
         </ElIcon>
       </ElRow>
       <ElRow justify="space-between" align="middle">
-        <ElText size="large">在线联系</ElText>
+        <ElText size="large">{{ $t('zai-xian-lian-xi') }}</ElText>
         <ElIcon>
           <EpArrowRight />
         </ElIcon>
@@ -206,7 +215,7 @@ function clickSecurity() {
       v-if="useAuthStore().isLogin"
       @click="clickLogOut"
     >
-      <ElText type="danger" size="large">退出登录</ElText>
+      <ElText type="danger" size="large">{{ $t('tui-chu-deng-lu') }}</ElText>
       <ElIcon>
         <EpArrowRight />
       </ElIcon>

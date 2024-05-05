@@ -1,8 +1,20 @@
 {
+  "an-quan-sheng-chan": "安全生产",
+  "an-quan-zhong-xin": "安全中心",
+  "bang-zhu-zhong-xin": "帮助中心",
   "common.loading": "加载中……",
+  "pei-xun": "培训",
   "tabBar.data": "数据",
   "tabBar.management": "管理",
   "tabBar.messages": "消息",
   "tabBar.user": "用户",
-  "version": "0.0.1"
+  "tui-chu-deng-lu": "退出登录",
+  "version": "0.0.1",
+  "wei-ren-zheng": "未认证",
+  "wo-de-zi-liao": "我的资料",
+  "yi-ren-zheng": "已认证",
+  "zai-xian-lian-xi": "在线联系",
+  "zheng-ce-fa-gui": "政策法规",
+  "zheng-ce-jie-du-yu-fen-xi": "政策解读与分析",
+  "zheng-fa-xiao-zhu-shou": "政法小助手"
 }

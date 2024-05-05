@@ -8,14 +8,22 @@ import useUserStore from './user'
 
 const useAuthStore = defineStore('auth', () => {
   const isLogin = ref(false)
-  const token = ref(localStorage.getItem('token') || '')
+  const token = ref(localStorage.getItem('token'))
 
-  // 初始化方法，从LocalStorage读取token
-  const storedToken = localStorage.getItem('token')
-  if (storedToken) {
-    isLogin.value = true
-    token.value = storedToken
-    useUserStore().getUserStore()
+  if (token.value) {
+    useUserStore()
+      .updateUser()
+      .then(() => {
+        isLogin.value = true
+      })
+      .catch(() => {
+        ElNotification.error({
+          message: '验证过期，请重新登录！',
+          offset: 300,
+          showClose: false
+        })
+        removeToken()
+      })
   }
 
   function saveToken(newToken?: string) {

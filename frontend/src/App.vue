@@ -23,7 +23,6 @@ const appConfig = reactive({
 })
 
 function changeTabBarSelected(selected: ROUTER_NAME) {
-  console.log('changeTabBarSelected', selected)
   router.push(`/${selected}`)
 }
 

@@ -4,7 +4,14 @@
     <ElSpace size="large" fill class="training-view">
       <div class="card" v-for="(item, index) in useTrainingStore().trainingList" :key="index">
         <div class="cover">
-          <ElImage fit="cover" :src="item.course_content.coverImage">
+          <ElImage
+            fit="cover"
+            :src="
+              typeof item.course_content.coverImage === 'string'
+                ? item.course_content.coverImage
+                : undefined
+            "
+          >
             <template #error>
               <div class="image-slot">
                 <el-icon>
@@ -45,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { ElImage, ElLink, ElLoading, ElMessage, ElSpace, ElScrollbar, ElText } from 'element-plus'
+import { ElImage, ElLink, ElSpace, ElScrollbar, ElText } from 'element-plus'
 import useTrainingStore from '@/stores/training'
 import { useRoute, useRouter } from 'vue-router'
 import { ROUTER_NAME } from '@/router'

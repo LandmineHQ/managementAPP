@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ROUTER_NAME } from '@/router'
 import useAuthStore from '@/stores/auth'
+import usePolicyStore from '@/stores/policy'
 import { Search } from '@element-plus/icons-vue'
 import { ElImage, ElSkeleton, ElSkeletonItem, ElSpace } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
@@ -12,20 +13,12 @@ const input = ref<string>()
 const isLoading = ref(true)
 
 async function freshData() {
-  setTimeout(() => {
+  setTimeout(async () => {
+    await usePolicyStore().getLatestPolicy()
     isLoading.value = false
   }, 500)
 }
 
-watch(
-  () => route.path,
-  () => {
-    if (route.path.endsWith(ROUTER_NAME.MESSAGES)) {
-      isLoading.value = true
-      freshData()
-    }
-  }
-)
 onMounted(() => {
   freshData()
 })
@@ -42,10 +35,14 @@ onMounted(() => {
       </el-input>
 
       <ElSpace fill direction="vertical" style="width: 100%">
-        <div class="laws-helper">
+        <div class="laws-helper" @click="router.push(`/${ROUTER_NAME.MESSAGES_POLICY}`)">
           <ElRow>
             <ElCol :span="12">
-              <ElImage class="image" fit="cover"></ElImage>
+              <ElImage
+                class="image"
+                :src="usePolicyStore().latestPolicy.cover.src"
+                fit="cover"
+              ></ElImage>
             </ElCol>
             <ElCol :span="1"></ElCol>
             <ElCol :span="8">
