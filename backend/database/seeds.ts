@@ -457,6 +457,21 @@ async function createImage() {
     {
       src: images.getBase64_5(),
     },
+    {
+      src: images.getBase64_6(),
+    },
+    {
+      src: images.getBase64_7(),
+    },
+    {
+      src: images.getBase64_8(),
+    },
+    {
+      src: images.getBase64_9(),
+    },
+    {
+      src: images.getBase64_10(),
+    },
   ]);
 }
 
