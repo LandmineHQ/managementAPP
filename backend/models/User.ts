@@ -1,6 +1,12 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "@database";
 
+enum USER_PERMISSIONS {
+  USER = 0b001,
+  LAW = 0b010,
+  OPREATION = 0b100,
+}
+
 class User extends Model {
   declare id: number;
   declare createAt: Date;
@@ -64,3 +70,4 @@ User.init(
 );
 
 export default User;
+export { USER_PERMISSIONS };

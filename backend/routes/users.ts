@@ -4,12 +4,6 @@ import userController from "@controllers/userController";
 import RouterSendMessage from "@utils/routerSendMessage";
 import { verifyToken } from "@jwt";
 
-enum PERMISSIONS {
-  USER,
-  LAW,
-  OPREATION,
-}
-
 function createUserRouter() {
   const router = express.Router();
 
@@ -60,4 +54,3 @@ async function putHanlder(req: Request, res: Response) {
 }
 
 export default createUserRouter;
-export { PERMISSIONS };

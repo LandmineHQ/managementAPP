@@ -1,5 +1,5 @@
 import Socket from "@models/Socket";
-import User from "@models/User";
+import User, { USER_PERMISSIONS } from "@models/User";
 import { Op } from "sequelize";
 import socketController from "./socketController";
 import Image from "@models/Image";
@@ -27,19 +27,9 @@ async function updateSocketIdByToken(scoketId: string | null, token: string) {
 }
 
 async function register(email: string, password: string, nickname?: string) {
-  let user;
-  if (!nickname) {
-    user = await User.create({
-      email,
-      password,
-    });
-  } else {
-    user = await User.create({
-      email,
-      password,
-      nickname,
-    });
-  }
+  let info = { email, password, permission: USER_PERMISSIONS.USER };
+  if (!nickname) Object.defineProperty(info, "nickname", { value: nickname });
+  const user = await User.create(info);
   return user;
 }
 

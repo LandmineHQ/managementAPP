@@ -14,6 +14,7 @@ async function loadModelsAssociations() {
   const Socket = (await import("./Socket")).default;
   const Image = (await import("./Image")).default;
   const Policy = (await import("./Policy")).default;
+  const Group = (await import("./Group")).default;
 
   Person.hasOne(User);
   User.belongsTo(Person, { foreignKey: "identity_binding" });
@@ -40,6 +41,20 @@ async function loadModelsAssociations() {
   Image.hasOne(Policy);
   Policy.belongsTo(Image, { foreignKey: "coverId", as: "cover" });
   Policy.belongsTo(Image, { foreignKey: "backgroundId", as: "background" });
+
+  User.belongsToMany(Group, {
+    foreignKey: "groupId",
+    through: "UserGroup",
+    as: "groups",
+  });
+  Group.belongsToMany(User, {
+    foreignKey: "userId",
+    through: "UserGroup",
+    as: "users",
+  });
+
+  Image.hasOne(Group);
+  Group.belongsTo(Image, { foreignKey: "avatarId", as: "avatar" });
 }
 
 export { loadModelsAssociations };

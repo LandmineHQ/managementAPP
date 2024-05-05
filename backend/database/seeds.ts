@@ -1,9 +1,10 @@
 import Person from "@models/Person";
 import Training from "@models/Training";
-import User from "@models/User";
+import User, { USER_PERMISSIONS } from "@models/User";
 import images from "./images";
 import Policy from "@models/Policy";
 import Image from "@models/Image";
+import Group from "@models/Group";
 
 async function createUser() {
   await User.bulkCreate([
@@ -14,6 +15,7 @@ async function createUser() {
       password: "11",
       identity_binding: 2,
       avatarId: 3,
+      permission: USER_PERMISSIONS.USER,
     },
     {
       id: 2,
@@ -22,6 +24,7 @@ async function createUser() {
       password: "22",
       identity_binding: 3,
       avatarId: 4,
+      permission: USER_PERMISSIONS.USER,
     },
     {
       id: 3,
@@ -30,12 +33,26 @@ async function createUser() {
       password: "33bg",
       identity_binding: 4,
       avatarId: 5,
+      permission: USER_PERMISSIONS.USER,
     },
     {
       id: 4,
       nickname: "debugUser",
       email: "yuyunxi@gmail.com",
       password: "AGqvSiojPw",
+      avatarId: 6,
+      permission: USER_PERMISSIONS.USER,
+    },
+    {
+      id: 5,
+      nickname: "admin",
+      email: "admin",
+      password: "admin",
+      avatarId: 10,
+      permission:
+        USER_PERMISSIONS.USER |
+        USER_PERMISSIONS.OPREATION |
+        USER_PERMISSIONS.LAW,
     },
   ]);
 }
@@ -475,12 +492,28 @@ async function createImage() {
   ]);
 }
 
+async function createGroup() {
+  await Group.bulkCreate([
+    {
+      name: "Mortar",
+      description:
+        "Mortar is a group of people who are passionate about technology and want to help",
+    },
+    {
+      name: "MineCraft",
+      description:
+        "MineCraft is a group of people who are passionate about technology and want to help",
+    },
+  ]);
+}
+
 async function initSeeds() {
   await createImage();
   await createPerson();
   await createUser();
   await createTraining();
   await createPolicy();
+  await createGroup();
 }
 
 async function testSeeds() {}

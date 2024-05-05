@@ -19,9 +19,6 @@ Group.init(
     description: {
       type: DataTypes.STRING,
     },
-    members: {
-      type: DataTypes.JSON,
-    },
   },
   {
     sequelize,
