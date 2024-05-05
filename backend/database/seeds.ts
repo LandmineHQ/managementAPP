@@ -489,6 +489,9 @@ async function createImage() {
     {
       src: images.getBase64_10(),
     },
+    {
+      src: images.getBase64_11(),
+    },
   ]);
 }
 
@@ -498,11 +501,13 @@ async function createGroup() {
       name: "Mortar",
       description:
         "Mortar is a group of people who are passionate about technology and want to help",
+      avatarId: 11,
     },
     {
       name: "MineCraft",
       description:
         "MineCraft is a group of people who are passionate about technology and want to help",
+      avatarId: 10,
     },
   ]);
 }
