@@ -3,21 +3,17 @@ import { sequelize } from "@/database"; // 确保这里的路径根据您的项�
 
 class Message extends Model {
   declare id: number;
-  declare senderId: number;
-  declare receiverId: number;
-  declare content: string;
   declare createdAt: Date;
   declare updatedAt: Date;
+
+  declare type: string;
+  declare content: string;
 }
 
 Message.init(
   {
-    senderId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    receiverId: {
-      type: DataTypes.INTEGER,
+    type: {
+      type: DataTypes.JSON,
       allowNull: false,
     },
     content: {
