@@ -2,11 +2,15 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 
 enum ROUTER_NAME {
   ROOT = '',
+
   MANAGEMENT = 'management',
+
   DATA = 'data',
+
   MESSAGES = 'messages',
   MESSAGES_POLICY = 'messages/policy',
   MESSAGES_POLICY_DETAIL = 'messages/policy/detail',
+
   USER = 'user',
   USER_LOGIN = 'user/login',
   USER_PROFILE = 'user/profile',
@@ -17,7 +21,9 @@ enum ROUTER_NAME {
   USER_TRAINING = 'user/training',
   USER_TRAINING_DETAIL = 'user/training/details',
   USER_SECURITY = 'user/security',
-  DEBUG = 'debug'
+
+  DEBUG = 'debug',
+  DEBUG_IMAGES = 'debug/images'
 }
 
 // 不使用Tab的路由
@@ -47,16 +53,22 @@ const router = createRouter({
       path: '/',
       redirect: ROUTER_NAME.MANAGEMENT
     },
+
+    /* management */
     {
       path: `/${ROUTER_NAME.MANAGEMENT}`,
       name: ROUTER_NAME.MANAGEMENT,
       component: () => import('@/views/ManagementView.vue')
     },
+
+    /* data */
     {
       path: `/${ROUTER_NAME.DATA}`,
       name: ROUTER_NAME.DATA,
       component: () => import('@/views/DataView.vue')
     },
+
+    /* messages */
     {
       path: `/${ROUTER_NAME.MESSAGES}`,
       name: ROUTER_NAME.MESSAGES,
@@ -72,15 +84,12 @@ const router = createRouter({
       name: ROUTER_NAME.MESSAGES_POLICY_DETAIL,
       component: () => import('@/views/messages/PolicyDetailView.vue')
     },
+
+    /* user */
     {
       path: `/${ROUTER_NAME.USER}`,
       name: ROUTER_NAME.USER,
       component: () => import('@/views/UserView.vue')
-    },
-    {
-      path: `/${ROUTER_NAME.DEBUG}`,
-      name: ROUTER_NAME.DEBUG,
-      component: () => import('@/views/DebugView.vue')
     },
     {
       path: `/${ROUTER_NAME.USER_LOGIN}`,
@@ -126,6 +135,18 @@ const router = createRouter({
       path: `/${ROUTER_NAME.USER_SECURITY}`,
       name: ROUTER_NAME.USER_SECURITY,
       component: () => import('@/views/user/SecurityView.vue')
+    },
+
+    /* debug */
+    {
+      path: `/${ROUTER_NAME.DEBUG}`,
+      name: ROUTER_NAME.DEBUG,
+      component: () => import('@/views/DebugView.vue')
+    },
+    {
+      path: `/${ROUTER_NAME.DEBUG_IMAGES}`,
+      name: ROUTER_NAME.DEBUG_IMAGES,
+      component: () => import('@/views/debug/ImagesView.vue')
     }
   ]
 })
