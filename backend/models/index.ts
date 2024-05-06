@@ -43,12 +43,12 @@ async function loadModelsAssociations() {
   Policy.belongsTo(Image, { foreignKey: "backgroundId", as: "background" });
 
   User.belongsToMany(Group, {
-    foreignKey: "groupId",
+    foreignKey: "userId",
     through: "UserGroup",
     as: "groups",
   });
   Group.belongsToMany(User, {
-    foreignKey: "userId",
+    foreignKey: "groupId",
     through: "UserGroup",
     as: "users",
   });

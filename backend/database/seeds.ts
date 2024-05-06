@@ -5,6 +5,7 @@ import images from "./images";
 import Policy from "@models/Policy";
 import Image from "@models/Image";
 import Group from "@models/Group";
+import { Op } from "sequelize";
 
 async function createUser() {
   await User.bulkCreate([
@@ -41,11 +42,14 @@ async function createUser() {
       email: "yuyunxi@gmail.com",
       password: "AGqvSiojPw",
       avatarId: 6,
-      permission: USER_PERMISSIONS.USER,
+      permission:
+        USER_PERMISSIONS.USER |
+        USER_PERMISSIONS.OPREATION |
+        USER_PERMISSIONS.LAW,
     },
     {
       id: 5,
-      nickname: "admin",
+      nickname: "超级管理员",
       email: "admin",
       password: "admin",
       avatarId: 10,
@@ -53,6 +57,46 @@ async function createUser() {
         USER_PERMISSIONS.USER |
         USER_PERMISSIONS.OPREATION |
         USER_PERMISSIONS.LAW,
+    },
+    {
+      id: 6,
+      nickname: "飞虎",
+      avatarId: 13,
+    },
+    {
+      id: 7,
+      nickname: "刘涛",
+      avatarId: 14,
+    },
+    {
+      id: 8,
+      nickname: "梁于",
+      avatarId: 15,
+    },
+    {
+      id: 9,
+      nickname: "ABC",
+      avatarId: 5,
+    },
+    {
+      id: 10,
+      nickname: "郑静",
+      avatarId: 16,
+    },
+    {
+      id: 11,
+      nickname: "DEF",
+      avatarId: 17,
+    },
+    {
+      id: 12,
+      nickname: "GHI",
+      avatarId: 18,
+    },
+    {
+      id: 13,
+      nickname: "JHL",
+      avatarId: 4,
     },
   ]);
 }
@@ -492,24 +536,63 @@ async function createImage() {
     {
       src: images.getBase64_11(),
     },
+    {
+      src: images.getBase64_12(),
+    },
+    {
+      src: images.getBase64_13(),
+    },
+    {
+      src: images.getBase64_14(),
+    },
+    {
+      src: images.getBase64_15(),
+    },
+    {
+      src: images.getBase64_16(),
+    },
+    {
+      src: images.getBase64_17(),
+    },
+    {
+      src: images.getBase64_18(),
+    },
+    {
+      src: images.getBase64_19(),
+    },
   ]);
 }
 
 async function createGroup() {
-  await Group.bulkCreate([
-    {
-      name: "Mortar",
-      description:
-        "Mortar is a group of people who are passionate about technology and want to help",
-      avatarId: 11,
+  const mortar = await Group.build({
+    id: 1,
+    name: "Mortar",
+    description:
+      "Mortar is a group of people who are passionate about technology and want to help",
+    avatarId: 11,
+  });
+  const mortarMenbers = await User.findAll({
+    where: {
+      id: {
+        [Op.gte]: 5,
+        [Op.lte]: 13,
+      },
     },
-    {
-      name: "MineCraft",
-      description:
-        "MineCraft is a group of people who are passionate about technology and want to help",
-      avatarId: 10,
-    },
-  ]);
+  });
+  // @ts-expect-error
+  mortar.addUsers(mortarMenbers);
+  await mortar.save();
+
+  const minecraft = await Group.build({
+    id: 2,
+    name: "MineCraft",
+    description:
+      "MineCraft is a group of people who are passionate about technology and want to help",
+    avatarId: 10,
+  });
+
+  await mortar.save();
+  await minecraft.save();
 }
 
 async function initSeeds() {

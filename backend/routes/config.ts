@@ -7,6 +7,7 @@ enum ROUTER_NAME {
   MONITOR = "monitor",
   POLICY = "policy",
   IMAGE = "image",
+  GROUP = "group",
 }
 
 const ROUTER_TOKENLESS = [
