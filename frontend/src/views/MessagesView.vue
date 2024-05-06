@@ -13,6 +13,7 @@ const input = ref<string>()
 const isLoading = ref(true)
 
 async function freshData() {
+  if (useAuthStore().isLogin === false) return
   setTimeout(async () => {
     await usePolicyStore().getLatestPolicy()
     isLoading.value = false
