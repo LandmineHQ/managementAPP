@@ -2,6 +2,7 @@
 import { ROUTER_NAME } from '@/router'
 import useAuthStore from '@/stores/auth'
 import usePolicyStore from '@/stores/policy'
+import useGroupStore from '@/stores/group'
 import { Search } from '@element-plus/icons-vue'
 import { ElImage, ElSkeleton, ElSkeletonItem, ElSpace } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
@@ -13,12 +14,20 @@ const input = ref<string>()
 const isLoading = ref(true)
 
 async function freshData() {
+  // 未登录
   if (useAuthStore().isLogin === false) return
-  setTimeout(async () => {
-    await usePolicyStore().getLatestPolicy()
+
+  const policyPromise = usePolicyStore().getLatestPolicy()
+  const groupPromise = useGroupStore().getGroups()
+
+  Promise.all([policyPromise, groupPromise]).then(() => {
     isLoading.value = false
-  }, 500)
+  })
 }
+
+watch(()=>route.path,()=>{
+  
+})
 
 onMounted(() => {
   freshData()
