@@ -590,6 +590,13 @@ async function createGroup() {
       "MineCraft is a group of people who are passionate about technology and want to help",
     avatarId: 10,
   });
+  const minecraftMenbers = await User.findAll({
+    where: {
+      id: 5,
+    },
+  });
+  // @ts-expect-error
+  minecraft.addUsers(minecraftMenbers);
 
   await mortar.save();
   await minecraft.save();
