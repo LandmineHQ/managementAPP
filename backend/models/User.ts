@@ -2,9 +2,9 @@ import { Model, DataTypes } from "sequelize";
 import { sequelize } from "@database";
 
 enum USER_PERMISSIONS {
-  USER = 0b001,
-  LAW = 0b010,
-  OPREATION = 0b100,
+  USER = 1 << 0,
+  LAW = 1 << 1,
+  OPREATION = 1 << 2,
 }
 
 class User extends Model {
