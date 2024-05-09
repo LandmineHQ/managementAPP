@@ -18,9 +18,9 @@ const isLoading = ref(true)
 const computedSessionList = computed(() => {
   if (sessionList.value.length > 0) {
     return sessionList.value.sort((a, b) => {
-      if (!a.date || !b.date) {
-        return 0
-      }
+      const nowDate = dayjs().toString()
+      if (!a.date) a.date = nowDate
+      if (!b.date) b.date = nowDate
       return dayjs(a.date).isAfter(b.date) ? -1 : 1
     })
   } else {
@@ -49,36 +49,7 @@ async function freshPolicy() {
   await policyPromise
 }
 
-async function freshData(showLoading = true) {
-  isLoading.value = true
-  const groupPromise = useGroupStore().getGroups(showLoading)
-  const privateMessagesPromise = useMessageStore().getPrivate(showLoading)
-
-  await groupPromise
-  await privateMessagesPromise
-  isLoading.value = false
-
-  /* 清空sessions */
-  sessionList.value = []
-  /* 增加群组sessions */
-  for (let group of useGroupStore().groups) {
-    const newSession = {
-      id: group.id,
-      type: 'group',
-      title: group.name,
-      content: '',
-      date: '',
-      badge: 0,
-      avatar: undefined
-    } as (typeof sessionList.value)[0]
-    /* 得到群组头像 */
-    useGroupStore()
-      .getGroupProfileByGroupId(group.id)
-      .then((profile) => {
-        newSession.avatar = profile.avatar
-        sessionList.value.push(newSession)
-      })
-  }
+async function freshPrivateMessages() {
   /* 增加私聊sessions */
   // 假设消息类型为any，根据实际情况调整
   const messagesBySender = new Map<number, Array<any>>()
@@ -120,6 +91,44 @@ async function freshData(showLoading = true) {
         sessionList.value.push(newSession)
       })
   })
+}
+
+async function freshGroupMessages() {
+  /* 增加群组sessions */
+  for (let group of useGroupStore().groups) {
+    const newSession = {
+      id: group.id,
+      type: 'group',
+      title: group.name,
+      content: '',
+      date: '',
+      badge: 0,
+      avatar: undefined
+    } as (typeof sessionList.value)[0]
+    /* 得到群组头像 */
+    useGroupStore()
+      .getGroupProfileByGroupId(group.id)
+      .then((profile) => {
+        newSession.avatar = profile.avatar
+        sessionList.value.push(newSession)
+      })
+  }
+}
+
+async function freshData(showLoading = true) {
+  isLoading.value = true
+  const groupPromise = useGroupStore().getGroups(showLoading)
+  const privateMessagesPromise = useMessageStore().getPrivate(showLoading)
+
+  await groupPromise
+  await privateMessagesPromise
+  isLoading.value = false
+
+  /* 清空sessions */
+  sessionList.value = []
+  /* 刷新消息 */
+  freshPrivateMessages()
+  freshGroupMessages()
 }
 
 watch(
