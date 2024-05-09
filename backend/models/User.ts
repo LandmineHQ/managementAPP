@@ -20,7 +20,6 @@ class User extends Model {
   declare preference: object;
   declare operation_record: object;
   declare identity_binding: string;
-  declare avatar: string;
   declare permission: string;
   declare phone: string;
 }

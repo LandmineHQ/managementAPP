@@ -19,6 +19,8 @@ const useUserStore = defineStore('user', () => {
   const phone = ref<string>()
   const password = ref<string>('***')
 
+  const profiles = ref(new Map<string, any>())
+
   async function updateUser(user?: any) {
     if (!user) {
       user = await axios.get(`${DAEMON_HOST}/${ROUTER_NAME.USER}`).then((res) => {
@@ -81,7 +83,21 @@ const useUserStore = defineStore('user', () => {
     return isOk
   }
 
+  async function getProfileByUserId(id: string) {
+    if (profiles.value.has(id)) return profiles.value.get(id)
+    const data = await axios
+      .get(`${DAEMON_HOST}/${ROUTER_NAME.USER}/profile`, {
+        params: {
+          id: id
+        }
+      })
+      .then((res) => res.data)
+    profiles.value.set(id, data)
+    return data
+  }
+
   return {
+    /* states */
     email,
     permission,
     avatar,
@@ -95,11 +111,15 @@ const useUserStore = defineStore('user', () => {
     phone,
     password,
 
+    profiles,
+
+    /* methods */
     getUserStore: updateUser,
     updateUser,
     updateAttribute,
     registerUserByEmailCode,
-    getCode
+    getCode,
+    getProfileByUserId
   }
 })
 

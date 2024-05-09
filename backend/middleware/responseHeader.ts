@@ -1,10 +1,8 @@
-import ROUTER_NAME, { ROUTER_TOKENLESS } from "@routes/config";
+import { ROUTER_TOKENLESS } from "@routes/config";
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
-import jwt from "jsonwebtoken";
-import config from "config";
-import log from "@utils/logger";
-import { validateToken } from "@jwt";
+import { verifyToken } from "@jwt";
+import RouterSendMessage from "@utils/routerSendMessage";
 
 function responseHeader(req: Request, res: Response, next: NextFunction) {
   const { origin, referer } = req.headers;
@@ -36,14 +34,12 @@ function responseHeader(req: Request, res: Response, next: NextFunction) {
     /* 路由需要鉴权 */
     // 没有token
     if (!req.headers.authorization) {
-      res.sendStatus(StatusCodes.UNAUTHORIZED);
-      return;
+      return RouterSendMessage.UNAUTHORIZED(res);
     }
 
     const token = req.headers.authorization.split(" ")[1];
-    if (validateToken(token) === false) {
-      res.sendStatus(StatusCodes.UNAUTHORIZED);
-      return;
+    if (verifyToken(token) === false) {
+      return RouterSendMessage.UNAUTHORIZED(res);
     }
   }
 

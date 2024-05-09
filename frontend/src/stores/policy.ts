@@ -44,8 +44,11 @@ const usePolicyStore = defineStore('policy', () => {
     return policies
   }
 
-  async function getLatestPolicy() {
-    const policy = await axios(`${DAEMON_HOST}/${ROUTER_NAME.POLICY}`, {}).then((res) => res.data)
+  async function getLatestPolicy(showLoading = true) {
+    const policy = await axios(`${DAEMON_HOST}/${ROUTER_NAME.POLICY}`, {
+      // @ts-expect-error
+      showLoading: showLoading
+    }).then((res) => res.data)
     latestPolicy.value = policy
 
     return policy

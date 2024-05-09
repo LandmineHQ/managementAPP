@@ -2,6 +2,7 @@ import express from "express";
 import userController from "@controllers/userController";
 import RouterSendMessage from "@utils/routerSendMessage";
 import Person from "@models/Person";
+import { parseTokenFromHeaders } from "@jwt";
 
 function createTrainingRouter() {
   const router = express.Router();
@@ -12,10 +13,7 @@ function createTrainingRouter() {
 }
 
 async function getRootHandler(req: express.Request, res: express.Response) {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    return RouterSendMessage.error(res, "token is required");
-  }
+  const token = parseTokenFromHeaders(req.headers) as string;
   const user = await userController.getByToken(token);
   if (!user) {
     return RouterSendMessage.error(res, "user not found");

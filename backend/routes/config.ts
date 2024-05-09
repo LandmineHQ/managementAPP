@@ -8,6 +8,7 @@ enum ROUTER_NAME {
   POLICY = "policy",
   IMAGE = "image",
   GROUP = "group",
+  MESSAGE = "message",
 }
 
 const ROUTER_TOKENLESS = [

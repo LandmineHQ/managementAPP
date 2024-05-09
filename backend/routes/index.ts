@@ -10,6 +10,7 @@ import RouterSendMessage from "@utils/routerSendMessage";
 import createPolicyRouter from "./policy";
 import createImageRouter from "./image";
 import createGroupRouter from "./group";
+import createMessageRouter from "./message";
 
 function createRouter() {
   const router = express.Router();
@@ -29,6 +30,7 @@ function createRouter() {
   router.use(`/${ROUTER_NAME.POLICY}`, createPolicyRouter());
   router.use(`/${ROUTER_NAME.IMAGE}`, createImageRouter());
   router.use(`/${ROUTER_NAME.GROUP}`, createGroupRouter());
+  router.use(`/${ROUTER_NAME.MESSAGE}`, createMessageRouter());
 
   if (process.env.NODE_ENV === "development") {
     router.use(`/${ROUTER_NAME.DEBUG}`, debugRouter());

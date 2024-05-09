@@ -8,6 +8,8 @@ class Message extends Model {
 
   declare type: string;
   declare content: string;
+  // 是否已读
+  declare isRead: boolean;
 }
 
 Message.init(
@@ -18,7 +20,9 @@ Message.init(
     },
     content: {
       type: DataTypes.JSON,
-      allowNull: false,
+    },
+    isRead: {
+      type: DataTypes.BOOLEAN,
     },
   },
   {

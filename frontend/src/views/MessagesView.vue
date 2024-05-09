@@ -3,9 +3,11 @@ import { ROUTER_NAME } from '@/router'
 import useAuthStore from '@/stores/auth'
 import usePolicyStore from '@/stores/policy'
 import useGroupStore from '@/stores/group'
+import useMessageStore from '@/stores/message'
 import { Search } from '@element-plus/icons-vue'
-import { ElImage, ElSkeleton, ElSkeletonItem, ElSpace } from 'element-plus'
+import { ElImage, ElSkeleton, ElSkeletonItem, ElSpace, dayjs } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
+import useUserStore from '@/stores/user'
 
 const router = useRouter()
 const route = useRoute()
@@ -13,24 +15,127 @@ const route = useRoute()
 const input = ref<string>()
 const isLoading = ref(true)
 
-async function freshData() {
-  // 未登录
-  if (useAuthStore().isLogin === false) return
+const computedSessionList = computed(() => {
+  if (sessionList.value.length > 0) {
+    return sessionList.value.sort((a, b) => {
+      if (!a.date || !b.date) {
+        return 0
+      }
+      return dayjs(a.date).isAfter(b.date) ? -1 : 1
+    })
+  } else {
+    return []
+  }
+})
+const sessionList = ref<
+  Array<{
+    id: number
+    type: 'group' | 'private'
+    title: string
+    content: string
+    date: string
+    badge: number
+    avatar:
+      | {
+          id: number
+          src: string | undefined
+        }
+      | any
+  }>
+>([])
 
+async function freshPolicy() {
   const policyPromise = usePolicyStore().getLatestPolicy()
-  const groupPromise = useGroupStore().getGroups()
+  await policyPromise
+}
 
-  Promise.all([policyPromise, groupPromise]).then(() => {
-    isLoading.value = false
+async function freshData(showLoading = true) {
+  isLoading.value = true
+  const groupPromise = useGroupStore().getGroups(showLoading)
+  const privateMessagesPromise = useMessageStore().getPrivate(showLoading)
+
+  await groupPromise
+  await privateMessagesPromise
+  isLoading.value = false
+
+  /* 清空sessions */
+  sessionList.value = []
+  /* 增加群组sessions */
+  for (let group of useGroupStore().groups) {
+    const newSession = {
+      id: group.id,
+      type: 'group',
+      title: group.name,
+      content: '',
+      date: '',
+      badge: 0,
+      avatar: undefined
+    } as (typeof sessionList.value)[0]
+    /* 得到群组头像 */
+    useGroupStore()
+      .getGroupProfileByGroupId(group.id)
+      .then((profile) => {
+        newSession.avatar = profile.avatar
+        sessionList.value.push(newSession)
+      })
+  }
+  /* 增加私聊sessions */
+  // 假设消息类型为any，根据实际情况调整
+  const messagesBySender = new Map<number, Array<any>>()
+  for (let message of useMessageStore().received) {
+    if (!messagesBySender.has(message.senderId)) {
+      messagesBySender.set(message.senderId, [message])
+    } else {
+      messagesBySender.get(message.senderId)?.push(message)
+    }
+  }
+
+  messagesBySender.forEach((messages, senderId) => {
+    /* 找出每个发送人最新时间的消息 */
+    let unReadCounts = 0
+    const latestMessage = messages.reduce(
+      (latest, current) => {
+        if (!current.isRead) unReadCounts++
+        return dayjs(current.createdAt).isAfter(dayjs(latest.createdAt)) ? current : latest
+      },
+      { createdAt: '1970-01-01T00:00:00.000' }
+    )
+
+    const newSession = {
+      id: senderId, // 假设senderId即为需要的id
+      type: 'private', // 根据实际情况设置
+      title: 'loading', // 假设消息对象中有发送人名称
+      content: latestMessage.content, // 消息内容
+      date: latestMessage.createdAt, // 消息创建时间
+      badge: unReadCounts, // 消息未读数量
+      avatar: undefined
+    } as (typeof sessionList.value)[0]
+
+    // 得到发送人头像
+    useUserStore()
+      .getProfileByUserId(senderId.toString())
+      .then((res) => {
+        newSession.avatar = res.avatar
+        newSession.title = res.nickname
+        sessionList.value.push(newSession)
+      })
   })
 }
 
-watch(()=>route.path,()=>{
-  
-})
+watch(
+  () => route.path,
+  () => {
+    if (route.path.endsWith(ROUTER_NAME.MESSAGES)) {
+      freshData(false)
+    }
+  }
+)
 
 onMounted(() => {
-  freshData()
+  if (useAuthStore().isLogin) {
+    freshData()
+    freshPolicy()
+  }
 })
 </script>
 
@@ -44,7 +149,7 @@ onMounted(() => {
         </template>
       </el-input>
 
-      <ElSpace fill direction="vertical" style="width: 100%">
+      <ElSpace fill direction="vertical" :size="10" style="width: 100%">
         <div class="laws-helper" @click="router.push(`/${ROUTER_NAME.MESSAGES_POLICY}`)">
           <ElRow>
             <ElCol :span="12">
@@ -61,64 +166,75 @@ onMounted(() => {
           </ElRow>
         </div>
 
-        <ElSkeleton
-          v-for="(item, index) in 2"
-          :key="index"
-          class="sessions"
-          animated
-          :loading="isLoading"
-        >
+        <ElSkeleton :count="4" animated :loading="isLoading" class="sessions-container">
           <template #template>
-            <el-skeleton-item class="avatar" variant="circle" />
-            <div class="content">
-              <ElRow>
-                <ElCol :span="16">
-                  <ElSkeletonItem style="width: 50%" variant="h1" />
-                </ElCol>
-                <ElCol :span="4" />
-                <ElCol :span="4">
-                  <ElSkeletonItem variant="text" />
-                </ElCol>
-              </ElRow>
-              <ElRow>
-                <ElCol :span="16">
-                  <ElSkeletonItem style="width: 90%" variant="text" />
-                </ElCol>
-                <ElCol :span="4" />
-                <ElCol :span="4">
-                  <ElRow justify="end">
-                    <ElSkeletonItem class="dot loading" variant="circle" />
-                  </ElRow>
-                </ElCol>
-              </ElRow>
-            </div>
-          </template>
-          <template #default>
-            <div class="sessions">
-              <ElAvatar class="avatar" size="large" />
+            <div class="session">
+              <el-skeleton-item class="avatar" variant="circle" />
               <div class="content">
                 <ElRow>
                   <ElCol :span="16">
-                    <ElText>{{ `Mortar` }}</ElText>
+                    <ElSkeletonItem style="width: 50%" variant="h1" />
                   </ElCol>
                   <ElCol :span="4" />
                   <ElCol :span="4">
-                    <ElRow justify="end" align="middle" style="height: 100%">
-                      <ElText type="info">{{ `22:14` }}</ElText>
-                    </ElRow>
+                    <ElSkeletonItem variant="text" />
                   </ElCol>
                 </ElRow>
                 <ElRow>
                   <ElCol :span="16">
-                    <ElText>{{ `刘涛：你需要看看这个` }}</ElText>
+                    <ElSkeletonItem style="width: 90%" variant="text" />
                   </ElCol>
                   <ElCol :span="4" />
                   <ElCol :span="4">
-                    <ElRow justify="end" align="middle" style="height: 100%">
-                      <div class="dot">{{ 5 }}</div>
+                    <ElRow justify="end">
+                      <ElSkeletonItem class="dot loading" variant="circle" />
                     </ElRow>
                   </ElCol>
                 </ElRow>
+              </div>
+            </div>
+          </template>
+          <template #default>
+            <div class="sessions-container">
+              <div
+                v-for="item in computedSessionList"
+                :key="item.type + item.id"
+                class="session"
+                :class="{
+                  isGroup: item.type === 'group'
+                }"
+              >
+                <ElAvatar :src="item.avatar.src" class="avatar" size="large">
+                  <ElIcon :size="32">
+                    <EpConnection />
+                  </ElIcon>
+                </ElAvatar>
+                <div class="content">
+                  <ElRow>
+                    <ElCol :span="16">
+                      <ElText>{{ item.title }}</ElText>
+                    </ElCol>
+                    <ElCol :span="4" />
+                    <ElCol :span="4">
+                      <ElRow justify="end" align="middle" style="height: 100%">
+                        <ElText type="info">{{
+                          item.date ? dayjs(item.date).format('HH:mm') : ''
+                        }}</ElText>
+                      </ElRow>
+                    </ElCol>
+                  </ElRow>
+                  <ElRow>
+                    <ElCol :span="16">
+                      <ElText>{{ item.content }}</ElText>
+                    </ElCol>
+                    <ElCol :span="4" />
+                    <ElCol :span="4">
+                      <ElRow justify="end" align="middle" style="height: 100%">
+                        <div v-show="item.badge" class="dot">{{ item.badge }}</div>
+                      </ElRow>
+                    </ElCol>
+                  </ElRow>
+                </div>
               </div>
             </div>
           </template>
@@ -154,7 +270,14 @@ onMounted(() => {
     padding: 0 16px;
   }
 
-  .sessions {
+  .sessions-container {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+
+  .session {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -163,7 +286,11 @@ onMounted(() => {
     gap: 26px;
 
     padding: 16px;
-    background: var(--Color-Info-color-info-light-8, #e9e9eb);
+    background-color: white;
+
+    &.isGroup {
+      background: var(--Color-Info-color-info-light-8, #e9e9eb);
+    }
 
     .avatar {
       flex: none;

@@ -5,6 +5,7 @@ import useSocketStore from '@/stores/socket'
 import usePolicyStore from '@/stores/policy'
 import { useDark, useToggle } from '@vueuse/core'
 import { ElButton, ElScrollbar } from 'element-plus'
+import useMessageStore from '@/stores/message'
 
 const isDark = useDark()
 const darkToggle = useToggle(isDark)
@@ -28,6 +29,9 @@ function sendMsgSocketIo() {
 async function getPolicies() {
   usePolicyStore().getAllPolicies()
 }
+function getReceivedMessage() {
+  useMessageStore().getPrivate(false)
+}
 </script>
 
 <template>
@@ -41,6 +45,7 @@ async function getPolicies() {
     <ElButton @click="estublishSocketIo" size="large" type="primary">estublish SocketIo</ElButton>
     <ElButton @click="sendMsgSocketIo" size="large" type="primary">send msg SocketIo</ElButton>
     <ElButton @click="getPolicies" size="large" type="primary">get policies</ElButton>
+    <ElButton @click="getReceivedMessage" size="large">received msg</ElButton>
   </ElScrollbar>
 </template>
 

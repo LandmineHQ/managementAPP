@@ -89,6 +89,25 @@ async function updatePasswordByEmail(email: string, newPassword: string) {
   return user;
 }
 
+async function getPublic(id: string) {
+  const user = await User.findByPk(id, {
+    include: {
+      model: Image,
+      as: "avatar",
+    },
+  });
+  if (!user) throw new Error(`user(id:${id}) not found`);
+  const publicProfile = {
+    id: user.id,
+    email: user.email,
+    nickname: user.nickname,
+    permission: user.permission,
+    // @ts-expect-error
+    avatar: user.avatar,
+  };
+  return publicProfile;
+}
+
 export default {
   getByToken,
   register,
@@ -98,4 +117,5 @@ export default {
   updatePassword,
   updatePasswordByEmail,
   updateSocketIdByToken,
+  getPublic,
 };

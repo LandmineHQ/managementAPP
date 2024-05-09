@@ -4,6 +4,8 @@ import axios from 'axios'
 import { defineStore } from 'pinia'
 
 const useImageStore = defineStore('image', () => {
+  const counts = ref<number>()
+
   async function getImageById(id: string | number) {
     if (typeof id === 'number') {
       id = id.toString(10)
@@ -19,9 +21,21 @@ const useImageStore = defineStore('image', () => {
     return image
   }
 
+  async function getCounts() {
+    await axios.get(`${DAEMON_HOST}/${ROUTER_NAME.IMAGE}/counts`).then((res) => {
+      counts.value = res.data.counts as number
+    })
+
+    return counts.value
+  }
+
   return {
+    /* states */
+    counts,
+
     /* methods */
-    getImageById
+    getImageById,
+    getCounts
   }
 })
 

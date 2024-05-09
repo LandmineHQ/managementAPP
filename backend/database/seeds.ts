@@ -6,8 +6,9 @@ import Policy from "@models/Policy";
 import Image from "@models/Image";
 import Group from "@models/Group";
 import { Op } from "sequelize";
+import Message from "@models/Message";
 
-async function createUser() {
+async function createUsers() {
   await User.bulkCreate([
     {
       id: 1,
@@ -52,7 +53,7 @@ async function createUser() {
       nickname: "超级管理员",
       email: "admin",
       password: "admin",
-      avatarId: 10,
+      avatarId: 12,
       permission:
         USER_PERMISSIONS.USER |
         USER_PERMISSIONS.OPREATION |
@@ -110,7 +111,7 @@ async function createPerson() {
   ]);
 }
 
-async function createTraining() {
+async function createTrainings() {
   const content1 = {
     title: "基础安全操作",
     time: new Date("2024-03-28"),
@@ -194,7 +195,7 @@ async function createTraining() {
   ]);
 }
 
-async function createPolicy() {
+async function createPolicies() {
   await Policy.bulkCreate([
     {
       name: "互联网弹窗信息推送服务管理规定",
@@ -501,69 +502,18 @@ async function createPolicy() {
   ]);
 }
 
-async function createImage() {
-  await Image.bulkCreate([
-    {
-      src: images.getBase64_1(),
-    },
-    {
-      src: images.getBase64_2(),
-    },
-    {
-      src: images.getBase64_3(),
-    },
-    {
-      src: images.getBase64_4(),
-    },
-    {
-      src: images.getBase64_5(),
-    },
-    {
-      src: images.getBase64_6(),
-    },
-    {
-      src: images.getBase64_7(),
-    },
-    {
-      src: images.getBase64_8(),
-    },
-    {
-      src: images.getBase64_9(),
-    },
-    {
-      src: images.getBase64_10(),
-    },
-    {
-      src: images.getBase64_11(),
-    },
-    {
-      src: images.getBase64_12(),
-    },
-    {
-      src: images.getBase64_13(),
-    },
-    {
-      src: images.getBase64_14(),
-    },
-    {
-      src: images.getBase64_15(),
-    },
-    {
-      src: images.getBase64_16(),
-    },
-    {
-      src: images.getBase64_17(),
-    },
-    {
-      src: images.getBase64_18(),
-    },
-    {
-      src: images.getBase64_19(),
-    },
-  ]);
+async function createImages() {
+  const options = [];
+  for (let imageFn in images) {
+    options.push({
+      // @ts-expect-error
+      src: images[imageFn](),
+    });
+  }
+  await Image.bulkCreate(options);
 }
 
-async function createGroup() {
+async function createGroups() {
   const mortar = await Group.build({
     id: 1,
     name: "Mortar",
@@ -588,7 +538,7 @@ async function createGroup() {
     name: "MineCraft",
     description:
       "MineCraft is a group of people who are passionate about technology and want to help",
-    avatarId: 10,
+    avatarId: 17,
   });
   const minecraftMenbers = await User.findAll({
     where: {
@@ -602,13 +552,81 @@ async function createGroup() {
   await minecraft.save();
 }
 
+async function createMessages() {
+  /* create private messages */
+  await Message.bulkCreate([
+    {
+      createdAt: new Date("2024-03-22 22:03"),
+      type: "image",
+      content: 17,
+      senderId: 5,
+      receiverId: 5,
+    },
+    {
+      createdAt: new Date("2024-03-23 21:03"),
+      type: "message",
+      content: "今天检查了许多设备",
+      senderId: 5,
+      receiverId: 5,
+    },
+    {
+      createdAt: new Date("2024-03-23 22:03"),
+      type: "message",
+      content: "测试消息+365",
+      senderId: 5,
+      receiverId: 5,
+    },
+    {
+      createdAt: new Date("2024-05-09 13:49:18"),
+      type: "text",
+      content: "navicat的测试",
+      isRead: true,
+      senderId: 1,
+      receiverId: 5,
+    },
+  ]);
+
+  /* create group messages */
+  await Message.bulkCreate([
+    {
+      createdAt: new Date("2024-03-22 22:03"),
+      type: "image",
+      content: 20,
+      senderId: 7,
+      receiverGroupId: 1,
+    },
+    {
+      createdAt: new Date("2024-03-25 21:03"),
+      type: "text",
+      content: "今天检查了许多设备",
+      senderId: 5,
+      receiverGroupId: 1,
+    },
+    {
+      createdAt: new Date("2024-03-25 22:03"),
+      type: "text",
+      content: "看来你需要好好放松一下",
+      senderId: 7,
+      receiverGroupId: 1,
+    },
+    {
+      createdAt: new Date("2024-03-25 22:04"),
+      type: "image",
+      content: "你需要看看这个",
+      senderId: 7,
+      receiverGroupId: 1,
+    },
+  ]);
+}
+
 async function initSeeds() {
-  await createImage();
+  await createImages();
   await createPerson();
-  await createUser();
-  await createTraining();
-  await createPolicy();
-  await createGroup();
+  await createUsers();
+  await createTrainings();
+  await createPolicies();
+  await createGroups();
+  await createMessages();
 }
 
 async function testSeeds() {}

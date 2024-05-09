@@ -1,4 +1,5 @@
 import Group from "@models/Group";
+import Image from "@models/Image";
 import User from "@models/User";
 
 async function getAllGroups() {
@@ -48,10 +49,24 @@ async function getGroupsByUserToken(token: string) {
   return groups;
 }
 
+async function getProfileByGroupId(id: string) {
+  const group = await Group.findByPk(id, {
+    include: [
+      {
+        model: Image,
+        as: "avatar",
+      },
+    ],
+  });
+  if (!group) throw new Error("group not found");
+  return group;
+}
+
 export default {
   getAllGroups,
   getGroupById,
   getGroupMenbersById,
   getAllGroupMenbers,
   getGroupsByUserToken,
+  getProfileByGroupId,
 };
