@@ -1,7 +1,7 @@
 import { ROUTER_TOKENLESS } from "@routes/config";
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
-import { verifyToken } from "@jwt";
+import { parseTokenFromHeaders, verifyToken } from "@jwt";
 import RouterSendMessage from "@utils/routerSendMessage";
 
 function responseHeader(req: Request, res: Response, next: NextFunction) {
@@ -30,14 +30,14 @@ function responseHeader(req: Request, res: Response, next: NextFunction) {
     return;
   }
 
-  if (validateRouter(req.path) === false) {
+  if (verifyRouterTokenLess(req.path) === false) {
     /* 路由需要鉴权 */
     // 没有token
     if (!req.headers.authorization) {
       return RouterSendMessage.UNAUTHORIZED(res);
     }
 
-    const token = req.headers.authorization.split(" ")[1];
+    const token = parseTokenFromHeaders(req.headers) as string;
     if (verifyToken(token) === false) {
       return RouterSendMessage.UNAUTHORIZED(res);
     }
@@ -49,10 +49,10 @@ function responseHeader(req: Request, res: Response, next: NextFunction) {
 export default responseHeader;
 
 /** 验证路由是否可以免token通过 */
-function validateRouter(path: string) {
+function verifyRouterTokenLess(path: string) {
   let isValidated: boolean = false;
   for (let route of ROUTER_TOKENLESS) {
-    if (path.includes(route)) {
+    if (path === `/${route}`) {
       isValidated = true;
       break;
     }

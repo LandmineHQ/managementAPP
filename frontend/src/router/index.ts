@@ -10,6 +10,7 @@ enum ROUTER_NAME {
   MESSAGES = 'messages',
   MESSAGES_POLICY = 'messages/policy',
   MESSAGES_POLICY_DETAIL = 'messages/policy/detail',
+  MESSAGES_CHAT = 'messages/chat',
 
   USER = 'user',
   USER_LOGIN = 'user/login',
@@ -147,6 +148,11 @@ const router = createRouter({
       path: `/${ROUTER_NAME.DEBUG_IMAGES}`,
       name: ROUTER_NAME.DEBUG_IMAGES,
       component: () => import('@/views/debug/ImagesView.vue')
+    },
+    {
+      path: `/${ROUTER_NAME.MESSAGES_CHAT}`,
+      name: ROUTER_NAME.MESSAGES_CHAT,
+      component: () => import('@/views/messages/ChatView.vue')
     }
   ]
 })

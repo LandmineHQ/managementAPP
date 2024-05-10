@@ -48,6 +48,7 @@ async function getByGroupId(groupId: string, dayAgo: string = "7") {
   debugger;
   // @ts-expect-error
   const messages = await group.getReceivedMessages();
+  return messages;
 }
 
 async function getGroupsMessagesByToken(token: string) {

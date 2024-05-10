@@ -44,36 +44,35 @@ const sessionList = ref<
   }>
 >([])
 
+function gotoChat(type: 'group' | 'private', id: string | number) {
+  if (typeof id === 'number') id = id.toString()
+  router.push({
+    path: `/${ROUTER_NAME.MESSAGES_CHAT}`,
+    query: {
+      type: type,
+      id: id
+    }
+  })
+}
+
 async function freshPolicy() {
   const policyPromise = usePolicyStore().getLatestPolicy()
   await policyPromise
 }
 
-async function freshPrivateMessages() {
+async function freshPrivateMessages(showLoading = true) {
+  await useMessageStore().getPrivate(showLoading)
   /* 增加私聊sessions */
-  // 假设消息类型为any，根据实际情况调整
-  const messagesBySender = new Map<number, Array<any>>()
-  for (let message of useMessageStore().received) {
-    if (!messagesBySender.has(message.senderId)) {
-      messagesBySender.set(message.senderId, [message])
-    } else {
-      messagesBySender.get(message.senderId)?.push(message)
-    }
-  }
-
-  messagesBySender.forEach((messages, senderId) => {
+  useMessageStore().received.forEach((messages, senderId) => {
     /* 找出每个发送人最新时间的消息 */
     let unReadCounts = 0
-    const latestMessage = messages.reduce(
-      (latest, current) => {
-        if (!current.isRead) unReadCounts++
-        return dayjs(current.createdAt).isAfter(dayjs(latest.createdAt)) ? current : latest
-      },
-      { createdAt: '1970-01-01T00:00:00.000' }
-    )
+    const latestMessage = messages.reduce((latest, current) => {
+      if (!current.isRead) unReadCounts++
+      return dayjs(current.createdAt).isAfter(dayjs(latest.createdAt)) ? current : latest
+    })
 
     const newSession = {
-      id: senderId, // 假设senderId即为需要的id
+      id: parseInt(senderId), // 假设senderId即为需要的id
       type: 'private', // 根据实际情况设置
       title: 'loading', // 假设消息对象中有发送人名称
       content: latestMessage.content, // 消息内容
@@ -93,42 +92,69 @@ async function freshPrivateMessages() {
   })
 }
 
-async function freshGroupMessages() {
+async function freshGroupMessages(showLoading = true) {
+  const promiseList = []
+  promiseList.push(useMessageStore().getGroups(showLoading))
+  promiseList.push(useGroupStore().getGroups(showLoading))
+
+  for (let promise of promiseList) {
+    await promise
+  }
+  promiseList.length = 0
+
   /* 增加群组sessions */
   for (let group of useGroupStore().groups) {
+    const groupMessages = useMessageStore().groups.get(group.id)
+    if (!groupMessages) continue
+    let latestMessage: (typeof groupMessages)[0]
+    if (groupMessages.length > 0) {
+      latestMessage = groupMessages.reduce((accumulator, current) => {
+        if (!accumulator.createdAt) accumulator.createdAt = dayjs().toString()
+        if (!current.createdAt) current.createdAt = dayjs().toString()
+        return dayjs(accumulator.createdAt).isAfter(dayjs(current.createdAt))
+          ? accumulator
+          : current
+      })
+    } else {
+      latestMessage = {
+        createdAt: dayjs().toString()
+      } as (typeof groupMessages)[0]
+    }
+
     const newSession = {
       id: group.id,
       type: 'group',
       title: group.name,
       content: '',
-      date: '',
+      date: latestMessage?.createdAt,
       badge: 0,
       avatar: undefined
     } as (typeof sessionList.value)[0]
-    /* 得到群组头像 */
-    useGroupStore()
-      .getGroupProfileByGroupId(group.id)
-      .then((profile) => {
-        newSession.avatar = profile.avatar
-        sessionList.value.push(newSession)
-      })
+
+    /* 得到群组与最新消息发送人的profile */
+    const groupProfile = await useGroupStore().getGroupProfileByGroupId(group.id)
+    newSession.avatar = groupProfile.avatar
+    if (latestMessage.content) {
+      const latestMessageSenderProfile = await useUserStore().getProfileByUserId(
+        latestMessage.senderId.toString()
+      )
+      newSession.content = `${latestMessageSenderProfile.nickname}：${latestMessage.content}`
+    }
+    sessionList.value.push(newSession)
   }
 }
 
 async function freshData(showLoading = true) {
   isLoading.value = true
-  const groupPromise = useGroupStore().getGroups(showLoading)
-  const privateMessagesPromise = useMessageStore().getPrivate(showLoading)
-
-  await groupPromise
-  await privateMessagesPromise
-  isLoading.value = false
+  setTimeout(() => {
+    isLoading.value = false
+  }, 300)
 
   /* 清空sessions */
   sessionList.value = []
   /* 刷新消息 */
-  freshPrivateMessages()
-  freshGroupMessages()
+  freshPrivateMessages(showLoading)
+  freshGroupMessages(showLoading)
 }
 
 watch(
@@ -212,6 +238,7 @@ onMounted(() => {
                 :class="{
                   isGroup: item.type === 'group'
                 }"
+                @click="gotoChat(item.type, item.id)"
               >
                 <ElAvatar :src="item.avatar.src" class="avatar" size="large">
                   <ElIcon :size="32">

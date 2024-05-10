@@ -33,7 +33,7 @@ async function getGroupHandler(
 ) {
   const token = parseTokenFromHeaders(req.headers) as string;
   const messages = await messageController.getGroupsMessagesByToken(token);
-  return messages;
+  return RouterSendMessage.sendData(res, messages);
 }
 
 async function postHandler(req: Request, res: Response, next: NextFunction) {}

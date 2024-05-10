@@ -25,7 +25,9 @@ const useGroupStore = defineStore('group', () => {
       .get(`${DAEMON_HOST}/${ROUTER_NAME.GROUP}/profile`, {
         params: {
           id: id
-        }
+        },
+        // @ts-expect-error
+        showLoading: false
       })
       .then((res) => res.data)
     profiles.value.set(id, data)

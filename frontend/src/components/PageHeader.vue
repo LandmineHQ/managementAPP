@@ -8,10 +8,15 @@
       </template>
       <template #extra>
         <div class="extra">
-          <ElAvatar v-if="props.showAvatar" />
+          <ElAvatar v-if="avatar" :src="avatar">
+            <ElIcon :size="24">
+              <EpUser />
+            </ElIcon>
+          </ElAvatar>
         </div>
-      </template> </ElPageHeader
-  ></ElSpace>
+      </template>
+    </ElPageHeader>
+  </ElSpace>
 </template>
 
 <script setup lang="ts">
@@ -21,9 +26,9 @@ const router = useRouter() // Use useRouter to get the router instance
 const route = useRoute() // Use useRoute to get the route instance
 
 const props = defineProps({
-  showAvatar: {
-    type: Boolean,
-    default: false
+  avatar: {
+    type: String,
+    default: ''
   },
   title: {
     type: String
