@@ -1,4 +1,4 @@
-import { ROUTER_TOKENLESS } from "@routes/config";
+import { ROUTER_NAME, ROUTER_TOKENLESS } from "@routes/config";
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 import { parseTokenFromHeaders, verifyToken } from "@jwt";
@@ -51,10 +51,15 @@ export default responseHeader;
 /** 验证路由是否可以免token通过 */
 function verifyRouterTokenLess(path: string) {
   let isValidated: boolean = false;
-  for (let route of ROUTER_TOKENLESS) {
-    if (path === `/${route}`) {
-      isValidated = true;
-      break;
+  if (path === "/") {
+    isValidated = true;
+  } else {
+    for (let route of ROUTER_TOKENLESS) {
+      if (route === ROUTER_NAME.ROOT) continue;
+      if (path.startsWith(`/${route}`)) {
+        isValidated = true;
+        break;
+      }
     }
   }
   return isValidated;

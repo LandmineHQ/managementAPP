@@ -8,6 +8,7 @@ import router from './router'
 import i18n from './locales/index'
 import initAxios from '@/api'
 import useAuthStore from './stores/auth'
+import requestPermission from './permission/requestPermission'
 
 const app = createApp(App)
 
@@ -20,3 +21,5 @@ initAxios()
 useAuthStore()
 
 app.mount('#app')
+
+requestPermission.requestRecordPermission()

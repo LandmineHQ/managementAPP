@@ -564,14 +564,14 @@ async function createMessages() {
     },
     {
       createdAt: new Date("2024-03-23 21:03"),
-      type: "message",
+      type: "text",
       content: "今天检查了许多设备",
       senderId: 5,
       receiverId: 5,
     },
     {
       createdAt: new Date("2024-03-23 22:03"),
-      type: "message",
+      type: "text",
       content: "测试消息+365",
       senderId: 5,
       receiverId: 5,

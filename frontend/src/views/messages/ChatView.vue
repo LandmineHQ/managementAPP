@@ -1,38 +1,45 @@
 <template>
   <PageHeader :title="chatTitle" :avatar="chatAvatar"></PageHeader>
-  <ElScrollbar ref="scrollbarRef">
-    <ElSpace direction="vertical" alignment="stretch" size="small" class="chat-view">
-      <div v-for="item in computedMessages" :key="item.type + item.id" class="chat-view-item">
-        <ElAvatar :size="48" :src="item.avatar">
-          <ElIcon :size="24">
-            <EpUser />
-          </ElIcon>
-        </ElAvatar>
+  <ElScrollbar ref="scrollbarRef" class="chat-view">
+    <ElSpace direction="vertical" alignment="stretch" size="small" class="chat-view-messages">
+      <div v-for="item in computedMessages" :key="item.type + item.id">
+        <div v-if="item.type !== 'divider'" class="chat-view-message-item">
+          <ElAvatar :size="48" :src="item.avatar">
+            <ElIcon :size="24">
+              <EpUser />
+            </ElIcon>
+          </ElAvatar>
 
-        <div class="content">
-          <div
-            class="content-item"
-            :class="{
-              message: item.type === 'message',
-              image: item.type === 'image'
-            }"
-          >
-            <ElText v-if="item.type === 'message'">
-              {{ item.content }}
+          <div class="content">
+            <div
+              class="content-item"
+              :class="{
+                text: item.type === 'text',
+                image: item.type === 'image'
+              }"
+            >
+              <ElText v-if="item.type === 'text'">
+                {{ item.content }}
+              </ElText>
+              <ElImage v-else-if="item.type === 'image'" :src="item.content" fit="cover" />
+            </div>
+          </div>
+
+          <div class="date">
+            <ElText>
+              {{ dayjs(item.date).format('HH:mm') }}
             </ElText>
-            <ElImage v-else-if="item.type === 'image'" :src="item.content" fit="cover" />
           </div>
         </div>
-
-        <div class="date">
-          <ElText>
-            {{ dayjs(item.date).format('HH:mm') }}
+        <ElDivider v-else content-position="center">
+          <ElText type="info" size="default">
+            {{ dayjs(item.date).format('YYYY年MM月DD日') }}
           </ElText>
-        </div>
+        </ElDivider>
       </div>
     </ElSpace>
   </ElScrollbar>
-  <div class="edit-box">123456</div>
+  <InputComponent />
 </template>
 
 <script setup lang="ts">
@@ -73,9 +80,23 @@ const messages = ref<
 >([])
 const computedMessages = computed(() => {
   // 按时间排序
-  return messages.value.sort((a, b) => {
-    return dayjs(a.date).isBefore(b.date) ? -1 : 1
+  const sortedMessages = messages.value.sort((a, b) =>
+    dayjs(a.date).isBefore(dayjs(b.date)) ? -1 : 1
+  )
+  const result: Array<any> = []
+
+  sortedMessages.forEach((message, index) => {
+    // 如果是第一条消息或者当前消息与前一条消息不是同一天，则添加分隔符
+    if (index === 0 || !dayjs(message.date).isSame(dayjs(sortedMessages[index - 1].date), 'day')) {
+      result.push({
+        type: 'divider',
+        date: message.date
+      })
+    }
+    result.push(message)
   })
+
+  return result
 })
 const chatAvatar = ref<string>('abc')
 
@@ -100,7 +121,7 @@ async function freshPrivate() {
           newMessage.content = image
           break
         }
-        case 'message': {
+        case 'text': {
           newMessage.content = item.content as string
           break
         }
@@ -126,11 +147,11 @@ async function freshView() {
 
   switch (chatType.value) {
     case 'group': {
-      freshGroup()
+      await freshGroup()
       break
     }
     case 'private': {
-      freshPrivate()
+      await freshPrivate()
       break
     }
     default: {
@@ -141,6 +162,10 @@ async function freshView() {
       })
     }
   }
+
+  nextTick(() => {
+    scrollbarRef.value?.setScrollTop(Infinity)
+  })
 }
 
 watch(
@@ -159,61 +184,65 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .chat-view {
-  padding: 26px;
-}
+  background: var(--bg-color, #fff);
 
-.chat-view-item {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
+  .chat-view-messages {
+    padding: 26px;
 
-  .el-avatar {
-    flex: none;
-  }
+    .chat-view-message-item {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
 
-  .content {
-    width: 100%;
-    position: relative;
-    flex: auto;
-
-    .content-item {
-      width: fit-content;
-      border-radius: 12px;
-      background: var(--Color-Primary-color-primary, #409eff);
-      box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-      overflow: hidden;
-
-      &.message {
-        padding: 16px;
+      .el-avatar {
+        flex: none;
       }
 
-      &.image {
-        height: 195px;
+      .content {
+        width: 100%;
+        position: relative;
+        flex: auto;
+
+        .content-item {
+          width: fit-content;
+          border-radius: 12px;
+          background: var(--Color-Primary-color-primary, #409eff);
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+          overflow: hidden;
+
+          &.text {
+            padding: 16px;
+          }
+
+          &.image {
+            height: 195px;
+          }
+        }
+
+        .el-text {
+          color: #000;
+          text-align: center;
+          font-family: Arial;
+          font-size: 16px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: 20px; /* 125% */
+          letter-spacing: -0.01px;
+        }
+
+        .el-image {
+          height: 100%;
+        }
+      }
+
+      .date {
+        padding-left: 16px;
+        align-self: flex-start;
       }
     }
-
-    .el-text {
-      color: #000;
-      text-align: center;
-      font-family: Arial;
-      font-size: 16px;
-      font-style: normal;
-      font-weight: 400;
-      line-height: 20px; /* 125% */
-      letter-spacing: -0.01px;
-    }
-
-    .el-image {
-      height: 100%;
-    }
-  }
-
-  .date {
-    padding-left: 16px;
-    align-self: flex-start;
   }
 }
 </style>
