@@ -5,16 +5,20 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { ElNotification, ElMessage } from 'element-plus'
 import useUserStore from './user'
+import useSocketStore from './socket'
 
 const useAuthStore = defineStore('auth', () => {
   const isLogin = ref(false)
   const token = ref(localStorage.getItem('token'))
 
   if (token.value) {
+    // 获取用户信息
     useUserStore()
       .updateUser()
       .then(() => {
         isLogin.value = true
+        // 连接socket 服务
+        useSocketStore().estublish()
       })
       .catch(() => {
         ElNotification.error({

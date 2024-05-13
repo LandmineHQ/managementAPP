@@ -1,8 +1,7 @@
 import Socket from "@models/Socket";
 import User, { USER_PERMISSIONS } from "@models/User";
-import { Op } from "sequelize";
-import socketController from "./socketController";
 import Image from "@models/Image";
+import socketController from "@controllers/socketController";
 
 async function getByToken(token: string) {
   const user = await User.findOne({
@@ -15,15 +14,6 @@ async function getByToken(token: string) {
     },
   });
   return user;
-}
-
-async function updateSocketIdByToken(scoketId: string | null, token: string) {
-  const user = await getByToken(token);
-  let socket: Socket = null as never;
-  if (user) {
-    socketController.updateSocketIdByUser(user, scoketId);
-  }
-  return socket;
 }
 
 async function register(email: string, password: string, nickname?: string) {
@@ -116,6 +106,5 @@ export default {
   updatePhone,
   updatePassword,
   updatePasswordByEmail,
-  updateSocketIdByToken,
   getPublic,
 };

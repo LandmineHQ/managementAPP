@@ -1,8 +1,8 @@
 import express from "express";
 import debugController from "@controllers/debugController";
-import socketController from "@controllers/socketController";
 import RouterSendMessage from "@utils/routerSendMessage";
 import groupController from "@controllers/groupController";
+import socketController from "@controllers/socketController";
 
 function createRouter() {
   const router = express.Router();

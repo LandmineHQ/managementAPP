@@ -18,7 +18,7 @@ import http from "http";
 import log from "@utils/logger";
 import { onExit as loggerOnExit } from "@utils/logger";
 import config from "config";
-import setupSocket from "@sockets/index";
+import socket from "@sockets/socket";
 import app from "@app";
 import { initModels } from "@database";
 
@@ -33,7 +33,7 @@ const host = config.get<string>("host");
  */
 const server = http.createServer(app);
 // 挂载socket.io
-setupSocket(server);
+await socket.setupSocket(server);
 
 /**
  * Listen on provided port, on all network interfaces.

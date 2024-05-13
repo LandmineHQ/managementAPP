@@ -14,7 +14,26 @@
             <div v-if="item.type === 'image'" class="content-item image">
               <ElImage :src="item.content" fit="cover" />
             </div>
-            <div v-else class="content-item text">
+            <div v-else-if="item.type === 'record'" class="content-item content-box">
+              <label>
+                <ElRow align="middle" class="record">
+                  <input
+                    type="checkbox"
+                    @change="playRecord($event, item.content)"
+                    class="record-chebox"
+                  />
+
+                  <ElText type="info">{{ `[${$t('lu-yin')}]` }}</ElText>
+                  <ElIcon :size="24" color="white" class="icon-play">
+                    <EpVideoPlay />
+                  </ElIcon>
+                  <ElIcon :size="24" color="red" class="icon-pause">
+                    <EpVideoPause />
+                  </ElIcon>
+                </ElRow>
+              </label>
+            </div>
+            <div v-else class="content-item content-box">
               <ElText>{{ item.content }}</ElText>
             </div>
           </div>
@@ -43,11 +62,16 @@ import useMessageStore from '@/stores/message'
 import useUserStore from '@/stores/user'
 import { ElImage, ElNotification, ElScrollbar, ElSpace, dayjs } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
+import i18n from '@/locales'
 
 import InputComponent from '@/components/InputComponent.vue'
 
 const router = useRouter()
 const route = useRoute()
+const t = i18n.global.t
+
+const audio = new Audio()
+
 const scrollbarRef = ref<InstanceType<typeof ElScrollbar>>()
 
 const chatType = computed(() => {
@@ -102,6 +126,38 @@ const sendMessage: InstanceType<typeof InputComponent>['onSubmit'] = async (inpu
   console.log(res)
 }
 
+function playRecord(event: Event, base64: string) {
+  const checkbox = event.target as HTMLInputElement
+  const isChecked = checkbox.checked
+
+  stopPlayRecord()
+  if (isChecked) {
+    if (audio.src != base64) {
+      audio.src = base64
+    }
+    audio.play().catch(() => {
+      ElNotification.error({
+        message: t('bo-fang-lu-yin-shi-bai'),
+        offset: 300
+      })
+    })
+    audio.addEventListener(
+      'ended',
+      () => {
+        checkbox.checked = false
+      },
+      { once: true }
+    ) // 使用{ once: true }参数确保事件监听器在触发一次后自动移除
+  }
+}
+
+function stopPlayRecord() {
+  if (audio.src) {
+    audio.pause()
+    audio.currentTime = 0
+  }
+}
+
 async function freshPrivate() {
   messages.value.length = 0
 
@@ -145,7 +201,6 @@ function scrollToBottom() {
     const warpRef = scrollbarRef.value.wrapRef!
     const viewRef = warpRef.firstChild! as HTMLDivElement
     const rect = viewRef.getBoundingClientRect()
-    console.log(viewRef, rect)
     scrollbarRef.value.setScrollTop(rect.bottom * 2)
   }
 }
@@ -227,12 +282,45 @@ onMounted(() => {
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
           overflow: hidden;
 
-          &.text {
+          &.content-box {
             padding: 16px;
           }
 
           &.image {
             height: 195px;
+          }
+
+          & .record {
+            .record-chebox {
+              display: none;
+
+              & ~ .el-text {
+                margin-right: 4px;
+                color: white;
+              }
+
+              & ~ .icon-play {
+                display: block;
+              }
+
+              & ~ .icon-pause {
+                display: none;
+              }
+
+              &:checked {
+                & ~ .el-text {
+                  color: red;
+                }
+
+                & ~ .icon-play {
+                  display: none;
+                }
+
+                & ~ .icon-pause {
+                  display: block;
+                }
+              }
+            }
           }
         }
 

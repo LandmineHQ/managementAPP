@@ -8,9 +8,11 @@ import { Search } from '@element-plus/icons-vue'
 import { ElImage, ElSkeleton, ElSkeletonItem, ElSpace, dayjs } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import useUserStore from '@/stores/user'
+import i18n from '@/locales'
 
 const router = useRouter()
 const route = useRoute()
+const t = i18n.global.t
 
 const input = ref<string>()
 const isLoading = ref(true)
@@ -75,11 +77,23 @@ async function freshPrivateMessages(showLoading = true) {
       id: parseInt(senderId), // 假设senderId即为需要的id
       type: 'private', // 根据实际情况设置
       title: 'loading', // 假设消息对象中有发送人名称
-      content: latestMessage.content, // 消息内容
+      content: '', // 消息内容
       date: latestMessage.createdAt, // 消息创建时间
       badge: unReadCounts, // 消息未读数量
       avatar: undefined
     } as (typeof sessionList.value)[0]
+
+    switch (latestMessage.type) {
+      case 'image':
+        newSession.content = `[${t('tu-pian')}]`
+        break
+      case 'record':
+        newSession.content = `[${t('lu-yin')}]`
+        break
+      default:
+        newSession.content = latestMessage.content as string
+        break
+    }
 
     // 得到发送人头像
     useUserStore()
@@ -157,14 +171,15 @@ async function freshData(showLoading = true) {
   freshGroupMessages(showLoading)
 }
 
-watch(
-  () => route.path,
-  () => {
-    if (route.path.endsWith(ROUTER_NAME.MESSAGES)) {
-      freshData(false)
-    }
-  }
-)
+// 不再需要自动刷新，使用socket进行通知
+// watch(
+//   () => route.path,
+//   () => {
+//     if (route.path.endsWith(ROUTER_NAME.MESSAGES)) {
+//       freshData(false)
+//     }
+//   }
+// )
 
 onMounted(() => {
   if (useAuthStore().isLogin) {

@@ -2,8 +2,8 @@ import { ServerOptions, Socket, Server as SocketIOServer } from "socket.io";
 import { Server as HTTPServer } from "http";
 import setupSocketEvent from "./events/connection";
 import initMiddleware from "@sockets/middleware";
-import userController from "@controllers/userController";
 import socketController from "@controllers/socketController";
+import log from "@utils/logger";
 
 let io: SocketIOServer;
 const userSocketsMap = new Map();
@@ -27,35 +27,20 @@ const options = {
   },
 } as ServerOptions;
 
-function setupSocket(server: HTTPServer) {
+async function setupSocket(server: HTTPServer) {
+  log.info("socket.io launching...");
+
   io = new SocketIOServer(server, options);
   initMiddleware(io);
 
   io.on("connection", async (socket) => {
-    addSocketToUserSocketsMap(socket.id, socket);
+    socketController.socketMapAdd(socket.id, socket);
     setupSocketEvent(socket);
   });
+
+  await socketController.disconnectAllSockets();
+  log.info("socket.io launched");
 }
 
-function getUserSocketBySocketId(socketId: string): Socket | undefined {
-  return userSocketsMap.get(socketId);
-}
-
-function addSocketToUserSocketsMap(socketId: string, socket: Socket) {
-  userSocketsMap.set(socketId, socket);
-  userController.updateSocketIdByToken(socket.id, socket.handshake.auth.token);
-}
-
-function deleteSocketFromUserSocketsMap(socketId: string) {
-  const socket = userSocketsMap.get(socketId);
-  userSocketsMap.delete(socketId);
-  socketController.deleteSocketBySocketId(socketId);
-}
-
-export default setupSocket;
+export default { setupSocket };
 export { io, userSocketsMap };
-export {
-  getUserSocketBySocketId,
-  addSocketToUserSocketsMap,
-  deleteSocketFromUserSocketsMap,
-};
