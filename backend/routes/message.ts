@@ -36,6 +36,19 @@ async function getGroupHandler(
   return RouterSendMessage.sendData(res, messages);
 }
 
-async function postHandler(req: Request, res: Response, next: NextFunction) {}
+async function postHandler(req: Request, res: Response, next: NextFunction) {
+  const token = parseTokenFromHeaders(req.headers) as string;
+  const data = req.body;
+  if (
+    !data.type ||
+    !data.content ||
+    (!data.receiverId && !data.receiverGroupId)
+  ) {
+    return RouterSendMessage.error(res, "消息参数缺失");
+  }
+  const message = await messageController.sendMessage(token, data);
+  if (!message) return RouterSendMessage.error(res, "发送失败");
+  return RouterSendMessage.sendData(res, message);
+}
 
 export default createMessageRouter;

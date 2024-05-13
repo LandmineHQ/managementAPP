@@ -611,7 +611,7 @@ async function createMessages() {
     },
     {
       createdAt: new Date("2024-03-25 22:04"),
-      type: "image",
+      type: "text",
       content: "你需要看看这个",
       senderId: 7,
       receiverGroupId: 1,

@@ -1,5 +1,5 @@
 <template>
-  <div class="input-container">
+  <div class="input-container" @mousedown.prevent>
     <div class="input-value">
       <ElInput type="text" v-model="inputText" placeholder="在这里输入消息"></ElInput>
       <ElIcon :size="32">
@@ -12,7 +12,7 @@
         :class="{
           actived: activedFeature === 'record'
         }"
-        @click="activedFeature = 'record'"
+        @click="showFeatureView('record')"
       >
         <EpMicrophone />
       </ElIcon>
@@ -21,7 +21,7 @@
         :class="{
           actived: activedFeature === 'image'
         }"
-        @click="activedFeature = 'image'"
+        @click="showFeatureView('image')"
       >
         <EpPicture />
       </ElIcon>
@@ -46,33 +46,84 @@
           <EpMic />
         </ElIcon>
       </div>
+
       <div v-else-if="activedFeature === 'image'" class="image">
         <div class="image-controller">
-          <ElIcon :size="26" color="white">
+          <ElIcon :size="26" color="white" @click="showCamera">
             <EpCameraFilled />
+            <CatchCamera v-model:dialog-visible="featureStates.camera" @update:image="sendImage" />
           </ElIcon>
-          <ElIcon :size="26" color="white">
-            <EpPictureFilled />
-          </ElIcon>
+          <ElUpload
+            ref="uploadImageRef"
+            :on-exceed="imageExceedHandler"
+            :on-change="imageChangeHandler"
+            :auto-upload="false"
+            :show-file-list="false"
+            :limit="1"
+          >
+            <template #trigger>
+              <ElIcon :size="26" color="white">
+                <EpPictureFilled />
+              </ElIcon>
+            </template>
+          </ElUpload>
+        </div>
+        <div class="image-legacies">
+          <div v-for="image in imageLegacies" :key="image.id" class="image-legacy-item">
+            <ElImage :src="image.src" @click="image.showDialog = true" fit="cover">
+              <ElText type="info">{{ $t('common.loading') }}</ElText>
+            </ElImage>
+            <ElDialog v-model:model-value="image.showDialog" :align-center="true">
+              <ElText>{{ $t('que-ren-chuan-shu-ci-tu-pian-ma') }}</ElText>
+              <template #footer>
+                <ElButton @click="image.showDialog = false" type="danger" plain>{{
+                  $t('qu-xiao')
+                }}</ElButton>
+                <ElButton @click="sendLegacyImage(image)" type="primary">{{
+                  $t('que-ren')
+                }}</ElButton>
+              </template>
+            </ElDialog>
+          </div>
         </div>
       </div>
+
+      <!-- 未选择任何功能 -->
+      <div v-else></div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ElNotification } from 'element-plus'
+import {
+  ElImage,
+  ElNotification,
+  ElUpload,
+  genFileId,
+  type UploadInstance,
+  type UploadProps,
+  type UploadRawFile
+} from 'element-plus'
 import type { PropType } from 'vue'
 
-const features = ['record', 'image']
+const emit = defineEmits({
+  submit: (obj: { type: 'record' | 'image' | 'text'; content: string }) => {
+    if (Object.keys(obj).length === 0) return false
+    return true
+  }
+})
+
+type Features = 'record' | 'image'
 const activedFeature = defineModel('activedFeature', {
-  type: String as PropType<(typeof features)[number]>
+  type: String as PropType<Features>
 })
 const featureStates = reactive({
-  record: false
+  record: false,
+  camera: false
 })
 
 const inputText = ref<string>()
+
 const listenerList = [
   {
     type: 'touchend',
@@ -89,7 +140,78 @@ const listenerList = [
 ]
 
 let recorder: MediaRecorder
-let audioBlob = new Blob()
+
+const uploadImageRef = ref<UploadInstance>()
+const imageLegacies = ref<any>([])
+
+const imageExceedHandler: UploadProps['onExceed'] = (files) => {
+  uploadImageRef.value!.clearFiles()
+  const file = files[0] as UploadRawFile
+  file.uid = genFileId()
+  uploadImageRef.value!.handleStart(file)
+}
+
+const imageChangeHandler: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
+  const file = uploadFile.raw
+  if (file) {
+    const reader = new FileReader()
+    reader.addEventListener('load', (e) => {
+      const base64 = e.target?.result as string
+      sendImage(base64)
+    })
+    reader.readAsDataURL(file)
+  }
+}
+
+function showFeatureView(feature: Features) {
+  if (activedFeature.value === feature) {
+    activedFeature.value = undefined
+  } else {
+    activedFeature.value = feature
+  }
+}
+
+function showCamera() {
+  featureStates.camera = true
+}
+
+function sendLegacyImage(image: any) {
+  image.showDialog = false
+  sendImage(image.src, false)
+}
+
+function sendImage(image: string, addInToLegacy: boolean = true) {
+  if (image.includes('data:image')) {
+    emit('submit', { type: 'image', content: image })
+    if (addInToLegacy) {
+      imageLegacies.value.unshift({
+        id: imageLegacies.value.length + 1,
+        src: image,
+        showDialog: false
+      })
+    }
+  } else {
+    ElNotification.error({
+      message: '图片格式不正确',
+      duration: 5000,
+      offset: 300,
+      showClose: false
+    })
+  }
+}
+
+function sendRecord(record: string) {
+  if (record.includes('data:audio')) {
+    emit('submit', { type: 'record', content: record })
+  } else {
+    ElNotification.error({
+      message: '语音格式不正确',
+      duration: 5000,
+      offset: 300,
+      showClose: false
+    })
+  }
+}
 
 function eventListenerHandler(active: boolean) {
   if (active) {
@@ -114,8 +236,13 @@ async function touchstartMic() {
     audioChunks.push(event.data)
   })
   recorder.addEventListener('stop', () => {
-    audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
-    console.log(audioBlob)
+    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
+    const reader = new FileReader()
+    reader.readAsDataURL(audioBlob)
+    reader.addEventListener('load', (e) => {
+      const base64 = e.target?.result as string
+      sendRecord(base64)
+    })
   })
 }
 
@@ -129,6 +256,7 @@ function touchendMic() {
 
 onMounted(() => {
   eventListenerHandler(true)
+  featureStates.camera = false
 })
 
 onUnmounted(() => {
@@ -138,6 +266,9 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .input-container {
+  flex: none;
+  overflow: hidden;
+
   .input-value {
     margin-top: 8px;
     display: flex;
@@ -202,11 +333,8 @@ onUnmounted(() => {
     }
 
     .image {
-      display: flex;
       height: 252px;
       padding-left: 68px;
-      align-items: flex-start;
-      gap: var(--Radius-border-radius-base, 4px);
 
       position: relative;
 
@@ -224,6 +352,29 @@ onUnmounted(() => {
         left: 0;
 
         background: var(---color-info-dark-2, #73767a);
+      }
+
+      .image-legacies {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 4px;
+        align-items: center;
+        justify-content: stretch;
+        overflow-x: auto;
+
+        .image-legacy-item {
+          flex: none;
+          height: 100%;
+          overflow: hidden;
+
+          .el-image {
+            width: 128px;
+            height: 100%;
+          }
+        }
       }
     }
   }

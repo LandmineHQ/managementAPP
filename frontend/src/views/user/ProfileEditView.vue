@@ -13,7 +13,6 @@
               :limit="1"
               :on-exceed="handleFileExceed"
               :auto-upload="false"
-              :before-upload="beforeAvatarUpload"
               list-type="text"
               :on-change="handleFileChange"
             >
@@ -109,17 +108,6 @@ const handleFileChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
       reader.readAsDataURL(file) // 将文件读取为Data URL
     }
   }
-}
-
-const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
-  if (rawFile.type !== 'image/jpeg') {
-    ElMessage.error('Avatar picture must be JPG format!')
-    return false
-  } else if (rawFile.size / 1024 / 1024 > 2) {
-    ElMessage.error('Avatar picture size can not exceed 2MB!')
-    return false
-  }
-  return true
 }
 
 // 监视$route对象，特别是查询参数的变化

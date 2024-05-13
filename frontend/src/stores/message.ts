@@ -19,17 +19,17 @@ type Message = {
 }
 
 const useMessageStore = defineStore('message', () => {
-  const received = ref(new Map<string, Message[]>())
-  const sent = ref(new Map<string, Message[]>())
-  const groups = ref(new Map<string, Message[]>())
+  const receivedMessages = ref(new Map<string, Message[]>())
+  const sentMessages = ref(new Map<string, Message[]>())
+  const groupsMessages = ref(new Map<string, Message[]>())
 
   function getReceivedById(id: string | number): Message[] {
     if (typeof id === 'number') id = id.toString()
 
-    let messages = received.value.get(id)
+    let messages = receivedMessages.value.get(id)
     if (!messages) {
-      received.value.set(id, [])
-      messages = received.value.get(id)! // Use non-null assertion operator as we just set it
+      receivedMessages.value.set(id, [])
+      messages = receivedMessages.value.get(id)! // Use non-null assertion operator as we just set it
     }
 
     return messages
@@ -38,10 +38,10 @@ const useMessageStore = defineStore('message', () => {
   function getSentById(type: 'group' | 'private', id: string | number): Message[] {
     if (typeof id === 'number') id = id.toString()
 
-    let messages = sent.value.get(`${type}-${id}`)
+    let messages = sentMessages.value.get(`${type}-${id}`)
     if (!messages) {
-      sent.value.set(`${type}-${id}`, [])
-      messages = sent.value.get(`${type}-${id}`)! // Use non-null assertion operator as we just set it
+      sentMessages.value.set(`${type}-${id}`, [])
+      messages = sentMessages.value.get(`${type}-${id}`)! // Use non-null assertion operator as we just set it
     }
 
     return messages
@@ -55,16 +55,16 @@ const useMessageStore = defineStore('message', () => {
       })
       .then((res) => {
         res.data.forEach((item: any) => {
-          groups.value.set(item.groupId, item.messages)
+          groupsMessages.value.set(item.groupId, item.messages)
         })
       })
 
-    return groups.value
+    return groupsMessages.value
   }
 
   async function getPrivate(showLoading = true) {
-    received.value.clear()
-    sent.value.clear()
+    receivedMessages.value.clear()
+    sentMessages.value.clear()
     await axios
       .get(`${DAEMON_HOST}/${ROUTER_NAME.MESSAGE}`, {
         // @ts-expect-error
@@ -72,11 +72,11 @@ const useMessageStore = defineStore('message', () => {
       })
       .then((res) => {
         res.data.receivedMessages.forEach((item: Message) => {
-          const receivedMessages = received.value.get(item.senderId.toString())
-          if (receivedMessages) {
-            receivedMessages.push(item)
+          const sentByUserMSG = receivedMessages.value.get(item.senderId.toString())
+          if (sentByUserMSG) {
+            sentByUserMSG.push(item)
           } else {
-            received.value.set(item.senderId.toString(), [item])
+            receivedMessages.value.set(item.senderId.toString(), [item])
           }
         })
         res.data.sentMessages.forEach((item: Message) => {
@@ -92,17 +92,26 @@ const useMessageStore = defineStore('message', () => {
       })
   }
 
+  async function sendMessage(msg: any) {
+    const data = await axios
+      .post(`${DAEMON_HOST}/${ROUTER_NAME.MESSAGE}`, msg, {})
+      .then((res) => res.data)
+    return data
+  }
+
   return {
     /* states */
-    received,
-    sent,
-    groups,
+    receivedMessages,
+    sentMessages,
+    groupsMessages,
 
     /* methods */
     getGroups,
     getPrivate,
     getReceivedById,
-    getSentById
+    getSentById,
+
+    sendMessage
   }
 })
 

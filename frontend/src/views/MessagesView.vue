@@ -63,7 +63,7 @@ async function freshPolicy() {
 async function freshPrivateMessages(showLoading = true) {
   await useMessageStore().getPrivate(showLoading)
   /* 增加私聊sessions */
-  useMessageStore().received.forEach((messages, senderId) => {
+  useMessageStore().receivedMessages.forEach((messages, senderId) => {
     /* 找出每个发送人最新时间的消息 */
     let unReadCounts = 0
     const latestMessage = messages.reduce((latest, current) => {
@@ -104,7 +104,7 @@ async function freshGroupMessages(showLoading = true) {
 
   /* 增加群组sessions */
   for (let group of useGroupStore().groups) {
-    const groupMessages = useMessageStore().groups.get(group.id)
+    const groupMessages = useMessageStore().groupsMessages.get(group.id)
     if (!groupMessages) continue
     let latestMessage: (typeof groupMessages)[0]
     if (groupMessages.length > 0) {
@@ -184,7 +184,7 @@ onMounted(() => {
         </template>
       </el-input>
 
-      <ElSpace fill direction="vertical" :size="10" style="width: 100%">
+      <ElSpace direction="vertical" fill :size="10" style="width: 100%">
         <div class="laws-helper" @click="router.push(`/${ROUTER_NAME.MESSAGES_POLICY}`)">
           <ElRow>
             <ElCol :span="12">
@@ -248,20 +248,24 @@ onMounted(() => {
                 <div class="content">
                   <ElRow>
                     <ElCol :span="16">
-                      <ElText>{{ item.title }}</ElText>
+                      <ElText>
+                        {{ item.title }}
+                      </ElText>
                     </ElCol>
                     <ElCol :span="4" />
                     <ElCol :span="4">
                       <ElRow justify="end" align="middle" style="height: 100%">
-                        <ElText type="info">{{
-                          item.date ? dayjs(item.date).format('HH:mm') : ''
-                        }}</ElText>
+                        <ElText type="info">
+                          {{ item.date ? dayjs(item.date).format('HH:mm') : '' }}
+                        </ElText>
                       </ElRow>
                     </ElCol>
                   </ElRow>
                   <ElRow>
                     <ElCol :span="16">
-                      <ElText>{{ item.content }}</ElText>
+                      <ElText truncated>
+                        {{ item.content }}
+                      </ElText>
                     </ElCol>
                     <ElCol :span="4" />
                     <ElCol :span="4">
@@ -282,6 +286,9 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .messages-view {
+  height: 0;
+  flex: auto;
+
   .search-input {
     height: 42px;
     margin: 16px auto;
@@ -307,6 +314,7 @@ onMounted(() => {
   }
 
   .sessions-container {
+    width: 0px;
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
@@ -335,6 +343,7 @@ onMounted(() => {
     }
 
     .content {
+      width: 0;
       flex: auto;
 
       .dot {

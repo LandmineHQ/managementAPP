@@ -23,3 +23,4 @@ useAuthStore()
 app.mount('#app')
 
 requestPermission.requestRecordPermission()
+requestPermission.requestCameraPermission()

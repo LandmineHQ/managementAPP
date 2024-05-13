@@ -2,7 +2,7 @@
   <PageHeader :title="chatTitle" :avatar="chatAvatar"></PageHeader>
   <ElScrollbar ref="scrollbarRef" class="chat-view">
     <ElSpace direction="vertical" alignment="stretch" size="small" class="chat-view-messages">
-      <div v-for="item in computedMessages" :key="item.type + item.id">
+      <div v-for="item in computedMessages" :key="item.type + item.id" style="width: 100%">
         <div v-if="item.type !== 'divider'" class="chat-view-message-item">
           <ElAvatar :size="48" :src="item.avatar">
             <ElIcon :size="24">
@@ -11,17 +11,11 @@
           </ElAvatar>
 
           <div class="content">
-            <div
-              class="content-item"
-              :class="{
-                text: item.type === 'text',
-                image: item.type === 'image'
-              }"
-            >
-              <ElText v-if="item.type === 'text'">
-                {{ item.content }}
-              </ElText>
-              <ElImage v-else-if="item.type === 'image'" :src="item.content" fit="cover" />
+            <div v-if="item.type === 'image'" class="content-item image">
+              <ElImage :src="item.content" fit="cover" />
+            </div>
+            <div v-else class="content-item text">
+              <ElText>{{ item.content }}</ElText>
             </div>
           </div>
 
@@ -39,7 +33,7 @@
       </div>
     </ElSpace>
   </ElScrollbar>
-  <InputComponent />
+  <InputComponent @submit="sendMessage" />
 </template>
 
 <script setup lang="ts">
@@ -49,6 +43,8 @@ import useMessageStore from '@/stores/message'
 import useUserStore from '@/stores/user'
 import { ElImage, ElNotification, ElScrollbar, ElSpace, dayjs } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
+
+import InputComponent from '@/components/InputComponent.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -100,6 +96,12 @@ const computedMessages = computed(() => {
 })
 const chatAvatar = ref<string>('abc')
 
+const sendMessage: InstanceType<typeof InputComponent>['onSubmit'] = async (input) => {
+  const sendMsg = { ...input, receiverId: chatId.value }
+  const res = await useMessageStore().sendMessage(sendMsg)
+  console.log(res)
+}
+
 async function freshPrivate() {
   messages.value.length = 0
 
@@ -121,14 +123,12 @@ async function freshPrivate() {
           newMessage.content = image
           break
         }
-        case 'text': {
-          newMessage.content = item.content as string
-          break
-        }
-        case 'record': {
-          break
-        }
         case 'task': {
+          break
+        }
+        case 'text':
+        case 'record': {
+          newMessage.content = item.content as string
           break
         }
       }
@@ -138,6 +138,16 @@ async function freshPrivate() {
   const profile = await useUserStore().getProfileByUserId(chatId.value)
   chatTitle.value = profile.nickname
   chatAvatar.value = profile.avatar.src
+}
+
+function scrollToBottom() {
+  if (scrollbarRef.value) {
+    const warpRef = scrollbarRef.value.wrapRef!
+    const viewRef = warpRef.firstChild! as HTMLDivElement
+    const rect = viewRef.getBoundingClientRect()
+    console.log(viewRef, rect)
+    scrollbarRef.value.setScrollTop(rect.bottom * 2)
+  }
 }
 
 async function freshGroup() {}
@@ -163,9 +173,7 @@ async function freshView() {
     }
   }
 
-  nextTick(() => {
-    scrollbarRef.value?.setScrollTop(Infinity)
-  })
+  scrollToBottom()
 }
 
 watch(
@@ -186,8 +194,13 @@ onMounted(() => {
 .chat-view {
   background: var(--bg-color, #fff);
 
+  position: relative;
+
   .chat-view-messages {
     padding: 26px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 
     .chat-view-message-item {
       display: flex;
@@ -202,12 +215,13 @@ onMounted(() => {
       }
 
       .content {
-        width: 100%;
+        width: 0;
         position: relative;
         flex: auto;
 
         .content-item {
           width: fit-content;
+          max-width: 100%;
           border-radius: 12px;
           background: var(--Color-Primary-color-primary, #409eff);
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);

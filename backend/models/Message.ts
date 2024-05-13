@@ -15,7 +15,7 @@ class Message extends Model {
 Message.init(
   {
     type: {
-      type: DataTypes.JSON,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     content: {

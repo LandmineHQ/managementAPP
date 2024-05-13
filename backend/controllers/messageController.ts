@@ -1,4 +1,5 @@
 import Group from "@models/Group";
+import Image from "@models/Image";
 import Message from "@models/Message";
 import User from "@models/User";
 import dayjs from "dayjs";
@@ -29,15 +30,36 @@ async function sendMessage(
     type: string;
     content: string;
     receiverId: number;
+    receiverGroupId: number;
   }
 ) {
-  const user = User.findOne({
+  const user = await User.findOne({
     where: {
       token: token,
     },
   });
   if (!user) return null;
-  debugger;
+  let message: Message | null = null;
+  switch (data.type) {
+    case "image": {
+      let image = await Image.findOne({ where: { src: data.content } });
+      if (!image) {
+        image = await Image.create({
+          src: data.content,
+        });
+      }
+      data.content = image.id.toString();
+      // @ts-expect-error
+      message = await user.createSentMessage(data);
+      break;
+    }
+    case "text":
+    case "record":
+      // @ts-expect-error
+      message = await user.createSentMessage(data);
+      break;
+  }
+  return message;
 }
 
 async function getByGroupId(groupId: string, dayAgo: string = "7") {
