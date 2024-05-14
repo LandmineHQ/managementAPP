@@ -39,6 +39,7 @@ import { useRouter } from 'vue-router'
 import { ROUTER_NAME } from '@/router'
 import useAuthStore from '@/stores/auth'
 import useUserStore from '@/stores/user'
+import useSocketStore from '@/stores/socket'
 
 const router = useRouter()
 
@@ -66,7 +67,8 @@ async function onSubmit() {
         offset: 300
       })
       router.push(`/${ROUTER_NAME.USER}`)
-      useUserStore().getUserStore()
+      await useUserStore().getUserStore()
+      await useSocketStore().estublish()
     }
     loadingInstance.close()
   } else {

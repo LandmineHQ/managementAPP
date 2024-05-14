@@ -8,6 +8,7 @@ function createRouter() {
   const router = express.Router();
 
   router.get("/database", async (req, res, next) => {
+    await socketController.disconnectAllSockets();
     await debugController.rebuildDatabase();
     return RouterSendMessage.sendData(res, "数据库rebuild done");
   });
@@ -24,7 +25,7 @@ function createRouter() {
   router.get("/push", async (req, res, next) => {
     const msg = req.query.msg as string;
     if (!msg) return RouterSendMessage.error(res, "没有输入msg参数");
-    socketController.pushNotificationGlobal(msg);
+    socketController.pushGlobalNotice(msg);
     return RouterSendMessage.sendMessage(res, `推送消息：${msg} 成功！`);
   });
 

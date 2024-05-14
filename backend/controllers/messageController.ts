@@ -4,6 +4,7 @@ import Message from "@models/Message";
 import User from "@models/User";
 import dayjs from "dayjs";
 import { Op } from "sequelize";
+import socketController from "./socketController";
 
 async function getMessagesByToken(token: string, dayAgo: string) {
   const user = await User.findOne({
@@ -59,6 +60,8 @@ async function sendMessage(
       message = await user.createSentMessage(data);
       break;
   }
+
+  socketController.pushMessage(message);
   return message;
 }
 
@@ -96,9 +99,34 @@ async function getGroupsMessagesByToken(token: string) {
   return messages;
 }
 
+async function messagesSetReadByToken(token: string, senderId: string) {
+  const user = await User.findOne({
+    where: {
+      token: token,
+    },
+    include: {
+      model: Message,
+      as: "receivedMessages",
+      where: {
+        senderId,
+      },
+    },
+  });
+  if (!user) return null;
+  // @ts-expect-error
+  const receivedMessages = user.receivedMessages as Message[];
+  receivedMessages.forEach(async (message) => {
+    message.isRead = true;
+    message.save();
+  });
+}
+
 export default {
   getMessagesByToken,
   getGroupsMessagesByToken,
+
   sendMessage,
   getByGroupId,
+
+  messagesSetReadByToken,
 };

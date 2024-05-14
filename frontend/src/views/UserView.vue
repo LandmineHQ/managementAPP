@@ -16,8 +16,14 @@ import {
 
 import { h } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const locale = useI18n().locale
+
+function toggleLanguage() {
+  locale.value = locale.value === 'en_us' ? 'zh_cn' : 'en_us'
+}
 
 function clickProfile() {
   if (useAuthStore().isLogin === false) {
@@ -62,10 +68,10 @@ function clickPolicy() {
 
       <ElText size="large">{{ $t('wo-de-zi-liao') }}</ElText>
 
-      <div>
-        <ElIcon :size="26">
-          <EpSetting />
-        </ElIcon>
+      <div @click="toggleLanguage">
+        <ElAvatar :size="26">
+          {{ $t('launguage') }}
+        </ElAvatar>
       </div>
     </ElRow>
 
@@ -200,7 +206,19 @@ function clickPolicy() {
           <EpArrowRight />
         </ElIcon>
       </ElRow>
-      <ElRow justify="space-between" align="middle">
+      <ElRow
+        justify="space-between"
+        align="middle"
+        @click="
+          router.push({
+            path: `/${ROUTER_NAME.MESSAGES_CHAT}`,
+            query: {
+              id: 5,
+              type: 'private'
+            }
+          })
+        "
+      >
         <ElText size="large">{{ $t('zai-xian-lian-xi') }}</ElText>
         <ElIcon>
           <EpArrowRight />

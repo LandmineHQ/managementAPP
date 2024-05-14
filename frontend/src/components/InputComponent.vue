@@ -33,8 +33,10 @@
       <ElIcon :size="22">
         <EpPhone />
       </ElIcon>
-      <ElIcon :size="22">
+      <ElIcon :size="22" @click="featureStates.task = true">
         <EpFinished />
+        <!-- <AssignmentComponent v-model:dialog-visible="featureStates.task"/> -->
+        <AssignmentComponent />
       </ElIcon>
     </div>
     <div class="feature-view">
@@ -124,7 +126,8 @@ const activedFeature = defineModel('activedFeature', {
 })
 const featureStates = reactive({
   record: false,
-  camera: false
+  camera: false,
+  task: false
 })
 
 const inputText = ref<string>()

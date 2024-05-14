@@ -18,8 +18,9 @@ const inputText = ref<string>('')
 const isLoading = ref(true)
 
 const computedSessionList = computed(() => {
-  if (sessionList.value.length > 0) {
-    const sortedList = sessionList.value.sort((a, b) => {
+  const allSessionList = [...groupSessionList.value, ...privateSessionList.value]
+  if (allSessionList.length > 0) {
+    const sortedList = allSessionList.sort((a, b) => {
       const nowDate = dayjs().toString()
       if (!a.date) a.date = nowDate
       if (!b.date) b.date = nowDate
@@ -42,7 +43,8 @@ const computedSessionList = computed(() => {
     return []
   }
 })
-const sessionList = ref<
+
+const groupSessionList = ref<
   Array<{
     id: number
     type: 'group' | 'private'
@@ -58,6 +60,7 @@ const sessionList = ref<
       | any
   }>
 >([])
+const privateSessionList = ref<typeof groupSessionList.value>([])
 
 function gotoChat(type: 'group' | 'private', id: string | number) {
   if (typeof id === 'number') id = id.toString()
@@ -68,6 +71,8 @@ function gotoChat(type: 'group' | 'private', id: string | number) {
       id: id
     }
   })
+
+  useMessageStore().tagSessionRead(id)
 }
 
 async function freshPolicy() {
@@ -76,6 +81,7 @@ async function freshPolicy() {
 }
 
 function freshPrivateView() {
+  privateSessionList.value.length = 0
   /* 增加私聊sessions */
   useMessageStore().receivedMessages.forEach((messages, senderId) => {
     /* 找出每个发送人最新时间的消息 */
@@ -93,7 +99,7 @@ function freshPrivateView() {
       date: latestMessage.createdAt, // 消息创建时间
       badge: unReadCounts, // 消息未读数量
       avatar: undefined
-    } as (typeof sessionList.value)[0]
+    } as (typeof privateSessionList.value)[0]
 
     switch (latestMessage.type) {
       case 'image':
@@ -113,12 +119,13 @@ function freshPrivateView() {
       .then((res) => {
         newSession.avatar = res.avatar
         newSession.title = res.nickname
-        sessionList.value.push(newSession)
+        privateSessionList.value.push(newSession)
       })
   })
 }
 
 async function freshGroupView() {
+  groupSessionList.value.length = 0
   /* 增加群组sessions */
   for (let group of useGroupStore().groups) {
     const groupMessages = useMessageStore().getGroupById(group.id)
@@ -146,7 +153,7 @@ async function freshGroupView() {
       date: latestMessage?.createdAt,
       badge: 0,
       avatar: undefined
-    } as (typeof sessionList.value)[0]
+    } as (typeof groupSessionList.value)[0]
 
     switch (latestMessage.type) {
       case 'image':
@@ -169,13 +176,12 @@ async function freshGroupView() {
       )
       newSession.content = `${latestMessageSenderProfile.nickname}：${newSession.content}`
     }
-    sessionList.value.push(newSession)
+    groupSessionList.value.push(newSession)
   }
 }
 
 async function getPrivateData(showLoading = true) {
   await useMessageStore().getPrivate(showLoading)
-  freshPrivateView()
 }
 
 async function getGroupData(showLoading = true) {
@@ -183,8 +189,6 @@ async function getGroupData(showLoading = true) {
   promiseList.push(useMessageStore().getGroups(showLoading))
   promiseList.push(useGroupStore().getGroups(showLoading))
   await Promise.all(promiseList)
-
-  freshGroupView()
 }
 
 async function freshData(showLoading = true) {
@@ -194,7 +198,7 @@ async function freshData(showLoading = true) {
   }, 300)
 
   /* 清空sessions */
-  sessionList.value = []
+  groupSessionList.value = []
   /* 获取消息 */
   const promiseList = []
   promiseList.push(getPrivateData(showLoading))
@@ -204,13 +208,22 @@ async function freshData(showLoading = true) {
 
 // 自动刷新视图
 watch(
-  () => route.path,
+  useMessageStore().receivedMessages,
   () => {
-    if (route.path.endsWith(ROUTER_NAME.MESSAGES)) {
-      sessionList.value.length = 0
-      freshPrivateView()
-      freshGroupView()
-    }
+    freshPrivateView()
+  },
+  {
+    deep: true
+  }
+)
+
+watch(
+  useMessageStore().groupsMessages,
+  () => {
+    freshGroupView()
+  },
+  {
+    deep: true
   }
 )
 

@@ -86,14 +86,14 @@ const chatType = computed(() => {
   if (type) {
     return type
   }
-  return 'none'
+  return undefined
 })
 const chatId = computed(() => {
   const id = route.query.id as string
   if (id) {
     return id
   }
-  return '-1'
+  return undefined
 })
 const chatTitle = ref<string>()
 const messages = ref<
@@ -135,14 +135,15 @@ const chatAvatar = ref<string>('abc')
 const sendMessage: InstanceType<typeof InputComponent>['onSubmit'] = async (input) => {
   let sendMsg = { ...input } as MessageType
   if (chatType.value === 'group') {
-    sendMsg.receiverGroupId = parseInt(chatId.value)
+    sendMsg.receiverGroupId = parseInt(chatId.value!)
   } else {
-    sendMsg.receiverId = parseInt(chatId.value)
+    sendMsg.receiverId = parseInt(chatId.value!)
   }
-  const res = await useMessageStore().sendMessage(sendMsg)
-  console.log('sendMsg', res)
-
-  freshView()
+  const data = await useMessageStore().sendMessage(sendMsg)
+  console.log('sendMsg', data)
+  if (chatId.value === useUserStore().uid?.toString()) {
+    useMessageStore().getReceivedById(chatId.value!).push(data)
+  }
 }
 
 function playRecord(event: Event, base64: string) {
@@ -206,45 +207,52 @@ async function resolveMessage(message: MessageType) {
   messages.value.push(newMessage)
 }
 
-async function freshPrivate() {
+async function freshPrivateView() {
   useMessageStore()
-    .getReceivedById(chatId.value)
+    .getReceivedById(chatId.value!)
     .forEach((item) => {
       resolveMessage(item)
     })
 
   if (chatId.value !== useUserStore().uid?.toString()) {
     useMessageStore()
-      .getSentById('private', chatId.value)
+      .getSentById('private', chatId.value!)
       .forEach((item) => {
         resolveMessage(item)
       })
   }
 
-  const profile = await useUserStore().getProfileByUserId(chatId.value)
-  chatTitle.value = profile.nickname
-  chatAvatar.value = profile.avatar.src
-}
-
-function scrollToBottom() {
-  if (scrollbarRef.value) {
-    const warpRef = scrollbarRef.value.wrapRef!
-    const viewRef = warpRef.firstChild! as HTMLDivElement
-    const rect = viewRef.getBoundingClientRect()
-    scrollbarRef.value.setScrollTop(rect.bottom * 2)
+  const profile = await useUserStore().getProfileByUserId(chatId.value!)
+  if (profile) {
+    chatTitle.value = profile.nickname
+    chatAvatar.value = profile.avatar.src
   }
 }
 
-async function freshGroup() {
+function scrollToBottom() {
+  nextTick(() => {
+    const warpRef = scrollbarRef.value!.wrapRef!
+    const viewRef = warpRef.firstChild! as HTMLDivElement
+    const rect = viewRef.getBoundingClientRect()
+
+    nextTick(() => {
+      scrollbarRef.value!.setScrollTop(rect.bottom * 2)
+    })
+  })
+}
+
+async function freshGroupView() {
   useMessageStore()
-    .getGroupById(chatId.value)
+    .getGroupById(chatId.value!)
     .forEach((item) => {
       resolveMessage(item)
     })
 
-  const profile = await useGroupStore().getGroupProfileByGroupId(chatId.value)
-  chatTitle.value = profile.name
-  chatAvatar.value = profile.avatar.src
+  const profile = await useGroupStore().getGroupProfileByGroupId(chatId.value!)
+  if (profile) {
+    chatTitle.value = profile.name
+    chatAvatar.value = profile.avatar.src
+  }
 }
 
 async function freshView() {
@@ -253,11 +261,11 @@ async function freshView() {
 
   switch (chatType.value) {
     case 'group': {
-      await freshGroup()
+      await freshGroupView()
       break
     }
     case 'private': {
-      await freshPrivate()
+      await freshPrivateView()
       break
     }
     default: {
@@ -269,10 +277,22 @@ async function freshView() {
     }
   }
 
-  nextTick(() => {
-    scrollToBottom()
-  })
+  scrollToBottom()
 }
+
+watch(
+  [
+    () => useMessageStore().receivedMessages,
+    () => useMessageStore().groupsMessages,
+    () => useMessageStore().sentMessages
+  ],
+  () => {
+    if (chatId.value) freshView()
+  },
+  {
+    deep: true
+  }
+)
 
 watch(
   () => route.path,

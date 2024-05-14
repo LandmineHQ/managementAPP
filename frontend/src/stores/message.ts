@@ -107,12 +107,31 @@ const useMessageStore = defineStore('message', () => {
     const data = (await axios
       .post(`${DAEMON_HOST}/${ROUTER_NAME.MESSAGE}`, msg, {})
       .then((res) => res.data)) as Message
+
     if (data.receiverId) {
       getSentById('private', data.receiverId).push(data)
     } else if (data.receiverGroupId) {
       getGroupById(data.receiverGroupId).push(data)
     }
     return data
+  }
+
+  async function tagSessionRead(id: string) {
+    await axios.put(
+      `${DAEMON_HOST}/${ROUTER_NAME.MESSAGE}/read`,
+      {
+        senderId: id
+      },
+      {
+        // @ts-expect-error
+        showLoading: false
+      }
+    )
+    receivedMessages.value.get(id)?.forEach((item) => {
+      if (!item.isRead) {
+        item.isRead = true
+      }
+    })
   }
 
   return {
@@ -129,7 +148,9 @@ const useMessageStore = defineStore('message', () => {
     getSentById,
     getGroupById,
 
-    sendMessage
+    sendMessage,
+
+    tagSessionRead
   }
 })
 

@@ -11,6 +11,7 @@ function createMessageRouter() {
   router.get("/", getHandler);
   router.get("/group", getGroupHandler);
 
+  router.put("/read", putReadHandler);
   router.post("/", postHandler);
 
   return router;
@@ -49,6 +50,14 @@ async function postHandler(req: Request, res: Response, next: NextFunction) {
   const message = await messageController.sendMessage(token, data);
   if (!message) return RouterSendMessage.error(res, "发送失败");
   return RouterSendMessage.sendData(res, message);
+}
+
+async function putReadHandler(req: Request, res: Response, next: NextFunction) {
+  const token = parseTokenFromHeaders(req.headers) as string;
+  const id = req.body.senderId;
+  if (!id) RouterSendMessage.error(res, "id参数缺失");
+  await messageController.messagesSetReadByToken(token, id);
+  return RouterSendMessage.OK(res);
 }
 
 export default createMessageRouter;

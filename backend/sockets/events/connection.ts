@@ -21,11 +21,12 @@ function setupSocketEvent(socket: Socket) {
   socket.addListener("disconnect", handleDisconnect);
   socket.addListener("error", handleError);
   socket.addListener("message", handleMessage);
+  socket.addListener("chat", handleChat);
 }
 
-function handleMessage(message: string) {
+function handleMessage(this: Socket, message: string) {
   const response = `${dayjs().format("HH:mm:ss.SSS")} ${message}`;
-  socketController.pushNotificationGlobal(response);
+  this.send(response);
 }
 
 async function handleDisconnect(this: Socket, reason: string) {
