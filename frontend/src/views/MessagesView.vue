@@ -14,16 +14,29 @@ const router = useRouter()
 const route = useRoute()
 const t = i18n.global.t
 
-const input = ref<string>()
+const inputText = ref<string>('')
 const isLoading = ref(true)
 
 const computedSessionList = computed(() => {
   if (sessionList.value.length > 0) {
-    return sessionList.value.sort((a, b) => {
+    const sortedList = sessionList.value.sort((a, b) => {
       const nowDate = dayjs().toString()
       if (!a.date) a.date = nowDate
       if (!b.date) b.date = nowDate
       return dayjs(a.date).isAfter(b.date) ? -1 : 1
+    })
+
+    const keyword = inputText.value.toLowerCase()
+    return sortedList.filter((item) => {
+      switch (true) {
+        case item.id.toString().toLowerCase().includes(keyword):
+        case item.title.toLowerCase().includes(keyword):
+        case item.date.toString().toLocaleLowerCase().includes(keyword):
+        case item.content.toLowerCase().includes(keyword):
+          return true
+        default:
+          return false
+      }
     })
   } else {
     return []
@@ -62,8 +75,7 @@ async function freshPolicy() {
   await policyPromise
 }
 
-async function freshPrivateMessages(showLoading = true) {
-  await useMessageStore().getPrivate(showLoading)
+function freshPrivateView() {
   /* 增加私聊sessions */
   useMessageStore().receivedMessages.forEach((messages, senderId) => {
     /* 找出每个发送人最新时间的消息 */
@@ -106,19 +118,10 @@ async function freshPrivateMessages(showLoading = true) {
   })
 }
 
-async function freshGroupMessages(showLoading = true) {
-  const promiseList = []
-  promiseList.push(useMessageStore().getGroups(showLoading))
-  promiseList.push(useGroupStore().getGroups(showLoading))
-
-  for (let promise of promiseList) {
-    await promise
-  }
-  promiseList.length = 0
-
+async function freshGroupView() {
   /* 增加群组sessions */
   for (let group of useGroupStore().groups) {
-    const groupMessages = useMessageStore().groupsMessages.get(group.id)
+    const groupMessages = useMessageStore().getGroupById(group.id)
     if (!groupMessages) continue
     let latestMessage: (typeof groupMessages)[0]
     if (groupMessages.length > 0) {
@@ -145,6 +148,18 @@ async function freshGroupMessages(showLoading = true) {
       avatar: undefined
     } as (typeof sessionList.value)[0]
 
+    switch (latestMessage.type) {
+      case 'image':
+        newSession.content = `[${t('tu-pian')}]`
+        break
+      case 'record':
+        newSession.content = `[${t('lu-yin')}]`
+        break
+      default:
+        newSession.content = latestMessage.content as string
+        break
+    }
+
     /* 得到群组与最新消息发送人的profile */
     const groupProfile = await useGroupStore().getGroupProfileByGroupId(group.id)
     newSession.avatar = groupProfile.avatar
@@ -152,10 +167,24 @@ async function freshGroupMessages(showLoading = true) {
       const latestMessageSenderProfile = await useUserStore().getProfileByUserId(
         latestMessage.senderId.toString()
       )
-      newSession.content = `${latestMessageSenderProfile.nickname}：${latestMessage.content}`
+      newSession.content = `${latestMessageSenderProfile.nickname}：${newSession.content}`
     }
     sessionList.value.push(newSession)
   }
+}
+
+async function getPrivateData(showLoading = true) {
+  await useMessageStore().getPrivate(showLoading)
+  freshPrivateView()
+}
+
+async function getGroupData(showLoading = true) {
+  const promiseList = []
+  promiseList.push(useMessageStore().getGroups(showLoading))
+  promiseList.push(useGroupStore().getGroups(showLoading))
+  await Promise.all(promiseList)
+
+  freshGroupView()
 }
 
 async function freshData(showLoading = true) {
@@ -166,20 +195,24 @@ async function freshData(showLoading = true) {
 
   /* 清空sessions */
   sessionList.value = []
-  /* 刷新消息 */
-  freshPrivateMessages(showLoading)
-  freshGroupMessages(showLoading)
+  /* 获取消息 */
+  const promiseList = []
+  promiseList.push(getPrivateData(showLoading))
+  promiseList.push(getGroupData(showLoading))
+  await Promise.all(promiseList)
 }
 
-// 不再需要自动刷新，使用socket进行通知
-// watch(
-//   () => route.path,
-//   () => {
-//     if (route.path.endsWith(ROUTER_NAME.MESSAGES)) {
-//       freshData(false)
-//     }
-//   }
-// )
+// 自动刷新视图
+watch(
+  () => route.path,
+  () => {
+    if (route.path.endsWith(ROUTER_NAME.MESSAGES)) {
+      sessionList.value.length = 0
+      freshPrivateView()
+      freshGroupView()
+    }
+  }
+)
 
 onMounted(() => {
   if (useAuthStore().isLogin) {
@@ -193,7 +226,7 @@ onMounted(() => {
   <div class="messages-view">
     <NotLogIn v-if="!useAuthStore().isLogin" />
     <ElScrollbar v-else class="scroll-main">
-      <el-input v-model="input" placeholder="搜索" class="search-input">
+      <el-input v-model="inputText" placeholder="搜索" class="search-input">
         <template #prepend>
           <ElButton :icon="Search" size="small"></ElButton>
         </template>
@@ -246,51 +279,53 @@ onMounted(() => {
           </template>
           <template #default>
             <div class="sessions-container">
-              <div
-                v-for="item in computedSessionList"
-                :key="item.type + item.id"
-                class="session"
-                :class="{
-                  isGroup: item.type === 'group'
-                }"
-                @click="gotoChat(item.type, item.id)"
-              >
-                <ElAvatar :src="item.avatar.src" class="avatar" size="large">
-                  <ElIcon :size="32">
-                    <EpConnection />
-                  </ElIcon>
-                </ElAvatar>
-                <div class="content">
-                  <ElRow>
-                    <ElCol :span="16">
-                      <ElText>
-                        {{ item.title }}
-                      </ElText>
-                    </ElCol>
-                    <ElCol :span="4" />
-                    <ElCol :span="4">
-                      <ElRow justify="end" align="middle" style="height: 100%">
-                        <ElText type="info">
-                          {{ item.date ? dayjs(item.date).format('HH:mm') : '' }}
+              <TransitionGroup name="list">
+                <div
+                  v-for="item in computedSessionList"
+                  :key="item.type + item.id"
+                  class="session"
+                  :class="{
+                    isGroup: item.type === 'group'
+                  }"
+                  @click="gotoChat(item.type, item.id)"
+                >
+                  <ElAvatar :src="item.avatar.src" class="avatar" size="large">
+                    <ElIcon :size="32">
+                      <EpConnection />
+                    </ElIcon>
+                  </ElAvatar>
+                  <div class="content">
+                    <ElRow>
+                      <ElCol :span="16">
+                        <ElText>
+                          {{ item.title }}
                         </ElText>
-                      </ElRow>
-                    </ElCol>
-                  </ElRow>
-                  <ElRow>
-                    <ElCol :span="16">
-                      <ElText truncated>
-                        {{ item.content }}
-                      </ElText>
-                    </ElCol>
-                    <ElCol :span="4" />
-                    <ElCol :span="4">
-                      <ElRow justify="end" align="middle" style="height: 100%">
-                        <div v-show="item.badge" class="dot">{{ item.badge }}</div>
-                      </ElRow>
-                    </ElCol>
-                  </ElRow>
+                      </ElCol>
+                      <ElCol :span="4" />
+                      <ElCol :span="4">
+                        <ElRow justify="end" align="middle" style="height: 100%">
+                          <ElText type="info">
+                            {{ item.date ? dayjs(item.date).format('HH:mm') : '' }}
+                          </ElText>
+                        </ElRow>
+                      </ElCol>
+                    </ElRow>
+                    <ElRow>
+                      <ElCol :span="16">
+                        <ElText truncated>
+                          {{ item.content }}
+                        </ElText>
+                      </ElCol>
+                      <ElCol :span="4" />
+                      <ElCol :span="4">
+                        <ElRow justify="end" align="middle" style="height: 100%">
+                          <div v-show="item.badge" class="dot">{{ item.badge }}</div>
+                        </ElRow>
+                      </ElCol>
+                    </ElRow>
+                  </div>
                 </div>
-              </div>
+              </TransitionGroup>
             </div>
           </template>
         </ElSkeleton>
@@ -392,5 +427,24 @@ onMounted(() => {
       height: 64px;
     }
   }
+}
+
+.list-move, /* 对移动中的元素应用的过渡 */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+/* 确保将离开的元素从布局流中删除
+  以便能够正确地计算移动的动画。 */
+.list-leave-active {
+  position: absolute;
+  width: 100%;
 }
 </style>

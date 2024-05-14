@@ -2,8 +2,14 @@
   <PageHeader :title="chatTitle" :avatar="chatAvatar"></PageHeader>
   <ElScrollbar ref="scrollbarRef" class="chat-view">
     <ElSpace direction="vertical" alignment="stretch" size="small" class="chat-view-messages">
-      <div v-for="item in computedMessages" :key="item.type + item.id" style="width: 100%">
-        <div v-if="item.type !== 'divider'" class="chat-view-message-item">
+      <div v-for="item in computedMessages" :key="item.type + item.id">
+        <div
+          v-if="item.type !== 'divider'"
+          class="chat-view-message-item"
+          :class="{
+            reverse: item.isReverse
+          }"
+        >
           <ElAvatar :size="48" :src="item.avatar">
             <ElIcon :size="24">
               <EpUser />
@@ -58,13 +64,14 @@
 <script setup lang="ts">
 import { ROUTER_NAME } from '@/router'
 import useImageStore from '@/stores/image'
-import useMessageStore from '@/stores/message'
+import useMessageStore, { type MessageType } from '@/stores/message'
 import useUserStore from '@/stores/user'
 import { ElImage, ElNotification, ElScrollbar, ElSpace, dayjs } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import i18n from '@/locales'
 
 import InputComponent from '@/components/InputComponent.vue'
+import useGroupStore from '@/stores/group'
 
 const router = useRouter()
 const route = useRoute()
@@ -96,6 +103,7 @@ const messages = ref<
     content: string
     avatar: string
     date: string
+    isReverse: boolean
   }>
 >([])
 const computedMessages = computed(() => {
@@ -116,14 +124,25 @@ const computedMessages = computed(() => {
     result.push(message)
   })
 
+  nextTick(() => {
+    scrollToBottom()
+  })
+
   return result
 })
 const chatAvatar = ref<string>('abc')
 
 const sendMessage: InstanceType<typeof InputComponent>['onSubmit'] = async (input) => {
-  const sendMsg = { ...input, receiverId: chatId.value }
+  let sendMsg = { ...input } as MessageType
+  if (chatType.value === 'group') {
+    sendMsg.receiverGroupId = parseInt(chatId.value)
+  } else {
+    sendMsg.receiverId = parseInt(chatId.value)
+  }
   const res = await useMessageStore().sendMessage(sendMsg)
-  console.log(res)
+  console.log('sendMsg', res)
+
+  freshView()
 }
 
 function playRecord(event: Event, base64: string) {
@@ -158,38 +177,49 @@ function stopPlayRecord() {
   }
 }
 
-async function freshPrivate() {
-  messages.value.length = 0
+async function resolveMessage(message: MessageType) {
+  const senderProfile = await useUserStore().getProfileByUserId(message.senderId.toString())
+  const newMessage = {
+    id: message.id.toString(),
+    type: message.type,
+    content: '',
+    avatar: senderProfile.avatar.src,
+    date: message.createdAt,
+    isReverse: message.senderId.toString() === useUserStore().uid!.toString()
+  }
 
+  switch (message.type) {
+    case 'image': {
+      const image = (await useImageStore().getImageById(message.content)) as string
+      newMessage.content = image
+      break
+    }
+    case 'task': {
+      break
+    }
+    case 'text':
+    case 'record': {
+      newMessage.content = message.content as string
+      break
+    }
+  }
+  messages.value.push(newMessage)
+}
+
+async function freshPrivate() {
   useMessageStore()
     .getReceivedById(chatId.value)
-    .forEach(async (item) => {
-      const senderProfile = await useUserStore().getProfileByUserId(item.senderId.toString())
-      const newMessage = {
-        id: item.id.toString(),
-        type: item.type,
-        content: '',
-        avatar: senderProfile.avatar.src,
-        date: item.createdAt
-      }
-
-      switch (item.type) {
-        case 'image': {
-          const image = await useImageStore().getImageById(item.content)
-          newMessage.content = image
-          break
-        }
-        case 'task': {
-          break
-        }
-        case 'text':
-        case 'record': {
-          newMessage.content = item.content as string
-          break
-        }
-      }
-      messages.value.push(newMessage)
+    .forEach((item) => {
+      resolveMessage(item)
     })
+
+  if (chatId.value !== useUserStore().uid?.toString()) {
+    useMessageStore()
+      .getSentById('private', chatId.value)
+      .forEach((item) => {
+        resolveMessage(item)
+      })
+  }
 
   const profile = await useUserStore().getProfileByUserId(chatId.value)
   chatTitle.value = profile.nickname
@@ -205,10 +235,21 @@ function scrollToBottom() {
   }
 }
 
-async function freshGroup() {}
+async function freshGroup() {
+  useMessageStore()
+    .getGroupById(chatId.value)
+    .forEach((item) => {
+      resolveMessage(item)
+    })
+
+  const profile = await useGroupStore().getGroupProfileByGroupId(chatId.value)
+  chatTitle.value = profile.name
+  chatAvatar.value = profile.avatar.src
+}
 
 async function freshView() {
   console.log(chatType.value, chatId.value)
+  messages.value.length = 0
 
   switch (chatType.value) {
     case 'group': {
@@ -228,7 +269,9 @@ async function freshView() {
     }
   }
 
-  scrollToBottom()
+  nextTick(() => {
+    scrollToBottom()
+  })
 }
 
 watch(
@@ -264,6 +307,15 @@ onMounted(() => {
       align-items: flex-start;
       justify-content: space-between;
       gap: 8px;
+
+      &.reverse {
+        flex-direction: row-reverse;
+
+        .content {
+          display: flex;
+          justify-content: flex-end;
+        }
+      }
 
       .el-avatar {
         flex: none;

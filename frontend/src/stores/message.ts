@@ -47,6 +47,17 @@ const useMessageStore = defineStore('message', () => {
     return messages
   }
 
+  function getGroupById(id: string | number): Message[] {
+    if (typeof id === 'number') id = id.toString()
+
+    let messages = groupsMessages.value.get(id)
+    if (!messages) {
+      groupsMessages.value.set(id, [])
+      messages = groupsMessages.value.get(id)!
+    }
+    return messages
+  }
+
   async function getGroups(showLoading = true) {
     await axios
       .get(`${DAEMON_HOST}/${ROUTER_NAME.MESSAGE}/group`, {
@@ -55,7 +66,7 @@ const useMessageStore = defineStore('message', () => {
       })
       .then((res) => {
         res.data.forEach((item: any) => {
-          groupsMessages.value.set(item.groupId, item.messages)
+          groupsMessages.value.set(item.groupId.toString(), item.messages)
         })
       })
 
@@ -92,10 +103,15 @@ const useMessageStore = defineStore('message', () => {
       })
   }
 
-  async function sendMessage(msg: any) {
-    const data = await axios
+  async function sendMessage(msg: Message) {
+    const data = (await axios
       .post(`${DAEMON_HOST}/${ROUTER_NAME.MESSAGE}`, msg, {})
-      .then((res) => res.data)
+      .then((res) => res.data)) as Message
+    if (data.receiverId) {
+      getSentById('private', data.receiverId).push(data)
+    } else if (data.receiverGroupId) {
+      getGroupById(data.receiverGroupId).push(data)
+    }
     return data
   }
 
@@ -108,11 +124,14 @@ const useMessageStore = defineStore('message', () => {
     /* methods */
     getGroups,
     getPrivate,
+
     getReceivedById,
     getSentById,
+    getGroupById,
 
     sendMessage
   }
 })
 
 export default useMessageStore
+export type { Message as MessageType }

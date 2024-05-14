@@ -2,9 +2,14 @@
   <div class="input-container" @mousedown.prevent>
     <div class="input-value">
       <ElInput type="text" v-model="inputText" placeholder="在这里输入消息"></ElInput>
-      <ElIcon :size="32">
-        <EpCirclePlus />
-      </ElIcon>
+      <ElButton
+        @click="sendText(inputText as string)"
+        type="primary"
+        size="large"
+        style="height: 100%"
+      >
+        <ElText>{{ $t('fa-song') }}</ElText>
+      </ElButton>
     </div>
     <div class="features">
       <ElIcon
@@ -211,6 +216,20 @@ function sendRecord(record: string) {
       showClose: false
     })
   }
+}
+
+function sendText(text: string) {
+  if (inputText.value!.length > 0) {
+    emit('submit', { type: 'text', content: text })
+  } else {
+    ElNotification.error({
+      message: '消息不能为空',
+      duration: 5000,
+      offset: 300,
+      showClose: false
+    })
+  }
+  inputText.value = ''
 }
 
 function eventListenerHandler(active: boolean) {

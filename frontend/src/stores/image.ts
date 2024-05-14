@@ -5,20 +5,24 @@ import { defineStore } from 'pinia'
 
 const useImageStore = defineStore('image', () => {
   const counts = ref<number>()
+  const cache = new Map<string, string>()
 
   async function getImageById(id: string | number) {
-    if (typeof id === 'number') {
-      id = id.toString(10)
-    }
+    if (typeof id === 'number') id = id.toString()
 
-    const image = await axios
-      .get(`${DAEMON_HOST}/${ROUTER_NAME.IMAGE}`, {
-        params: {
-          id: id
-        }
-      })
-      .then((res) => res.data as string)
-    return image
+    if (cache.has(id)) {
+      return cache.get(id)
+    } else {
+      const image = await axios
+        .get(`${DAEMON_HOST}/${ROUTER_NAME.IMAGE}`, {
+          params: {
+            id: id
+          }
+        })
+        .then((res) => res.data as string)
+      cache.set(id, image)
+      return image
+    }
   }
 
   async function getCounts() {

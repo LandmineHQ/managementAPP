@@ -584,6 +584,14 @@ async function createMessages() {
       senderId: 1,
       receiverId: 5,
     },
+    {
+      createdAt: new Date("2024-05-09 13:49:17"),
+      type: "text",
+      content: "请你发送测试",
+      isRead: true,
+      senderId: 5,
+      receiverId: 1,
+    },
   ]);
 
   /* create group messages */
