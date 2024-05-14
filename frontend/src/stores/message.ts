@@ -110,8 +110,6 @@ const useMessageStore = defineStore('message', () => {
 
     if (data.receiverId) {
       getSentById('private', data.receiverId).push(data)
-    } else if (data.receiverGroupId) {
-      getGroupById(data.receiverGroupId).push(data)
     }
     return data
   }

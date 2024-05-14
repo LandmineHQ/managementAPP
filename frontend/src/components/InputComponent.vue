@@ -30,13 +30,12 @@
       >
         <EpPicture />
       </ElIcon>
-      <ElIcon :size="22">
+      <ElIcon v-if="!chatIdIsSelft" :size="22">
         <EpPhone />
       </ElIcon>
-      <ElIcon :size="22" @click="featureStates.task = true">
+      <ElIcon v-if="chatTypeIsGroup" :size="22" @click="featureStates.task = true">
         <EpFinished />
-        <!-- <AssignmentComponent v-model:dialog-visible="featureStates.task"/> -->
-        <AssignmentComponent />
+        <AssignmentComponent v-model:dialog-visible="featureStates.task" />
       </ElIcon>
     </div>
     <div class="feature-view">
@@ -102,6 +101,7 @@
 </template>
 
 <script setup lang="ts">
+import useUserStore from '@/stores/user'
 import {
   ElImage,
   ElNotification,
@@ -112,6 +112,11 @@ import {
   type UploadRawFile
 } from 'element-plus'
 import type { PropType } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const chatTypeIsGroup = computed(() => route.params.type === 'group')
+const chatIdIsSelft = computed(() => route.params.id === useUserStore().uid?.toString())
 
 const emit = defineEmits({
   submit: (obj: { type: 'record' | 'image' | 'text'; content: string }) => {
@@ -120,7 +125,7 @@ const emit = defineEmits({
   }
 })
 
-type Features = 'record' | 'image'
+type Features = 'record' | 'image' | 'task' | 'call'
 const activedFeature = defineModel('activedFeature', {
   type: String as PropType<Features>
 })

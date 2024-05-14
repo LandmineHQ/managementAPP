@@ -18,7 +18,13 @@ const inputText = ref<string>('')
 const isLoading = ref(true)
 
 const computedSessionList = computed(() => {
-  const allSessionList = [...groupSessionList.value, ...privateSessionList.value]
+  const allSessionList: Array<any> = []
+  privateSessionList.value.forEach((item) => {
+    allSessionList.push(item)
+  })
+  groupSessionList.value.forEach((item) => {
+    allSessionList.push(item)
+  })
   if (allSessionList.length > 0) {
     const sortedList = allSessionList.sort((a, b) => {
       const nowDate = dayjs().toString()
@@ -44,22 +50,7 @@ const computedSessionList = computed(() => {
   }
 })
 
-const groupSessionList = ref<
-  Array<{
-    id: number
-    type: 'group' | 'private'
-    title: string
-    content: string
-    date: string
-    badge: number
-    avatar:
-      | {
-          id: number
-          src: string | undefined
-        }
-      | any
-  }>
->([])
+const groupSessionList = ref<Array<any>>([])
 const privateSessionList = ref<typeof groupSessionList.value>([])
 
 function gotoChat(type: 'group' | 'private', id: string | number) {
@@ -80,10 +71,10 @@ async function freshPolicy() {
   await policyPromise
 }
 
-function freshPrivateView() {
-  privateSessionList.value.length = 0
+async function freshPrivateView() {
+  const sessionList: Array<any> = []
   /* 增加私聊sessions */
-  useMessageStore().receivedMessages.forEach((messages, senderId) => {
+  await useMessageStore().receivedMessages.forEach(async (messages, senderId) => {
     /* 找出每个发送人最新时间的消息 */
     let unReadCounts = 0
     const latestMessage = messages.reduce((latest, current) => {
@@ -99,7 +90,7 @@ function freshPrivateView() {
       date: latestMessage.createdAt, // 消息创建时间
       badge: unReadCounts, // 消息未读数量
       avatar: undefined
-    } as (typeof privateSessionList.value)[0]
+    }
 
     switch (latestMessage.type) {
       case 'image':
@@ -114,18 +105,19 @@ function freshPrivateView() {
     }
 
     // 得到发送人头像
-    useUserStore()
+    await useUserStore()
       .getProfileByUserId(senderId.toString())
       .then((res) => {
         newSession.avatar = res.avatar
         newSession.title = res.nickname
-        privateSessionList.value.push(newSession)
+        sessionList.push(newSession)
       })
   })
+  privateSessionList.value = sessionList
 }
 
 async function freshGroupView() {
-  groupSessionList.value.length = 0
+  const sessionList: Array<any> = []
   /* 增加群组sessions */
   for (let group of useGroupStore().groups) {
     const groupMessages = useMessageStore().getGroupById(group.id)
@@ -169,6 +161,7 @@ async function freshGroupView() {
 
     /* 得到群组与最新消息发送人的profile */
     const groupProfile = await useGroupStore().getGroupProfileByGroupId(group.id)
+
     newSession.avatar = groupProfile.avatar
     if (latestMessage.content) {
       const latestMessageSenderProfile = await useUserStore().getProfileByUserId(
@@ -176,8 +169,9 @@ async function freshGroupView() {
       )
       newSession.content = `${latestMessageSenderProfile.nickname}：${newSession.content}`
     }
-    groupSessionList.value.push(newSession)
+    sessionList.push(newSession)
   }
+  groupSessionList.value = sessionList
 }
 
 async function getPrivateData(showLoading = true) {
@@ -186,8 +180,8 @@ async function getPrivateData(showLoading = true) {
 
 async function getGroupData(showLoading = true) {
   const promiseList = []
-  promiseList.push(useMessageStore().getGroups(showLoading))
   promiseList.push(useGroupStore().getGroups(showLoading))
+  promiseList.push(useMessageStore().getGroups(showLoading))
   await Promise.all(promiseList)
 }
 
@@ -197,8 +191,6 @@ async function freshData(showLoading = true) {
     isLoading.value = false
   }, 300)
 
-  /* 清空sessions */
-  groupSessionList.value = []
   /* 获取消息 */
   const promiseList = []
   promiseList.push(getPrivateData(showLoading))
@@ -206,20 +198,10 @@ async function freshData(showLoading = true) {
   await Promise.all(promiseList)
 }
 
-// 自动刷新视图
 watch(
-  useMessageStore().receivedMessages,
+  [() => useMessageStore().receivedMessages, () => useMessageStore().groupsMessages],
   () => {
     freshPrivateView()
-  },
-  {
-    deep: true
-  }
-)
-
-watch(
-  useMessageStore().groupsMessages,
-  () => {
     freshGroupView()
   },
   {

@@ -1,6 +1,6 @@
 <template>
   <PageHeader :title="chatTitle" :avatar="chatAvatar"></PageHeader>
-  <ElScrollbar ref="scrollbarRef" class="chat-view">
+  <ElScrollbar class="chat-view" noresize ref="scrollbalRef">
     <ElSpace direction="vertical" alignment="stretch" size="small" class="chat-view-messages">
       <div v-for="item in computedMessages" :key="item.type + item.id">
         <div
@@ -72,6 +72,7 @@ import i18n from '@/locales'
 
 import InputComponent from '@/components/InputComponent.vue'
 import useGroupStore from '@/stores/group'
+import type { PropType } from 'vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -79,7 +80,7 @@ const t = i18n.global.t
 
 const audio = new Audio()
 
-const scrollbarRef = ref<InstanceType<typeof ElScrollbar>>()
+const scrollbalRef = ref<InstanceType<typeof ElScrollbar>>()
 
 const chatType = computed(() => {
   const type = route.query.type as string
@@ -122,10 +123,6 @@ const computedMessages = computed(() => {
       })
     }
     result.push(message)
-  })
-
-  nextTick(() => {
-    scrollToBottom()
   })
 
   return result
@@ -178,7 +175,7 @@ function stopPlayRecord() {
   }
 }
 
-async function resolveMessage(message: MessageType) {
+async function resolveMessage(message: MessageType, messageList: Array<any>) {
   const senderProfile = await useUserStore().getProfileByUserId(message.senderId.toString())
   const newMessage = {
     id: message.id.toString(),
@@ -204,21 +201,22 @@ async function resolveMessage(message: MessageType) {
       break
     }
   }
-  messages.value.push(newMessage)
+  messageList.push(newMessage)
 }
 
 async function freshPrivateView() {
+  const messageList: Array<any> = []
   useMessageStore()
     .getReceivedById(chatId.value!)
     .forEach((item) => {
-      resolveMessage(item)
+      resolveMessage(item, messageList)
     })
 
   if (chatId.value !== useUserStore().uid?.toString()) {
     useMessageStore()
       .getSentById('private', chatId.value!)
       .forEach((item) => {
-        resolveMessage(item)
+        resolveMessage(item, messageList)
       })
   }
 
@@ -227,25 +225,27 @@ async function freshPrivateView() {
     chatTitle.value = profile.nickname
     chatAvatar.value = profile.avatar.src
   }
+  messages.value = messageList
 }
 
 function scrollToBottom() {
   nextTick(() => {
-    const warpRef = scrollbarRef.value!.wrapRef!
-    const viewRef = warpRef.firstChild! as HTMLDivElement
-    const rect = viewRef.getBoundingClientRect()
+    const wrapRef = scrollbalRef.value!.wrapRef!
+    const wrapView = wrapRef.firstElementChild!
 
     nextTick(() => {
-      scrollbarRef.value!.setScrollTop(rect.bottom * 2)
+      const rect = wrapView.getBoundingClientRect()
+      scrollbalRef.value?.setScrollTop(rect.height * 2)
     })
   })
 }
 
 async function freshGroupView() {
+  const messageList: Array<any> = []
   useMessageStore()
     .getGroupById(chatId.value!)
     .forEach((item) => {
-      resolveMessage(item)
+      resolveMessage(item, messageList)
     })
 
   const profile = await useGroupStore().getGroupProfileByGroupId(chatId.value!)
@@ -253,11 +253,11 @@ async function freshGroupView() {
     chatTitle.value = profile.name
     chatAvatar.value = profile.avatar.src
   }
+  messages.value = messageList
 }
 
 async function freshView() {
   console.log(chatType.value, chatId.value)
-  messages.value.length = 0
 
   switch (chatType.value) {
     case 'group': {

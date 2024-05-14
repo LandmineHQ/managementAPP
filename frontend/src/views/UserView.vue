@@ -96,7 +96,7 @@ function clickPolicy() {
           <ElCol>
             <ElCol>
               <ElText size="large">
-                {{ useUserStore().nickname || useUserStore().name || '未登录' }}
+                {{ useUserStore().nickname || useUserStore().name || $t('wei-deng-lu') }}
               </ElText>
             </ElCol>
             <ElCol v-if="useAuthStore().isLogin">
