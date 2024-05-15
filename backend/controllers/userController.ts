@@ -1,7 +1,8 @@
-import Socket from "@models/Socket";
+import bcrypt from "bcrypt";
+
 import User, { USER_PERMISSIONS } from "@models/User";
 import Image from "@models/Image";
-import socketController from "@controllers/socketController";
+import config from "config";
 
 async function getByToken(token: string) {
   const user = await User.findOne({
@@ -17,6 +18,11 @@ async function getByToken(token: string) {
 }
 
 async function register(email: string, password: string, nickname?: string) {
+  if (process.env.NODE_ENV === "production") {
+    // 生产模式密码hash salt
+    const saltRounds = config.get<string>("bcryptConfig.saltRounds");
+    password = bcrypt.hashSync(password, saltRounds);
+  }
   let info = { email, password, permission: USER_PERMISSIONS.USER };
   if (!nickname) Object.defineProperty(info, "nickname", { value: nickname });
   const user = await User.create(info);

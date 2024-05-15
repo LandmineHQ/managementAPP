@@ -21,7 +21,6 @@ function setupSocketEvent(socket: Socket) {
   socket.addListener("disconnect", handleDisconnect);
   socket.addListener("error", handleError);
   socket.addListener("message", handleMessage);
-  socket.addListener("chat", handleChat);
 }
 
 function handleMessage(this: Socket, message: string) {

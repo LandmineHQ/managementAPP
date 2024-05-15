@@ -16,6 +16,10 @@ const config = {
     dialect: process.env.DB_CONFIG_DIALECT || "mysql",
   },
 
+  bcryptConfig: {
+    saltRounds: process.env.BCRYPT_CONFIG || "10",
+  },
+
   jwtConfig: {
     secret: process.env.JWT_CONFIG_SECRET || "secret",
     expiresIn: process.env.JWT_CONFIG_EXPIRES_IN || "72h",

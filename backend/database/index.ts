@@ -11,6 +11,16 @@ const sequelize = new Sequelize(
     host: config.get("dbConfig.host"),
     port: config.get("dbConfig.port"),
     dialect: config.get("dbConfig.dialect"),
+    logging(sql: string, timing: number | undefined) {
+      if (process.env.NODE_ENV === "development") {
+        dblogger.info(`
+time: ${timing}
+${JSON.stringify(sql)}
+`);
+      } else {
+        return false;
+      }
+    },
   }
 );
 

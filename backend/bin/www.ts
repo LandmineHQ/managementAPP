@@ -53,7 +53,7 @@ process.once("SIGINT", (...args) => {
 
 process.on("uncaughtException", (err) => {
   if (process.env.NODE_ENV !== "development") {
-    log.error(err);
+    console.log(err);
   } else {
     log.error(JSON.stringify(err));
   }

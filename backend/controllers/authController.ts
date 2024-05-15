@@ -1,8 +1,10 @@
-import User from "@models/User";
+import { MailOptions } from "nodemailer/lib/json-transport";
 import jwt from "jsonwebtoken";
 import config from "config";
+import bcrypt from "bcrypt";
+
+import User from "@models/User";
 import sendEmail from "@mailer";
-import { MailOptions } from "nodemailer/lib/json-transport";
 import VerificationCode from "@models/VerificationCode";
 
 async function getToken(
@@ -13,11 +15,21 @@ async function getToken(
   const user = await User.findOne({
     where: {
       email,
-      password,
     },
   });
   if (!user) {
     return { error: "用户不存在" };
+  }
+  if (process.env.NODE_ENV === "production") {
+    // 生产模式密码hash比较
+    if (bcrypt.compareSync(user.password, password) === false) {
+      return { error: "密码错误" };
+    }
+  } else {
+    // 开发模式密码比较
+    if (user.password !== password) {
+      return { error: "密码错误" };
+    }
   }
   let token;
   if (freshToken === false) {

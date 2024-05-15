@@ -5,10 +5,34 @@
     :show-close="false"
     class="assigment-dialog"
   >
+    <template #header="{ titleId, titleClass }">
+      <ElRow align="middle" :class="titleClass" :id="titleId" justify="center">
+        <ElText size="large">
+          {{ $t('ren-wu-fen-pei') }}
+        </ElText>
+      </ElRow>
+    </template>
+    <template #default>
+      <ElRow align="middle" justify="space-between">
+        <ElRow>头像</ElRow>
+        <ElRow>
+          <ElInput placeholder="搜索" />
+        </ElRow>
+      </ElRow>
+      <ElScrollbar class="task-view">
+        <ElSpace>
+          <div v-for="(item, index) in task" :key="index">
+            <div class="task-card"></div>
+          </div>
+        </ElSpace>
+      </ElScrollbar>
+    </template>
   </ElDialog>
 </template>
 
 <script setup lang="ts">
+import { ElSpace } from 'element-plus'
+
 type TaskType = {
   id: number
   content: string
@@ -20,6 +44,7 @@ const emit = defineEmits({
     return false
   }
 })
+
 const dialogVisible = defineModel('dialogVisible', {
   type: Boolean,
   default: true
