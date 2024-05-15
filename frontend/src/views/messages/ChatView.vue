@@ -175,7 +175,7 @@ function stopPlayRecord() {
   }
 }
 
-async function resolveMessage(message: MessageType, messageList: Array<any>) {
+async function resolveMessage(message: MessageType, messageList: Ref) {
   const senderProfile = await useUserStore().getProfileByUserId(message.senderId.toString())
   const newMessage = {
     id: message.id.toString(),
@@ -201,11 +201,12 @@ async function resolveMessage(message: MessageType, messageList: Array<any>) {
       break
     }
   }
-  messageList.push(newMessage)
+  messageList.value.push(newMessage)
+  scrollToBottom()
 }
 
 async function freshPrivateView() {
-  const messageList: Array<any> = []
+  const messageList = ref([])
   useMessageStore()
     .getReceivedById(chatId.value!)
     .forEach((item) => {
@@ -225,7 +226,7 @@ async function freshPrivateView() {
     chatTitle.value = profile.nickname
     chatAvatar.value = profile.avatar.src
   }
-  messages.value = messageList
+  messages.value = messageList.value
 }
 
 function scrollToBottom() {
@@ -241,7 +242,7 @@ function scrollToBottom() {
 }
 
 async function freshGroupView() {
-  const messageList: Array<any> = []
+  const messageList = ref([])
   useMessageStore()
     .getGroupById(chatId.value!)
     .forEach((item) => {
@@ -253,7 +254,7 @@ async function freshGroupView() {
     chatTitle.value = profile.name
     chatAvatar.value = profile.avatar.src
   }
-  messages.value = messageList
+  messages.value = messageList.value
 }
 
 async function freshView() {

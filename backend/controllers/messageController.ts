@@ -109,6 +109,9 @@ async function messagesSetReadByToken(token: string, senderId: string) {
       as: "receivedMessages",
       where: {
         senderId,
+        isRead: {
+          [Op.not]: true,
+        },
       },
     },
   });

@@ -187,15 +187,16 @@ async function getGroupData(showLoading = true) {
 
 async function freshData(showLoading = true) {
   isLoading.value = true
-  setTimeout(() => {
-    isLoading.value = false
-  }, 300)
 
   /* 获取消息 */
   const promiseList = []
   promiseList.push(getPrivateData(showLoading))
   promiseList.push(getGroupData(showLoading))
   await Promise.all(promiseList)
+
+  setTimeout(() => {
+    isLoading.value = false
+  }, 1000)
 }
 
 watch(

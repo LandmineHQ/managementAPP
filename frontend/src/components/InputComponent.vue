@@ -115,8 +115,16 @@ import type { PropType } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const chatTypeIsGroup = computed(() => route.params.type === 'group')
-const chatIdIsSelft = computed(() => route.params.id === useUserStore().uid?.toString())
+
+const chatTypeIsGroup = computed(() => route.query.type === 'group')
+const chatIdIsSelft = computed(() => {
+  const id = route.query.id
+  if (!id) return false
+  if (id === useUserStore().uid?.toString()) {
+    return true
+  }
+  return false
+})
 
 const emit = defineEmits({
   submit: (obj: { type: 'record' | 'image' | 'text'; content: string }) => {
