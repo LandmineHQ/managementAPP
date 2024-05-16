@@ -104,13 +104,21 @@ async function getPublic(id: string) {
   return publicProfile;
 }
 
+async function getAllUsers() {
+  const data = await User.findAll();
+  return data;
+}
+
 export default {
   getByToken,
+  getPublic,
+  getAllUsers,
+
   register,
+
   updateAvatar,
   updateNickname,
   updatePhone,
   updatePassword,
   updatePasswordByEmail,
-  getPublic,
 };

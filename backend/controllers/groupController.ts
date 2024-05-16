@@ -56,6 +56,10 @@ async function getProfileByGroupId(id: string) {
         model: Image,
         as: "avatar",
       },
+      {
+        model: User,
+        as: "users",
+      },
     ],
   });
   if (!group) throw new Error("group not found");

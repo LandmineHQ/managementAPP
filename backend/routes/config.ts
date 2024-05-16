@@ -9,6 +9,7 @@ enum ROUTER_NAME {
   IMAGE = "image",
   GROUP = "group",
   MESSAGE = "message",
+  DATA = "data",
 }
 
 const ROUTER_TOKENLESS = [

@@ -20,8 +20,14 @@ async function getUserAvatarById(id: string) {
   return avatar;
 }
 
+async function getAllImages() {
+  const data = await Image.findAll();
+  return data;
+}
+
 export default {
   getImageById,
+  getAllImages,
   getImagesCounts,
   getUserAvatarById,
 };

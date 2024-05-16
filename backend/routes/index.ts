@@ -1,16 +1,20 @@
 import express from "express";
 import { ROUTER_NAME } from "./config";
+import dayjs from "dayjs";
+
 import packageJson from "@package.json";
+import RouterSendMessage from "@utils/routerSendMessage";
+
 import createUserRouter from "./users";
 import createAuthRouter from "./auth";
 import debugRouter from "./debug";
 import createTrainingRouter from "./training";
 import createMonitorRouter from "./monitor";
-import RouterSendMessage from "@utils/routerSendMessage";
 import createPolicyRouter from "./policy";
 import createImageRouter from "./image";
 import createGroupRouter from "./group";
 import createMessageRouter from "./message";
+import createDataRouter from "./data";
 
 function createRouter() {
   const router = express.Router();
@@ -20,6 +24,7 @@ function createRouter() {
     RouterSendMessage.sendData(res, {
       isManagement: true,
       version: packageJson.version,
+      date: dayjs().toDate().toString(),
     });
   });
 
@@ -31,6 +36,7 @@ function createRouter() {
   router.use(`/${ROUTER_NAME.IMAGE}`, createImageRouter());
   router.use(`/${ROUTER_NAME.GROUP}`, createGroupRouter());
   router.use(`/${ROUTER_NAME.MESSAGE}`, createMessageRouter());
+  router.use(`/${ROUTER_NAME.DATA}`, createDataRouter());
 
   if (process.env.NODE_ENV === "development") {
     router.use(`/${ROUTER_NAME.DEBUG}`, debugRouter());

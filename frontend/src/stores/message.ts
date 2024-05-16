@@ -103,7 +103,12 @@ const useMessageStore = defineStore('message', () => {
       })
   }
 
-  async function sendMessage(msg: Message) {
+  async function sendMessage(msg: {
+    type: string
+    content: any
+    receiverGroupId?: number | string
+    receiverId?: number | string
+  }) {
     const data = (await axios
       .post(`${DAEMON_HOST}/${ROUTER_NAME.MESSAGE}`, msg, {})
       .then((res) => res.data)) as Message

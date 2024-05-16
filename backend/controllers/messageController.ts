@@ -56,6 +56,7 @@ async function sendMessage(
     }
     case "text":
     case "record":
+    case "task":
       // @ts-expect-error
       message = await user.createSentMessage(data);
       break;
@@ -124,12 +125,19 @@ async function messagesSetReadByToken(token: string, senderId: string) {
   });
 }
 
+async function getAllMessages() {
+  const data = await Message.findAll();
+  return data;
+}
+
 export default {
   getMessagesByToken,
   getGroupsMessagesByToken,
 
   sendMessage,
   getByGroupId,
+
+  getAllMessages,
 
   messagesSetReadByToken,
 };

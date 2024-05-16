@@ -71,6 +71,23 @@ async function freshPolicy() {
   await policyPromise
 }
 
+function resolveSessionContent(newSession: any, latestMessage: any) {
+  switch (latestMessage.type) {
+    case 'image':
+      newSession.content = `[${t('tu-pian')}]`
+      break
+    case 'record':
+      newSession.content = `[${t('lu-yin')}]`
+      break
+    case 'task':
+      newSession.content = `[${t('ren-wu')}]`
+      break
+    default:
+      newSession.content = latestMessage.content as string
+      break
+  }
+}
+
 async function freshPrivateView() {
   const sessionList: Array<any> = []
   /* 增加私聊sessions */
@@ -92,17 +109,7 @@ async function freshPrivateView() {
       avatar: undefined
     }
 
-    switch (latestMessage.type) {
-      case 'image':
-        newSession.content = `[${t('tu-pian')}]`
-        break
-      case 'record':
-        newSession.content = `[${t('lu-yin')}]`
-        break
-      default:
-        newSession.content = latestMessage.content as string
-        break
-    }
+    resolveSessionContent(newSession, latestMessage)
 
     // 得到发送人头像
     await useUserStore()
@@ -147,17 +154,7 @@ async function freshGroupView() {
       avatar: undefined
     } as (typeof groupSessionList.value)[0]
 
-    switch (latestMessage.type) {
-      case 'image':
-        newSession.content = `[${t('tu-pian')}]`
-        break
-      case 'record':
-        newSession.content = `[${t('lu-yin')}]`
-        break
-      default:
-        newSession.content = latestMessage.content as string
-        break
-    }
+    resolveSessionContent(newSession, latestMessage)
 
     /* 得到群组与最新消息发送人的profile */
     const groupProfile = await useGroupStore().getGroupProfileByGroupId(group.id)
@@ -180,7 +177,7 @@ async function getPrivateData(showLoading = true) {
 
 async function getGroupData(showLoading = true) {
   const promiseList = []
-  promiseList.push(useGroupStore().getGroups(showLoading))
+  promiseList.push(useGroupStore().getAllGroups(showLoading))
   promiseList.push(useMessageStore().getGroups(showLoading))
   await Promise.all(promiseList)
 }

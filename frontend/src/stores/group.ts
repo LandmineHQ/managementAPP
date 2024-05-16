@@ -5,18 +5,23 @@ import { defineStore } from 'pinia'
 
 const useGroupStore = defineStore('group', () => {
   const groups = ref<Array<any>>([])
+  const groupMap = ref(new Map<string, any>())
   const profiles = ref(new Map<string, any>())
 
-  async function getGroups(showLoading = true) {
-    const data = await axios
+  async function getAllGroups(showLoading = true) {
+    const data = (await axios
       .get(`${DAEMON_HOST}/${ROUTER_NAME.GROUP}`, {
         // @ts-expect-error
         showLoading: showLoading
       })
-      .then((res) => res.data)
+      .then((res) => res.data)) as Array<any>
 
     groups.value = data
     return data
+  }
+
+  async function getGroupById(id: string) {
+    return groupMap.value.get(id)
   }
 
   async function getGroupProfileByGroupId(id: string) {
@@ -40,8 +45,10 @@ const useGroupStore = defineStore('group', () => {
     profiles,
 
     /* methods */
-    getGroups,
-    getGroupProfileByGroupId
+    getAllGroups,
+    getGroupProfileByGroupId,
+
+    getGroupById
   }
 })
 

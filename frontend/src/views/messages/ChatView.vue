@@ -3,8 +3,38 @@
   <ElScrollbar class="chat-view" noresize ref="scrollbalRef">
     <ElSpace direction="vertical" alignment="stretch" size="small" class="chat-view-messages">
       <div v-for="item in computedMessages" :key="item.type + item.id">
+        <ElDivider v-if="item.type === 'divider'" content-position="center">
+          <ElText type="info" size="default">
+            {{ dayjs(item.date).format('YYYY年MM月DD日') }}
+          </ElText>
+        </ElDivider>
+        <div v-else-if="item.type === 'task'" class="task-view" @click="viewTask(item.id)">
+          <TaskPreview v-model:dialog-visible="item.isActive" v-model:task="item.content" />
+
+          <div class="header">
+            <ElRow>
+              <ElIcon :size="40" color="#337ECC">
+                <EpPostcard />
+              </ElIcon>
+              <ElText>{{ $t('ren-wu-fen-pei') }}</ElText>
+            </ElRow>
+          </div>
+
+          <ElScrollbar>
+            <div class="main">
+              <div v-for="user in item.content" :key="user.id" class="task-thumb-avatar">
+                <ElAvatar :src="user.profile ? user.profile.avatar.src : undefined" :size="42">
+                  <ElIcon :size="24">
+                    <EpUser />
+                  </ElIcon>
+                </ElAvatar>
+                <ElText v-if="user.profile">{{ user.profile.nickname }}</ElText>
+              </div>
+            </div>
+          </ElScrollbar>
+        </div>
         <div
-          v-if="item.type !== 'divider'"
+          v-else
           class="chat-view-message-item"
           :class="{
             reverse: item.isReverse
@@ -50,11 +80,6 @@
             </ElText>
           </div>
         </div>
-        <ElDivider v-else content-position="center">
-          <ElText type="info" size="default">
-            {{ dayjs(item.date).format('YYYY年MM月DD日') }}
-          </ElText>
-        </ElDivider>
       </div>
     </ElSpace>
   </ElScrollbar>
@@ -105,6 +130,7 @@ const messages = ref<
     avatar: string
     date: string
     isReverse: boolean
+    isActive: boolean
   }>
 >([])
 const computedMessages = computed(() => {
@@ -140,6 +166,17 @@ const sendMessage: InstanceType<typeof InputComponent>['onSubmit'] = async (inpu
   console.log('sendMsg', data)
   if (chatId.value === useUserStore().uid?.toString()) {
     useMessageStore().getReceivedById(chatId.value!).push(data)
+  }
+}
+
+function viewTask(id: number | string) {
+  if (typeof id === 'number') id = id.toString()
+
+  for (let item of messages.value) {
+    if (item.type === 'task' && item.id === id) {
+      item.isActive = true
+      break
+    }
   }
 }
 
@@ -180,10 +217,11 @@ async function resolveMessage(message: MessageType, messageList: Ref) {
   const newMessage = {
     id: message.id.toString(),
     type: message.type,
-    content: '',
+    content: '' as any,
     avatar: senderProfile.avatar.src,
     date: message.createdAt,
-    isReverse: message.senderId.toString() === useUserStore().uid!.toString()
+    isReverse: message.senderId.toString() === useUserStore().uid!.toString(),
+    isActive: false
   }
 
   switch (message.type) {
@@ -193,6 +231,15 @@ async function resolveMessage(message: MessageType, messageList: Ref) {
       break
     }
     case 'task': {
+      const task = message.content as unknown as Array<any>
+      newMessage.content = await Promise.all(
+        task.map(async (item) => {
+          if (item.id > 0) {
+            item.profile = await useUserStore().getProfileByUserId(item.id.toString())
+          }
+          return item
+        })
+      )
       break
     }
     case 'text':
@@ -416,6 +463,53 @@ onMounted(() => {
       .date {
         padding-left: 16px;
         align-self: flex-start;
+      }
+    }
+
+    .task-view {
+      display: flex;
+      padding: 16px 0px;
+      flex-direction: column;
+
+      border-radius: 12px;
+      background: var(--Color-Background-bg-color, #fff);
+      box-shadow: 1px 1px 4px 0px rgba(0, 0, 0, 0.25);
+
+      .header {
+        display: flex;
+        padding: 8px var(--Size-common-component-size-default, 32px);
+        align-items: center;
+        gap: 8px;
+        align-self: stretch;
+
+        .el-text {
+          color: #000;
+          font-family: 'Microsoft YaHei';
+          font-size: 16px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: 20px; /* 125% */
+          letter-spacing: -0.01px;
+        }
+      }
+
+      .main {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        padding: 16px var(--Size-common-component-size-default, 32px);
+        align-items: flex-start;
+        align-content: flex-start;
+        gap: 8px;
+        align-self: stretch;
+        flex-wrap: wrap;
+
+        .task-thumb-avatar {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: var(--Radius-border-radius-base, 4px);
+        }
       }
     }
   }

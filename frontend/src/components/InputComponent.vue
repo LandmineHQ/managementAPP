@@ -33,9 +33,17 @@
       <ElIcon v-if="!chatIdIsSelft" :size="22">
         <EpPhone />
       </ElIcon>
-      <ElIcon v-if="chatTypeIsGroup" :size="22" @click="featureStates.task = true">
+      <ElIcon
+        v-if="chatTypeIsGroup"
+        :size="22"
+        @click="
+          $router.push({
+            name: ROUTER_NAME.MESSAGES_CHAT_TASK,
+            query: $route.query
+          })
+        "
+      >
         <EpFinished />
-        <AssignmentComponent v-model:dialog-visible="featureStates.task" />
       </ElIcon>
     </div>
     <div class="feature-view">
@@ -101,6 +109,7 @@
 </template>
 
 <script setup lang="ts">
+import { ROUTER_NAME } from '@/router'
 import useUserStore from '@/stores/user'
 import {
   ElImage,

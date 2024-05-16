@@ -6,11 +6,13 @@ enum ROUTER_NAME {
   MANAGEMENT = 'management',
 
   DATA = 'data',
+  DATA_DETAILS = 'data/details',
 
   MESSAGES = 'messages',
   MESSAGES_POLICY = 'messages/policy',
   MESSAGES_POLICY_DETAIL = 'messages/policy/detail',
   MESSAGES_CHAT = 'messages/chat',
+  MESSAGES_CHAT_TASK = 'messages/chat/task',
 
   USER = 'user',
   USER_LOGIN = 'user/login',
@@ -29,7 +31,11 @@ enum ROUTER_NAME {
 
 // 不使用Tab的路由
 const ROUTER_TAB_FREE = [
+  ROUTER_NAME.DATA_DETAILS,
+
   ROUTER_NAME.MESSAGES_POLICY_DETAIL,
+  ROUTER_NAME.MESSAGES_CHAT_TASK,
+
   ROUTER_NAME.USER_HELP,
   ROUTER_NAME.USER_PROFILE,
   ROUTER_NAME.USER_PROFILE_EDIT,
@@ -52,6 +58,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      name: ROUTER_NAME.ROOT,
       redirect: ROUTER_NAME.MANAGEMENT
     },
 
@@ -67,6 +74,11 @@ const router = createRouter({
       path: `/${ROUTER_NAME.DATA}`,
       name: ROUTER_NAME.DATA,
       component: () => import('@/views/DataView.vue')
+    },
+    {
+      path: `/${ROUTER_NAME.DATA_DETAILS}`,
+      name: ROUTER_NAME.DATA_DETAILS,
+      component: () => import('@/views/data/DataDetailsView.vue')
     },
 
     /* messages */
@@ -84,6 +96,16 @@ const router = createRouter({
       path: `/${ROUTER_NAME.MESSAGES_POLICY_DETAIL}`,
       name: ROUTER_NAME.MESSAGES_POLICY_DETAIL,
       component: () => import('@/views/messages/PolicyDetailView.vue')
+    },
+    {
+      path: `/${ROUTER_NAME.MESSAGES_CHAT}`,
+      name: ROUTER_NAME.MESSAGES_CHAT,
+      component: () => import('@/views/messages/ChatView.vue')
+    },
+    {
+      path: `/${ROUTER_NAME.MESSAGES_CHAT_TASK}`,
+      name: ROUTER_NAME.MESSAGES_CHAT_TASK,
+      component: () => import('@/views/messages/ChatTaskView.vue')
     },
 
     /* user */
@@ -148,11 +170,6 @@ const router = createRouter({
       path: `/${ROUTER_NAME.DEBUG_IMAGES}`,
       name: ROUTER_NAME.DEBUG_IMAGES,
       component: () => import('@/views/debug/ImagesView.vue')
-    },
-    {
-      path: `/${ROUTER_NAME.MESSAGES_CHAT}`,
-      name: ROUTER_NAME.MESSAGES_CHAT,
-      component: () => import('@/views/messages/ChatView.vue')
     }
   ]
 })
