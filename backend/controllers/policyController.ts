@@ -1,4 +1,5 @@
 import Policy from "@models/Policy";
+import socketController from "./socketController";
 
 async function getAllPolicies() {
   return await Policy.findAll();
@@ -43,9 +44,19 @@ async function getAllPoliciesWithLimit(limit: number = 10, offset: number = 0) {
   });
 }
 
+async function createPolicy(data: any) {
+  if (data.content) {
+    const policy = await Policy.create({ data });
+    socketController.pushGlobalPolicy(policy);
+    return policy;
+  }
+}
+
 export default {
   getAllPolicies,
   getAllPoliciesWithLimit,
   getLatestPolicy,
   getPolicyById,
+
+  createPolicy,
 };

@@ -9,6 +9,7 @@ const useSocketStore = defineStore('socket', () => {
   async function estublish() {
     const useAuthStore = (await import('./auth')).default
     const useMessageStore = (await import('./message')).default
+    const usePolicyStore = (await import('./policy')).default
 
     if (socket.value) {
       socket.value.disconnect()
@@ -37,6 +38,10 @@ const useSocketStore = defineStore('socket', () => {
       } else {
         useMessageStore().getGroupById(receiverGroupId).push(data)
       }
+    })
+
+    socket.value.on('policy', (data) => {
+      console.log('policy:', data)
     })
   }
 

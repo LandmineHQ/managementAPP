@@ -6,8 +6,17 @@ function createPolicyRouter() {
   const router = express.Router();
 
   router.get("/", getHanlder);
+  router.post("/", postHanlder);
 
   return router;
+}
+
+async function postHanlder(req: Request, res: Response, next: NextFunction) {
+  const data = req.body;
+  if (!data) return RouterSendMessage.error(res, "data is required");
+  const policy = await policyController.createPolicy(data);
+  if (!policy) return RouterSendMessage.error(res, "创建失败");
+  return RouterSendMessage.sendData(res, policy);
 }
 
 async function getHanlder(req: Request, res: Response, next: NextFunction) {

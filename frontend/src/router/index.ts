@@ -4,6 +4,7 @@ enum ROUTER_NAME {
   ROOT = '',
 
   MANAGEMENT = 'management',
+  MANAGEMENT_LAW_ADD = 'management/law/add',
 
   DATA = 'data',
   DATA_DETAILS = 'data/details',
@@ -31,6 +32,8 @@ enum ROUTER_NAME {
 
 // 不使用Tab的路由
 const ROUTER_TAB_FREE = [
+  ROUTER_NAME.MANAGEMENT_LAW_ADD,
+
   ROUTER_NAME.DATA_DETAILS,
 
   ROUTER_NAME.MESSAGES_POLICY_DETAIL,
@@ -67,6 +70,11 @@ const router = createRouter({
       path: `/${ROUTER_NAME.MANAGEMENT}`,
       name: ROUTER_NAME.MANAGEMENT,
       component: () => import('@/views/ManagementView.vue')
+    },
+    {
+      path: `/${ROUTER_NAME.MANAGEMENT_LAW_ADD}`,
+      name: ROUTER_NAME.MANAGEMENT_LAW_ADD,
+      component: () => import('@/views/management/LawAddView.vue')
     },
 
     /* data */

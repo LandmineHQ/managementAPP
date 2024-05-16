@@ -63,6 +63,11 @@ const usePolicyStore = defineStore('policy', () => {
     return policy
   }
 
+  async function pushPolicy(data: any) {
+    const policy = await axios.post(`${DAEMON_HOST}/${ROUTER_NAME.POLICY}`, data)
+    return policy
+  }
+
   return {
     /* state */
     latestPolicy,
@@ -70,7 +75,9 @@ const usePolicyStore = defineStore('policy', () => {
     /* methods */
     getAllPolicies,
     getLatestPolicy,
-    getPolicyById
+    getPolicyById,
+
+    pushPolicy
   }
 })
 

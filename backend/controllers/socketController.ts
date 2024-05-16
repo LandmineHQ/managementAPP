@@ -1,12 +1,11 @@
-import ModelUser from "@models/User";
-import ModelSocket from "@models/Socket";
-
 import { io } from "@sockets/socket";
 import { userSocketsMap } from "@sockets/socket";
 import { Socket } from "socket.io";
 import ModelMessage from "@models/Message";
 import ModelGroup from "@models/Group";
 import ModelUser from "@models/User";
+import ModelSocket from "@models/Socket";
+import ModelPolicy from "@models/Policy";
 
 function getUserSocketBySocketId(socketId: string): Socket | null {
   return userSocketsMap.get(socketId);
@@ -133,8 +132,13 @@ async function pushMessage(message: any) {
   }
 }
 
+function pushGlobalPolicy(policy: ModelPolicy) {
+  io.emit("policy", policy);
+}
+
 export default {
   pushGlobalNotice,
+  pushGlobalPolicy,
   pushMessage,
 
   updateSocketIdByUser,
