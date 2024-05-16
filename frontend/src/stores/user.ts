@@ -4,6 +4,7 @@ import axios from 'axios'
 import { DAEMON_HOST } from '@/api'
 import { ROUTER_NAME } from '#/routes/config'
 import { ElMessage } from 'element-plus'
+import { USER_PERMISSIONS } from '#/permissions/userPermission'
 
 const useUserStore = defineStore('user', () => {
   const name = ref<string>()
@@ -15,11 +16,22 @@ const useUserStore = defineStore('user', () => {
   const preference = ref<string>()
   const operationRecord = ref<string>()
   const identityBinding = ref<number>()
-  const permission = ref<string>()
+  const permission = ref<number>()
   const phone = ref<string>()
   const password = ref<string>('***')
 
   const profiles = ref(new Map<string, any>())
+
+  const permissionIsOperation = computed(() => {
+    if (!permission.value) return false
+    if ((permission.value & USER_PERMISSIONS.OPREATION) !== USER_PERMISSIONS.OPREATION) return false
+    return true
+  })
+  const permissionIsLaw = computed(() => {
+    if (!permission.value) return false
+    if ((permission.value & USER_PERMISSIONS.LAW) === USER_PERMISSIONS.LAW) return true
+    return false
+  })
 
   async function updateUser(user?: any) {
     if (!user) {
@@ -112,6 +124,10 @@ const useUserStore = defineStore('user', () => {
     password,
 
     profiles,
+
+    /* getter */
+    permissionIsLaw,
+    permissionIsOperation,
 
     /* methods */
     getUserStore: updateUser,

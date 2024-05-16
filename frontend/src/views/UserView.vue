@@ -135,7 +135,10 @@ function clickPolicy() {
             </ElRow>
           </ElCol>
         </ElRow>
-        <ElRow v-if="useAuthStore().isLogin" @click="clickSecurity">
+        <ElRow
+          v-if="useAuthStore().isLogin && useUserStore().permissionIsOperation"
+          @click="clickSecurity"
+        >
           <ElCol>
             <ElRow justify="center">
               <ElBadge value="1" type="danger">
@@ -188,7 +191,7 @@ function clickPolicy() {
       <ElRow
         justify="space-between"
         align="middle"
-        v-if="useAuthStore().isLogin"
+        v-if="useAuthStore().isLogin && useUserStore().permissionIsOperation"
         @click="clickSecurity"
       >
         <ElText size="large">{{ $t('an-quan-zhong-xin') }}</ElText>

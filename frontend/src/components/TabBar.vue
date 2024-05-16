@@ -3,6 +3,8 @@ import type { PropType } from 'vue'
 import TabBarItem from '@/components/TabBarItem.vue'
 import type { ExtractPropTypes } from 'vue'
 import { ROUTER_NAME } from '@/router'
+import useUserStore from '@/stores/user'
+import { USER_PERMISSIONS } from '#/permissions/userPermission'
 
 const props = defineProps({
   selected: {
@@ -27,12 +29,24 @@ const emit = defineEmits({
   'update:selected': (value: ROUTER_NAME) => value
 })
 
-const tablist: ROUTER_NAME[] = [
+const rawTabList: ROUTER_NAME[] = [
   ROUTER_NAME.MANAGEMENT,
   ROUTER_NAME.DATA,
   ROUTER_NAME.MESSAGES,
   ROUTER_NAME.USER
 ]
+const computedTabList = computed(() => {
+  const userPermissions = useUserStore().permission
+  if (!userPermissions) return rawTabList
+  const removeList: ROUTER_NAME[] = []
+  if ((userPermissions & USER_PERMISSIONS.OPREATION) !== USER_PERMISSIONS.OPREATION) {
+    removeList.push(ROUTER_NAME.DATA)
+  }
+  if ((userPermissions & USER_PERMISSIONS.LAW) !== USER_PERMISSIONS.LAW) {
+    removeList.push(ROUTER_NAME.MANAGEMENT)
+  }
+  return rawTabList.filter((item) => !removeList.includes(item))
+})
 
 function handleSelect(selected: ROUTER_NAME) {
   emit('update:selected', selected)
@@ -53,11 +67,11 @@ export type TabBarProps = ExtractPropTypes<{
     }"
   >
     <TabBarItem
-      v-for="(item, index) in tablist"
+      v-for="(item, index) in computedTabList"
       :key="item"
-      :icon-name="tablist[index]"
+      :icon-name="computedTabList[index]"
       :selected
-      @click="handleSelect(tablist[index])"
+      @click="handleSelect(computedTabList[index])"
     />
   </div>
 </template>

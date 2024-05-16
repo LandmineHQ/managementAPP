@@ -1,8 +1,9 @@
 import bcrypt from "bcrypt";
-
-import User, { USER_PERMISSIONS } from "@models/User";
-import Image from "@models/Image";
 import config from "config";
+
+import User from "@models/User";
+import Image from "@models/Image";
+import { USER_PERMISSIONS } from "@permissions/userPermission";
 
 async function getByToken(token: string) {
   const user = await User.findOne({

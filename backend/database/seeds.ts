@@ -1,11 +1,14 @@
+import { Op } from "sequelize";
+
+import { USER_PERMISSIONS } from "@permissions/userPermission";
+
 import Person from "@models/Person";
 import Training from "@models/Training";
-import User, { USER_PERMISSIONS } from "@models/User";
+import User from "@models/User";
 import images from "./images";
 import Policy from "@models/Policy";
 import Image from "@models/Image";
 import Group from "@models/Group";
-import { Op } from "sequelize";
 import Message from "@models/Message";
 
 async function createUsers() {
