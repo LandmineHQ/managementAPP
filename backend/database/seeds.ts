@@ -15,7 +15,7 @@ async function createUsers() {
   await User.bulkCreate([
     {
       id: 1,
-      nickname: "天王盖地虎",
+      nickname: "用户1",
       email: "11",
       password: "11",
       identity_binding: 2,
@@ -24,7 +24,7 @@ async function createUsers() {
     },
     {
       id: 2,
-      nickname: "小鸡炖蘑菇",
+      nickname: "用户2",
       email: "22@ac",
       password: "22",
       identity_binding: 3,
@@ -33,7 +33,7 @@ async function createUsers() {
     },
     {
       id: 3,
-      nickname: "宝塔镇河妖",
+      nickname: "用户3",
       email: "33bg@gmail.com",
       password: "33bg",
       identity_binding: 4,
